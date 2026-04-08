@@ -1,0 +1,5 @@
+﻿.vs/
+packages/
+**/bin/
+**/obj/
+status/
