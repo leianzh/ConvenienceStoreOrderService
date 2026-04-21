@@ -16,6 +16,7 @@ namespace ConvenienceStoreOrderService
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            UnityConfig.RegisterComponents();//專案啟動，把DI規則載入
         }
     }
 }

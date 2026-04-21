@@ -1,0 +1,14 @@
+﻿
+@model List<ConvenienceStoreOrderService.Models.ViewModels.ProductViewModel>
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>這是商品列表</h2>
+
+<ul>
+    @foreach (var item in Model)
+    {
+        <p>@item.ProductName - @item.Price</p>
+    }
+</ul>
