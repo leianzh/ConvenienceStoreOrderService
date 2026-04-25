@@ -14,7 +14,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             {
             }
 
-            public DbSet<ProductEFModel> Products { get; set; }
+            public DbSet<Product> Products { get; set; }
         
     }
 }
