@@ -1,4 +1,5 @@
-﻿using ConvenienceStoreOrderService.Services;
+﻿using ConvenienceStoreOrderService.Models.EFModels;
+using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,18 @@ namespace ConvenienceStoreOrderService.Controllers
             _productService = productService;
         }
         // GET: Products
-        public ActionResult List()
+        //public ActionResult List()
+        //{
+        //    var products = _productService.GetProducts();
+        //    return View(products);
+        //}
+        public ActionResult TestDb()
         {
-            var products = _productService.GetProducts();
-            return View(products);
+            using (var db = new AppDbContext())
+            {
+                var count = db.Products.Count();
+                return Content("資料庫連線成功，Products 筆數：" + count);
+            }
         }
 
     }
