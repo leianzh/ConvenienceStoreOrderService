@@ -5,6 +5,7 @@ using ConvenienceStoreOrderService.Repositories;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService
 {
@@ -20,6 +21,7 @@ namespace ConvenienceStoreOrderService
             // e.g. container.RegisterType<ITestService, TestService>();
             container.RegisterType<IProductService, ProductService>();//DIµù¥U
             container.RegisterType<IProductRepository, ProductRepository>();//DIµù¥U
+            container.RegisterType<AppDbContext>();//DIµù¥U
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }

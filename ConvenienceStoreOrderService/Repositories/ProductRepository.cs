@@ -11,11 +11,15 @@ namespace ConvenienceStoreOrderService.Repositories
 {
     public class ProductRepository : IProductRepository
     {
+        private readonly AppDbContext _db;
+
+        public ProductRepository(AppDbContext db)
+        {
+            _db = db;
+        }
         public List<ProductViewModel> GetProducts()
         {
-            using(var db= new AppDbContext())
-            {
-                return db.Products
+                return _db.Products
                 .Select(p => new ProductViewModel
                 {
                     ProductId = p.ProductId,
@@ -23,7 +27,7 @@ namespace ConvenienceStoreOrderService.Repositories
                     Price = p.Price
                 })
                 .ToList();
-            }
+            
         }
     }
 }
