@@ -153,6 +153,10 @@
     <Compile Include="Migrations\202604281502573_AddDescriptionToProduct.designer.cs">
       <DependentUpon>202604281502573_AddDescriptionToProduct.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202604281551166_AlertPDescription.cs" />
+    <Compile Include="Migrations\202604281551166_AlertPDescription.designer.cs">
+      <DependentUpon>202604281551166_AlertPDescription.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
@@ -254,6 +258,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202604281502573_AddDescriptionToProduct.resx">
       <DependentUpon>202604281502573_AddDescriptionToProduct.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202604281551166_AlertPDescription.resx">
+      <DependentUpon>202604281551166_AlertPDescription.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
