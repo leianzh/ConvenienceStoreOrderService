@@ -149,6 +149,10 @@
     <Compile Include="Migrations\202604281202498_InitialCreate.designer.cs">
       <DependentUpon>202604281202498_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202604281502573_AddDescriptionToProduct.cs" />
+    <Compile Include="Migrations\202604281502573_AddDescriptionToProduct.designer.cs">
+      <DependentUpon>202604281502573_AddDescriptionToProduct.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
@@ -247,6 +251,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202604281202498_InitialCreate.resx">
       <DependentUpon>202604281202498_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202604281502573_AddDescriptionToProduct.resx">
+      <DependentUpon>202604281502573_AddDescriptionToProduct.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
