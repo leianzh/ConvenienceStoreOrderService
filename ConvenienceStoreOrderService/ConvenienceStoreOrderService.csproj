@@ -149,8 +149,14 @@
     <Compile Include="Migrations\202604291156368_InitialBaseline.designer.cs">
       <DependentUpon>202604291156368_InitialBaseline.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202604291256503_AddStatusTables.cs" />
+    <Compile Include="Migrations\202604291256503_AddStatusTables.designer.cs">
+      <DependentUpon>202604291256503_AddStatusTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
+    <Compile Include="Models\EFModels\OrderStatus.cs" />
+    <Compile Include="Models\EFModels\PaymentStatus.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\ViewModels\ProductViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -247,6 +253,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202604291156368_InitialBaseline.resx">
       <DependentUpon>202604291156368_InitialBaseline.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202604291256503_AddStatusTables.resx">
+      <DependentUpon>202604291256503_AddStatusTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
