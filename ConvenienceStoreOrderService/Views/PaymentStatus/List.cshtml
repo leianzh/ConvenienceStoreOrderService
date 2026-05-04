@@ -1,0 +1,13 @@
+﻿@model ConvenienceStoreOrderService.Models.ViewModels.OrderCriteria
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List</h2>
+<select name="SelectedPaymentStatusCode ">
+    <option value="">請選擇</option>
+    @foreach (var item in Model.PaymentStatusOptions)
+    {
+        <option value="@item.PaymentStatusCode">@item.PaymentStatusName</option>
+    }
+</select>

@@ -159,6 +159,7 @@
     <Compile Include="Models\EFModels\OrderStatus.cs" />
     <Compile Include="Models\EFModels\PaymentStatus.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
+    <Compile Include="Models\ViewModels\OrderCriteria.cs" />
     <Compile Include="Models\ViewModels\PaymentStatusViewModel.cs" />
     <Compile Include="Models\ViewModels\ProductViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -224,6 +225,7 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Products\List.cshtml" />
+    <Content Include="Views\PaymentStatus\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

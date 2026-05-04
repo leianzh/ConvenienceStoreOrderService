@@ -1,4 +1,5 @@
-﻿using ConvenienceStoreOrderService.Services;
+﻿using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,18 @@ namespace ConvenienceStoreOrderService.Controllers
         {
             _paymentStatusService = paymentStatusService;
         }
-        public JsonResult GetPaymentStatusOptions()
+        //public JsonResult GetPaymentStatusOptions()
+        //{
+        //    var result = _paymentStatusService.GetPaymentStatusOptions();
+        //    return Json(result, JsonRequestBehavior.AllowGet);
+        //}
+        public ActionResult List()
         {
-            var result = _paymentStatusService.GetPaymentStatusOptions();
-            return Json(result, JsonRequestBehavior.AllowGet);
+            var criteria = new OrderCriteria();
+
+            criteria.PaymentStatusOptions = _paymentStatusService.GetPaymentStatusOptions();
+
+            return View(criteria);
         }
     }
 }
