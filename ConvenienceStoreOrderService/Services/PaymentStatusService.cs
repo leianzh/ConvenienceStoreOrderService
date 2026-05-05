@@ -20,8 +20,14 @@ namespace ConvenienceStoreOrderService.Services
 
     public List<PaymentStatusViewModel> GetPaymentStatusOptions()
     {
-        return _paymentStatusRepository.GetPaymentStatusOptions();
-    }
+            var dtoList = _paymentStatusRepository.GetPaymentStatusOptions();
+
+            return dtoList.Select(x => new PaymentStatusViewModel
+            {
+                PaymentStatusCode = x.PaymentStatusCode,
+                PaymentStatusName = x.PaymentStatusName
+            }).ToList();
+        }
 
 }
 }

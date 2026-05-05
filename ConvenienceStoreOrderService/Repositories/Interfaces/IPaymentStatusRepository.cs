@@ -1,4 +1,5 @@
-﻿using ConvenienceStoreOrderService.Models.ViewModels;
+﻿using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IPaymentStatusRepository
     {
-        List<PaymentStatusViewModel> GetPaymentStatusOptions();
+        List<PaymentStatusDto> GetPaymentStatusOptions();
     }
 }

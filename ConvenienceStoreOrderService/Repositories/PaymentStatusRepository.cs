@@ -1,4 +1,5 @@
-﻿using ConvenienceStoreOrderService.Models.EFModels;
+﻿using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using System;
@@ -17,12 +18,12 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
-        public List<PaymentStatusViewModel> GetPaymentStatusOptions()
+        public List<PaymentStatusDto> GetPaymentStatusOptions()
         {
             return _db.PaymentStatuses
          .Where(x => x.IsActive)
          .OrderBy(x => x.PaymentStatusSort)
-         .Select(x => new PaymentStatusViewModel
+         .Select(x => new PaymentStatusDto
          {
              PaymentStatusCode = x.PaymentStatusCode,
              PaymentStatusName = x.PaymentStatusName
