@@ -6,6 +6,7 @@ using System.Web;
 using ConvenienceStoreOrderService.Repositories;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Mappings;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -22,11 +23,9 @@ namespace ConvenienceStoreOrderService.Services
     {
             var dtoList = _paymentStatusRepository.GetPaymentStatusOptions();
 
-            return dtoList.Select(x => new PaymentStatusViewModel
-            {
-                PaymentStatusCode = x.PaymentStatusCode,
-                PaymentStatusName = x.PaymentStatusName
-            }).ToList();
+            return dtoList
+                .Select(x => PaymentStatusMapper.ToVm(x))
+        .ToList();
         }
 
 }
