@@ -1,4 +1,5 @@
 ﻿using ConvenienceStoreOrderService.Models.EFModels;
+using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 using System;
@@ -17,12 +18,32 @@ namespace ConvenienceStoreOrderService.Controllers
             _productService = productService;
         }
         //GET: Products
-        public ActionResult List()
+        public ActionResult List(ProductSearchCriteria criteria)
         {
-            var products = _productService.GetProducts();
-            return View(products);
+            if (criteria == null)
+            {
+                criteria = new ProductSearchCriteria();
+            }
+           
+            criteria.IsActiveOptions = new List<SelectListItem>
+            {
+                new SelectListItem {Text = "全部", Value = ""},
+                new SelectListItem {Text = "上架", Value = "true"},
+                new SelectListItem { Text = "下架", Value = "false"}
+
+            };
+            criteria.TemperatureTypeOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "全部", Value = "" },
+                new SelectListItem { Text = "常溫", Value = "1" },
+                new SelectListItem { Text = "冷藏", Value = "2" },
+                new SelectListItem { Text = "冷凍", Value = "3" }
+            };
+            criteria.Products=_productService.Search(criteria);
+            return View(criteria);
+
         }
-       
+
 
     }
 }

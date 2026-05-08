@@ -1,14 +1,45 @@
 ﻿
-@model List<ConvenienceStoreOrderService.Models.ViewModels.ProductViewModel>
+@model ConvenienceStoreOrderService.Models.ViewModels.ProductSearchCriteria
 @{
     ViewBag.Title = "List";
 }
+<h2>商品列表</h2>
 
-<h2>這是商品列表</h2>
+@using (Html.BeginForm("List", "Products", FormMethod.Get))
+{
+    <div>
+        關鍵字：
+        @Html.TextBoxFor(m => m.ProductKeyword)
+    </div>
 
-<ul>
-    @foreach (var item in Model)
-    {
-        <p>@item.ProductName - @item.Price</p>
-    }
-</ul>
+    <div>
+        上架狀態：
+        @Html.DropDownListFor(
+            m => m.IsActive,
+            Model.IsActiveOptions,
+            "請選擇上架狀態"
+        )
+    </div>
+
+    <button type="submit">搜尋</button>
+}
+
+<hr />
+
+<table>
+    <thead>
+        <tr>
+            <th>商品名稱</th>
+            <th>價格</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Products)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>

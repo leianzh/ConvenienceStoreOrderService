@@ -9,5 +9,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
     public interface IProductRepository
     {
         List<ProductViewModel> GetProducts();
+        List<ProductViewModel> Search(ProductSearchCriteria criteria);
     }
 }

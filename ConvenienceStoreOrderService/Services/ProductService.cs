@@ -22,5 +22,20 @@ namespace ConvenienceStoreOrderService.Services
         {
             return _productRepository.GetProducts();
         }
+        //丟給REPO查詢
+        public List<ProductViewModel> Search(ProductSearchCriteria criteria)
+        {
+
+            if (criteria == null)
+            {
+                criteria = new ProductSearchCriteria();
+            }
+            //預設顯示上架商品
+            if (!criteria.IsActive.HasValue)
+            {
+                criteria.IsActive = true;
+            }
+            return _productRepository.Search(criteria);
+        }
     }
 }

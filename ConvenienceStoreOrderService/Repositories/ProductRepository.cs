@@ -29,5 +29,43 @@ namespace ConvenienceStoreOrderService.Repositories
                 .ToList();
             
         }
+        public List<ProductViewModel> Search(ProductSearchCriteria criteria ) 
+        {
+            var query=_db.Products.AsQueryable();
+            //查關鍵字
+            if (!string.IsNullOrWhiteSpace(criteria.ProductKeyword))
+            {
+                query = query.Where(p => p.ProductName.Contains(criteria.ProductKeyword));
+            }
+            //查上下架
+            if (criteria.IsActive.HasValue) 
+            {
+                query = query.Where(p => p.IsActive == criteria.IsActive.Value);
+            }
+            //查溫層
+            if (criteria.TemperatureType.HasValue)
+            {
+                query = query.Where(p => p.TemperatureType == criteria.TemperatureType.Value);
+            }
+            //查價格
+            if (criteria.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= criteria.MinPrice.Value);
+            }
+
+            if (criteria.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= criteria.MaxPrice.Value);
+            }
+            return query
+                .Select(p=> new ProductViewModel
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    Price = p.Price
+
+                })
+                .ToList();
+        }
     }
 }

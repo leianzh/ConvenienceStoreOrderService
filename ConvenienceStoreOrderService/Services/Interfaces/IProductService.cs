@@ -10,5 +10,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     public interface IProductService
     {
         List<ProductViewModel> GetProducts();
+        List<ProductViewModel> Search(ProductSearchCriteria criteria);
     }
 }
