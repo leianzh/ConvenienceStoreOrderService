@@ -39,7 +39,17 @@ namespace ConvenienceStoreOrderService.Controllers
                 new SelectListItem { Text = "冷藏", Value = "2" },
                 new SelectListItem { Text = "冷凍", Value = "3" }
             };
-            criteria.Products=_productService.Search(criteria);
+            var result = _productService.Search(criteria);
+
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError("", result.Message);
+                criteria.Products = new List<ProductViewModel>();
+                return View(criteria);
+            }
+
+            criteria.Products = result.Data;
+
             return View(criteria);
 
         }

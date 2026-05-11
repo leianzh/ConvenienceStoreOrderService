@@ -3,7 +3,9 @@
 @{
     ViewBag.Title = "List";
 }
+
 <h2>商品列表</h2>
+@Html.ValidationSummary()
 
 @using (Html.BeginForm("List", "Products", FormMethod.Get))
 {

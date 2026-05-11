@@ -156,6 +156,8 @@
       <DependentUpon>202604291256503_AddStatusTables.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Common\ErrorCodes.cs" />
+    <Compile Include="Models\Common\Result.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\OrderStatus.cs" />
