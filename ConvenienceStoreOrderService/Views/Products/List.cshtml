@@ -13,7 +13,15 @@
         關鍵字：
         @Html.TextBoxFor(m => m.ProductKeyword)
     </div>
+    <div>
+        最低價格：
+        @Html.TextBoxFor(m => m.MinPrice)
+    </div>
 
+    <div>
+        最高價格：
+        @Html.TextBoxFor(m => m.MaxPrice)
+    </div>
     <div>
         上架狀態：
         @Html.DropDownListFor(
