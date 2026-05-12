@@ -4,6 +4,8 @@
 }
 
 <h2>List</h2>
+@Html.ValidationSummary()
+
 <select name="SelectedPaymentStatusCode ">
     <option value="">請選擇</option>
     @foreach (var item in Model.PaymentStatusOptions)

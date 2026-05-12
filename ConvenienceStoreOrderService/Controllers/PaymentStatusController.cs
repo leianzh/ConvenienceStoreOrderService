@@ -24,10 +24,18 @@ namespace ConvenienceStoreOrderService.Controllers
         public ActionResult List()
         {
             var criteria = new OrderCriteria();
+            var result = _paymentStatusService.GetPaymentStatusOptions();
+            if(!result.IsSuccess)
+            {
+                ModelState.AddModelError("", result.Message);
+                criteria.PaymentStatusOptions = new List<PaymentStatusViewModel>();
+                return View(criteria);
+            }
 
-            criteria.PaymentStatusOptions = _paymentStatusService.GetPaymentStatusOptions();
-
+            criteria.PaymentStatusOptions = result.Data;
             return View(criteria);
+
+            
         }
     }
 }
