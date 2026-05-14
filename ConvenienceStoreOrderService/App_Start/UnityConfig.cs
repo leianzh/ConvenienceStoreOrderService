@@ -24,6 +24,8 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<AppDbContext>();//DIµù¥U
             container.RegisterType<IPaymentStatusService, PaymentStatusService>();//DIµù¥U
             container.RegisterType<IPaymentStatusRepository, PaymentStatusRepository>();//DIµù¥U
+            container.RegisterType<IOrderService, OrderService>();
+            container.RegisterType<IOrderRepository, OrderRepository>();
             
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));

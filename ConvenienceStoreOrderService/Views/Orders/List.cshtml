@@ -1,0 +1,30 @@
+﻿@model List<ConvenienceStoreOrderService.Models.ViewModels.OrderViewModel>
+<h2>訂單資訊</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>訂單編號</th>
+            <th>訂單來源</th>
+            <th>付款方式</th>
+            <th>建立時間</th>
+            <th>運費</th>
+            <th>訂單總金額</th>
+            <th>取消原因</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderNo</td>
+                <td>@order.OrderSource</td>
+                <td>@order.PaymentMethod</td>
+                <td>@order.CreatedAt</td>
+                <td>@order.ShippingFee</td>
+                <td>@order.OrderTotal</td>
+                <td>@order.CancelReason</td>
+            </tr>
+        }
+    </tbody>
+</table>
