@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ConvenienceStoreOrderService.Mappings;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -18,7 +19,8 @@ namespace ConvenienceStoreOrderService.Services
         }
         public List<OrderViewModel> GetOrders()
         {
-            return _orderRepository.GetOrders();
+            var dtoList= _orderRepository.GetOrders();
+            return dtoList.Select(o=> OrderMapper.ToVM(o)).ToList();
         }
     }
 }

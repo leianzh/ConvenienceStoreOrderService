@@ -147,6 +147,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mappings\OrderMapper.cs" />
     <Compile Include="Mappings\PaymentStatusMapper.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.designer.cs">
@@ -159,6 +160,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Common\ErrorCodes.cs" />
     <Compile Include="Models\Common\Result.cs" />
+    <Compile Include="Models\DTOs\OrderDto.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Order.cs" />

@@ -5,6 +5,8 @@ using System.Web;
 using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
+using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Mappings;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
@@ -16,19 +18,11 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
-        public List<OrderViewModel> GetOrders() 
+        public List<OrderDto> GetOrders() 
         {
             return _db.Orders
-                .Select(o => new OrderViewModel
-                {
-                    OrderNo = o.OrderNo,
-                    OrderSource = o.OrderSource,
-                    PaymentMethod =o.PaymentMethod,
-                    CreatedAt =o.CreatedAt,
-                    ShippingFee =o.ShippingFee,
-                    OrderTotal =o.OrderTotal,
-                    CancelReason =o.CancelReason,
-                 }).ToList();
+                .Select(o =>OrderMapper.ToDto(o)).ToList();
+                
         }
     }
 }
