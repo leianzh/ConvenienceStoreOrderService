@@ -18,6 +18,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<PaymentStatus> PaymentStatuses { get; set; }
         public DbSet<Order> Orders { get; set; }
+        
 
     }
 }
