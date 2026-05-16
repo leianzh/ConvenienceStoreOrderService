@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Models.Common;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IOrderStatusService
     {
         List<OrderStatusViewModel> GetOrderStatusesOptions();
+        Result<OrderStatusDto> GetById(int orderStatusId);
+        Result<OrderStatusDto> GetByCode(string orderStatusCode);
     }
 }

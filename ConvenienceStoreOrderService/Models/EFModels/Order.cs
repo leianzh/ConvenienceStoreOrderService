@@ -19,5 +19,17 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int OrderTotal { get; set; }
         public string CancelReason { get; set; }
 
+        public string MarkShipped(string currentStatusCode, int shippedStatusId)
+        {
+            if (currentStatusCode != "Processing")
+            {
+                return "只有處理中的訂單可以改成已出貨。";
+            }
+
+            OrderStatusId = shippedStatusId;
+
+            return "";
+        }
+
     }
 }

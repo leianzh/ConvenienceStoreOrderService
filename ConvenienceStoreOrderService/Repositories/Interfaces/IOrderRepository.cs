@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IOrderRepository
     {
          List<OrderDto> GetOrders();
+        Order GetEntityById(int orderId);
+
+        void SaveChanges();
 
     }
 }

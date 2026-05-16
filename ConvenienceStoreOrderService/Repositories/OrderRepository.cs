@@ -24,5 +24,14 @@ namespace ConvenienceStoreOrderService.Repositories
                 .Select(o =>OrderMapper.ToDto(o)).ToList();
                 
         }
+        public Order GetEntityById(int orderId)
+        {
+            return _db.Orders
+                .FirstOrDefault(o => o.OrderId == orderId);
+        }
+        public void SaveChanges()
+        {
+            _db.SaveChanges();
+        }
     }
 }
