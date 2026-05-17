@@ -20,9 +20,21 @@ namespace ConvenienceStoreOrderService.Repositories
 
         public List<OrderDto> GetOrders() 
         {
-            return _db.Orders
-                .Select(o =>OrderMapper.ToDto(o)).ToList();
-                
+            var result =
+        from o in _db.Orders
+        join s in _db.OrderStatuses
+            on o.OrderStatusId equals s.OrderStatusId
+        select new 
+        {
+            Order = o,
+            OrderStatusName = s.OrderStatusName
+        };
+
+            return result
+                .AsEnumerable()
+                .Select(o => OrderMapper.ToDto(o.Order,o.OrderStatusName))
+                .ToList();
+
         }
         public Order GetEntityById(int orderId)
         {

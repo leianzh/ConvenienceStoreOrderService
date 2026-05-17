@@ -22,5 +22,16 @@ namespace ConvenienceStoreOrderService.Controllers
             var orders=_orderService.GetOrders();
             return View(orders);
         }
+        [HttpPost]
+        public ActionResult MarkReadyToShip(int orderId)
+        {
+            var result = _orderService.MarkReadyToShip(orderId);
+            if(! result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("List");
+        }
     }
 }

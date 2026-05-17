@@ -18,5 +18,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
         public string CancelReason { get; set; }
+
+        public string OrderStatusName { get; set; }
     }
 }

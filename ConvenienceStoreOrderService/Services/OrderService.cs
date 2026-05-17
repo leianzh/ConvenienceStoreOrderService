@@ -27,7 +27,7 @@ namespace ConvenienceStoreOrderService.Services
             return dtoList.Select(o=> OrderMapper.ToVM(o)).ToList();
         }
 
-       public Result<bool> MarkShipped (int orderId)
+       public Result<bool> MarkReadyToShip (int orderId)
         {
             var order =_orderRepository.GetEntityById(orderId);
             if(order == null)
@@ -42,9 +42,9 @@ namespace ConvenienceStoreOrderService.Services
             "查詢目前訂單狀態失敗。");
             }
 
-            //  查「已出貨」的資料
-            var shippedStatusResult = _orderStatusService.GetByCode("Shipped");
-            if(!shippedStatusResult.IsSuccess) 
+            //  查「待出貨」的資料
+            var readyToShipStatusResult = _orderStatusService.GetByCode("ReadyToShip");
+            if(!readyToShipStatusResult.IsSuccess) 
             {
                 return Result<bool>.Fail(
             ErrorCodes.SystemError,
@@ -52,16 +52,16 @@ namespace ConvenienceStoreOrderService.Services
             }
 
             //把目前狀態 Code Id 丟給 Orders 自己判斷
-            var errorMessage = order.MarkShipped(
+            var errorMessage = order.MarkReadyToShip(
         statusIdResult.Data.OrderStatusCode,
-        shippedStatusResult.Data.OrderStatusId
+        readyToShipStatusResult.Data.OrderStatusId
     );
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
             }
             _orderRepository.SaveChanges();
-            return Result<bool>.Success(true, "訂單狀態已更新為已出貨。");
+            return Result<bool>.Success(true, "訂單狀態已更新為待出貨。");
 
 
 

@@ -12,7 +12,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     public interface IOrderService
     {
         List<OrderViewModel> GetOrders();
-        Result<bool> MarkShipped(int orderId);
+        Result<bool> MarkReadyToShip(int orderId);
 
 
 

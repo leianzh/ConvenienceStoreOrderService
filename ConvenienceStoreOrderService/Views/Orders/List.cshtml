@@ -1,5 +1,18 @@
 ﻿@model List<ConvenienceStoreOrderService.Models.ViewModels.OrderViewModel>
 <h2>訂單資訊</h2>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <table class="table">
     <thead>
@@ -11,6 +24,8 @@
             <th>運費</th>
             <th>訂單總金額</th>
             <th>取消原因</th>
+            <th>操作</th>
+            <th>訂單狀態</th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +39,17 @@
                 <td>@order.ShippingFee</td>
                 <td>@order.OrderTotal</td>
                 <td>@order.CancelReason</td>
+                <td>
+                    @using (Html.BeginForm("MarkReadyToShip", "Orders", FormMethod.Post))
+                    {
+                        @Html.Hidden("orderId", order.OrderId)
+
+                        <button type="submit" class="btn btn-primary">
+                            改為待出貨
+                        </button>
+                    }
+                </td>
+                <td>@order.OrderStatusName</td>
             </tr>
         }
     </tbody>
