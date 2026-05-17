@@ -33,5 +33,16 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
         }
+        [HttpPost]
+        public ActionResult MarkShipped (int orderId)
+        {
+            var result =_orderService.MarkShipped(orderId);
+            if(! result.IsSuccess) 
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+            TempData["SuccessMessage"] =result.Message;
+            return RedirectToAction("List");
+        }
     }
 }

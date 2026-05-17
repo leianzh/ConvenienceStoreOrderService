@@ -48,7 +48,14 @@
                             改為待出貨
                         </button>
                     }
-                </td>
+                    @using (Html.BeginForm("MarkShipped", "Orders", FormMethod.Post))
+                    {
+                        @Html.Hidden("orderId", order.OrderId)
+                <button type="submit" class="btn btn-warning">
+                    改為已出貨
+                </button>
+                            }
+                    </td>
                 <td>@order.OrderStatusName</td>
             </tr>
         }

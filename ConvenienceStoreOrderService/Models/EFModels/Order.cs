@@ -18,7 +18,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
         public string CancelReason { get; set; }
-
+        //處理中->待出貨
         public string MarkReadyToShip(string currentStatusCode, int shippedStatusId)
         {
             if (currentStatusCode != "Processing")
@@ -28,6 +28,16 @@ namespace ConvenienceStoreOrderService.Models.EFModels
 
             OrderStatusId = shippedStatusId;
 
+            return "";
+        }
+        //待出貨->已出貨
+        public string MarkShipped (string currentStatusCode, int shippedStatusId)
+        {
+            if(currentStatusCode != "ReadyToShip")
+            {
+                return "只有待出貨的訂單可以改成已出貨。";
+            }
+            OrderStatusId = shippedStatusId;
             return "";
         }
 
