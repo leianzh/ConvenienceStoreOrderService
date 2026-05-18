@@ -18,7 +18,7 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
-        public List<OrderDto> GetOrders() 
+        public List<OrderDto> GetOrdersStatusName() 
         {
             var result =
         from o in _db.Orders

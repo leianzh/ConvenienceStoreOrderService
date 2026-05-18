@@ -44,5 +44,18 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] =result.Message;
             return RedirectToAction("List");
         }
+        [HttpPost]
+        public ActionResult Cancel (int orderId,string cancelReason) 
+        {
+            
+            var result = _orderService.CancelOrder(orderId, cancelReason);
+            if(! result.IsSuccess) 
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+            TempData["SuccessMessage"] = "訂單已成功取消";
+            return RedirectToAction("List");
+        }
     }
 }

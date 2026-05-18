@@ -40,6 +40,16 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             OrderStatusId = shippedStatusId;
             return "";
         }
+        //寄件前才能取消訂單
+        public string CancelOrder(string currentStatusCode, int CancelledStatusId)
+        {
+            if(currentStatusCode != "Processing" && currentStatusCode != "ReadyToShip")
+            {
+                return "寄件前才能取消訂單";
+            }
+            OrderStatusId = CancelledStatusId;
+            return "";
+        }
 
     }
 }

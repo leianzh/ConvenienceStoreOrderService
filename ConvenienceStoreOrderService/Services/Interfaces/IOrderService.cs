@@ -15,6 +15,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> MarkReadyToShip(int orderId);
         Result<bool> MarkShipped(int orderId);
 
+        Result<bool> CancelOrder(int orderId,string cancelReason);
+
 
 
     }

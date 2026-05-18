@@ -24,8 +24,9 @@
             <th>運費</th>
             <th>訂單總金額</th>
             <th>取消原因</th>
-            <th>操作</th>
             <th>訂單狀態</th>
+            <th>操作</th>
+
         </tr>
     </thead>
     <tbody>
@@ -39,6 +40,7 @@
                 <td>@order.ShippingFee</td>
                 <td>@order.OrderTotal</td>
                 <td>@order.CancelReason</td>
+                <td>@order.OrderStatusName</td>
                 <td>
                     @using (Html.BeginForm("MarkReadyToShip", "Orders", FormMethod.Post))
                     {
@@ -51,12 +53,27 @@
                     @using (Html.BeginForm("MarkShipped", "Orders", FormMethod.Post))
                     {
                         @Html.Hidden("orderId", order.OrderId)
-                <button type="submit" class="btn btn-warning">
-                    改為已出貨
-                </button>
-                            }
-                    </td>
-                <td>@order.OrderStatusName</td>
+                        <button type="submit" class="btn btn-warning">
+                            改為已出貨
+                        </button>
+                    }
+                    @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
+                    {
+                        @Html.Hidden("orderId", order.OrderId)
+                        <input type="text"
+                               name="cancelReason"
+                               placeholder="請輸入取消原因"
+                               class="form-control" 
+                               required
+                               oninvalid="this.setCustomValidity('取消原因必填')"
+                               oninput="this.setCustomValidity('')"/>
+
+                        <button type="submit" class="btn btn-danger">
+                            取消訂單
+                        </button>
+                    }
+                </td>
+
             </tr>
         }
     </tbody>
