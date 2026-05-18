@@ -29,6 +29,7 @@ namespace ConvenienceStoreOrderService.Controllers
             if(! result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
             }
             TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
@@ -40,6 +41,7 @@ namespace ConvenienceStoreOrderService.Controllers
             if(! result.IsSuccess) 
             {
                 TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
             }
             TempData["SuccessMessage"] =result.Message;
             return RedirectToAction("List");

@@ -11,7 +11,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public string OrderNo { get; set; }
         public int BuyerUserId { get; set; }
         public int SellerUserId { get; set; }
-        public int OrderStatusId { get; set; }
+        public int OrderStatusId { get;private set; }
         public int OrderSource { get; set; }
         public int PaymentMethod { get; set; }
         public DateTime CreatedAt { get; set; }
