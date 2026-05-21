@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
+using ConvenienceStoreOrderService.Mappings;
 
 
 namespace ConvenienceStoreOrderService.Repositories
@@ -66,6 +68,16 @@ namespace ConvenienceStoreOrderService.Repositories
 
                 })
                 .ToList();
+        }
+
+        public List<ProductDto> GetProductsAPI ()
+        {
+            return _db.Products
+                .AsEnumerable()
+                .Select(p => ProductMapper.ToDto(p))
+                .ToList();
+
+
         }
     }
 }

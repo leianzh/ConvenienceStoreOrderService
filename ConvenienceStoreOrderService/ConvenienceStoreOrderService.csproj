@@ -183,6 +183,7 @@
     </Compile>
     <Compile Include="Mappings\OrderMapper.cs" />
     <Compile Include="Mappings\PaymentStatusMapper.cs" />
+    <Compile Include="Mappings\ProductMapper.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.designer.cs">
       <DependentUpon>202604291156368_InitialBaseline.cs</DependentUpon>

@@ -17,14 +17,15 @@ namespace ConvenienceStoreOrderService
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            UnityConfig.RegisterComponents();
+            UnityConfig.RegisterComponents();//專案啟動，把DI規則載入
+
+
 
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            UnityConfig.RegisterComponents();//專案啟動，把DI規則載入
+            
             
             Database.SetInitializer<AppDbContext>(null);//EF 不自動建立或改資料庫。
         }

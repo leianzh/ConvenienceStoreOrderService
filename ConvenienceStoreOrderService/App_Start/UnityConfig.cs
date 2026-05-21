@@ -6,6 +6,7 @@ using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 using ConvenienceStoreOrderService.Models.EFModels;
+using System.ComponentModel;
 
 namespace ConvenienceStoreOrderService
 {
@@ -27,6 +28,7 @@ namespace ConvenienceStoreOrderService
         }
         public static void RegisterComponents()
         {
+           
             DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }
         public static void RegisterTypes(IUnityContainer container)
@@ -44,7 +46,7 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<IPaymentStatusRepository, PaymentStatusRepository>();//DIµù¥U
             container.RegisterType<IOrderService, OrderService>();
             container.RegisterType<IOrderRepository, OrderRepository>();
-            
+
 
             //DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }

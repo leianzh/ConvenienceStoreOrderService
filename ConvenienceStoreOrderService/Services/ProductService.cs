@@ -7,6 +7,7 @@ using ConvenienceStoreOrderService.Repositories;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.Common;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -63,6 +64,16 @@ namespace ConvenienceStoreOrderService.Services
             }
 
             
+        }
+
+        public Result<List<ProductDto>> GetProductsAPI()
+        {
+            var products = _productRepository.GetProductsAPI();
+            if (products == null || !products.Any())
+            {
+                return Result<List<ProductDto>>.Fail(ErrorCodes.NotFound, "查無商品");
+            }
+            return Result<List<ProductDto>>.Success( products );
         }
     }
 }

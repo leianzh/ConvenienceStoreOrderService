@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
@@ -10,5 +11,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
     {
         List<ProductViewModel> GetProducts();
         List<ProductViewModel> Search(ProductSearchCriteria criteria);
+        List<ProductDto> GetProductsAPI();
     }
 }

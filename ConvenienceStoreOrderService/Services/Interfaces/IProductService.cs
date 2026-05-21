@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.Common;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Services.Interfaces
 {
@@ -12,5 +13,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     {
         List<ProductViewModel> GetProducts();
         Result< List<ProductViewModel> >Search(ProductSearchCriteria criteria);
+        Result<List<ProductDto>> GetProductsAPI();
     }
 }
