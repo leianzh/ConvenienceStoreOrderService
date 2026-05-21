@@ -11,9 +11,27 @@ namespace ConvenienceStoreOrderService
 {
     public static class UnityConfig
     {
+        private static IUnityContainer _container;
+        public static IUnityContainer Container
+        {
+            get
+            {
+                if (_container == null)
+                {
+                    _container = new UnityContainer();
+                    RegisterTypes(_container);
+                }
+
+                return _container;
+            }
+        }
         public static void RegisterComponents()
         {
-			var container = new UnityContainer();
+            DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
+        }
+        public static void RegisterTypes(IUnityContainer container)
+        {
+
 
             // register all your components with the container here
             // it is NOT necessary to register your controllers
@@ -28,7 +46,7 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<IOrderRepository, OrderRepository>();
             
 
-            DependencyResolver.SetResolver(new UnityDependencyResolver(container));
+            //DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }
     }
 }
