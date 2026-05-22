@@ -1,5 +1,6 @@
 ﻿using ConvenienceStoreOrderService.Services.Interfaces;
 using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Services;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,12 @@ namespace ConvenienceStoreOrderService.Controllers
     public class OrdersController : Controller
     {
         private IOrderService _orderService;
-        public OrdersController(IOrderService orderService)
+        private readonly IShipmentService _shipmentService;
+
+        public OrdersController(IOrderService orderService, IShipmentService shipmentService)
         {
-            _orderService= orderService;
+            _orderService = orderService;
+            _shipmentService = shipmentService;
         }
         // GET: Order
         public ActionResult List()
@@ -59,5 +63,22 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = "訂單已成功取消";
             return RedirectToAction("List");
         }
+        [HttpPost]
+        public ActionResult GetShipCode(ShipmentCreateDto dto)
+        {
+            var result = _shipmentService.GetShipCode(dto);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] = "寄件代碼產生成功：" + result.Message;
+
+            return RedirectToAction("List");
+        }
+
+
     }
 }

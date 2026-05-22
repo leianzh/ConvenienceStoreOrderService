@@ -42,12 +42,57 @@
                 <td>@order.CancelReason</td>
                 <td>@order.OrderStatusName</td>
                 <td>
-                    @using (Html.BeginForm("MarkReadyToShip", "Orders", FormMethod.Post))
+                    @using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
                     {
                         @Html.Hidden("orderId", order.OrderId)
+                        <input type="text"
+                               name="RecipientName"
+                               placeholder="收件人姓名"
+                               class="form-control"
+                               required
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
+                        <input type="text"
+                               name="RecipientPhone"
+                               placeholder="收件人電話"
+                               class="form-control"
+                               required 
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
+                        <input type="text"
+                               name="PickupStore"
+                               placeholder="取貨門市"
+                               class="form-control"
+                               required
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
+
+                        <input type="text"
+                               name="SenderName"
+                               placeholder="寄件人姓名"
+                               class="form-control"
+                               required 
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
+
+                        <input type="text"
+                               name="SenderPhone"
+                               placeholder="寄件人電話"
+                               class="form-control"
+                               required
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
+
+                        <input type="text"
+                               name="ReturnStore"
+                               placeholder="退貨門市"
+                               class="form-control"
+                               required 
+                               oninvalid="this.setCustomValidity('欄位必填')"
+                               oninput="this.setCustomValidity('')"/>
 
                         <button type="submit" class="btn btn-primary">
-                            改為待出貨
+                            取得寄件代碼
                         </button>
                     }
                     @using (Html.BeginForm("MarkShipped", "Orders", FormMethod.Post))
@@ -63,10 +108,10 @@
                         <input type="text"
                                name="cancelReason"
                                placeholder="請輸入取消原因"
-                               class="form-control" 
+                               class="form-control"
                                required
                                oninvalid="this.setCustomValidity('取消原因必填')"
-                               oninput="this.setCustomValidity('')"/>
+                               oninput="this.setCustomValidity('')" />
 
                         <button type="submit" class="btn btn-danger">
                             取消訂單
