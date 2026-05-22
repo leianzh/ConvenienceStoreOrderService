@@ -17,8 +17,12 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string SenderPhone { get; set; }
         public string ReturnStore { get; set; }
         public string TrackingNo { get; set; }
-        //public int ShipmentStatus { get; set; }
+        public int? ShipmentStatusId { get; set; }
+        //public string ShippingCode { get; set; }
+        //public DateTime ShippingCodeGeneratedAt { get; set; }
         //public DateTime CreatedAt { get; set; }
         //public DateTime UpdatedAt { get; set; }
+        public string ShipmentStatusCode { get; set; }
+        public string ShipmentStatusName { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Web;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Models.Helpers;
 
 namespace ConvenienceStoreOrderService.Mappings
 {
@@ -14,14 +15,16 @@ namespace ConvenienceStoreOrderService.Mappings
         {
             return new Shipment
             {
-                OrderId = dto.OrderId,           
+                OrderId = dto.OrderId,
                 RecipientName = dto.RecipientName,
                 RecipientPhone = dto.RecipientPhone,
                 PickupStore = dto.PickupStore,
                 SenderName = dto.SenderName,
                 SenderPhone = dto.SenderPhone,
                 ReturnStore = dto.ReturnStore,
-                TrackingNo = dto.TrackingNo,                
+                TrackingNo = dto.TrackingNo,
+                ShipmentId = dto.ShipmentId,
+                
             };
         }
         public static ShipmentCreateDto ToDto(Shipment entity)
@@ -30,7 +33,7 @@ namespace ConvenienceStoreOrderService.Mappings
             {
                 ShipmentId = entity.ShipmentId,
                 OrderId = entity.OrderId,
-                //ShipmentStatus = entity.ShipmentStatus,
+                ShipmentStatusId = entity.ShipmentStatusId,
                 //ShippingCode = entity.ShippingCode,
                 //ShippingMethod = entity.ShippingMethod,
                 //ShippingCodeGeneratedAt = entity.ShippingCodeGeneratedAt,
@@ -43,6 +46,8 @@ namespace ConvenienceStoreOrderService.Mappings
                 ReturnStore = entity.ReturnStore,
                 //CreatedAt = entity.CreatedAt,
                 //UpdatedAt = entity.UpdatedAt,
+                ShipmentStatusCode= ShipmentStatusHelper.GetCode(entity.ShipmentStatusId),
+                ShipmentStatusName = ShipmentStatusHelper.GetName(entity.ShipmentStatusId),
             };
         }
         public static ShipmentViewModel ToVM(ShipmentCreateDto dto)
@@ -51,7 +56,7 @@ namespace ConvenienceStoreOrderService.Mappings
             {
                 ShipmentId = dto.ShipmentId,
                 OrderId = dto.OrderId,
-                //ShipmentStatus = dto.ShipmentStatus,
+                ShipmentStatusId = dto.ShipmentStatusId,
                 //ShippingCode = dto.ShippingCode,
                 //ShippingMethod = dto.ShippingMethod,
                 //ShippingCodeGeneratedAt = dto.ShippingCodeGeneratedAt,
@@ -64,6 +69,8 @@ namespace ConvenienceStoreOrderService.Mappings
                 ReturnStore = dto.ReturnStore,
                 //CreatedAt = dto.CreatedAt,
                 //UpdatedAt = dto.UpdatedAt,
+                ShipmentStatusCode=dto.ShipmentStatusCode,
+                ShipmentStatusName=dto.ShipmentStatusName,
             };
         }
     }

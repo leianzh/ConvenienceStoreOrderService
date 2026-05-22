@@ -11,7 +11,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IOrderRepository
     {
-         List<OrderDto> GetOrdersStatusName();
+         List<OrderDto> GetOrderListForDisplay();
         Order GetEntityById(int orderId);
 
 

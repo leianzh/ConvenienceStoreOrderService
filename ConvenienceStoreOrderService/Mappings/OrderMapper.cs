@@ -4,13 +4,15 @@ using System.Linq;
 using System.Web;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.EFModels;
+using ConvenienceStoreOrderService.Models.Helpers;
 using ConvenienceStoreOrderService.Models.ViewModels;
 
 namespace ConvenienceStoreOrderService.Mappings
 {
     public static class OrderMapper
     {
-        public static  OrderDto ToDto(Order entity, string orderStatusName)
+        public static  OrderDto ToDto(Order entity, string orderStatusName, string shippingCode,
+    int? shipmentStatusId)
         {
             return new OrderDto
             {
@@ -26,6 +28,14 @@ namespace ConvenienceStoreOrderService.Mappings
                 OrderTotal = entity.OrderTotal,
                 CancelReason = entity.CancelReason,
                 OrderStatusName = orderStatusName,
+                ShippingCode = shippingCode,
+                ShipmentStatusId = shipmentStatusId,
+                ShipmentStatusCode = shipmentStatusId.HasValue
+            ? ShipmentStatusHelper.GetCode(shipmentStatusId.Value)
+            : "",
+                ShipmentStatusName = shipmentStatusId.HasValue
+            ? ShipmentStatusHelper.GetName(shipmentStatusId.Value)
+            : ""
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)
@@ -41,6 +51,10 @@ namespace ConvenienceStoreOrderService.Mappings
                 OrderTotal=dto.OrderTotal,
                 CancelReason=dto.CancelReason,
                 OrderStatusName = dto.OrderStatusName,
+                ShippingCode = dto.ShippingCode,
+                ShipmentStatusId = dto.ShipmentStatusId,
+                ShipmentStatusCode = dto.ShipmentStatusCode,
+                ShipmentStatusName = dto.ShipmentStatusName,
             };
         }
     }

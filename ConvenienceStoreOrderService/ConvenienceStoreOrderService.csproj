@@ -164,6 +164,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Common\ErrorCodes.cs" />
     <Compile Include="Models\Common\Result.cs" />
+    <Compile Include="Models\Constants\ShipmentStatusIds.cs" />
     <Compile Include="Models\DTOs\OrderDto.cs" />
     <Compile Include="Models\DTOs\OrderStatusDto.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="Models\EFModels\PaymentStatus.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\EFModels\Shipment.cs" />
+    <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusViewModel.cs" />

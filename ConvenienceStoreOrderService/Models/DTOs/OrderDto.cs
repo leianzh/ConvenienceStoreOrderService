@@ -20,5 +20,12 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string CancelReason { get; set; }
 
         public string OrderStatusName { get; set; }
+        public string ShippingCode { get; set; }
+
+        public int? ShipmentStatusId { get; set; }
+
+        public string ShipmentStatusCode { get; set; }
+
+        public string ShipmentStatusName { get; set; }
     }
 }

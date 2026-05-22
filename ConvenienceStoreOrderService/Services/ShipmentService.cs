@@ -46,7 +46,7 @@ namespace ConvenienceStoreOrderService.Services
             var shippingCode = GenerateShippingCode(shipmentDto.OrderId);
             var shipment =ShipmentMapper.ToEntity(shipmentDto);
             shipment.ShippingMethod = 1;
-            shipment.ShipmentStatus = 1;
+            shipment.ShipmentStatusId = 2;
             shipment.ShippingCode = shippingCode;
             shipment.ShippingCodeGeneratedAt = now;
             shipment.CreatedAt = now;

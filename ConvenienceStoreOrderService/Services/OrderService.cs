@@ -23,10 +23,10 @@ namespace ConvenienceStoreOrderService.Services
         }
         public List<OrderViewModel> GetOrders()
         {
-            var dtoList= _orderRepository.GetOrdersStatusName();
+            var dtoList= _orderRepository.GetOrderListForDisplay();
             return dtoList.Select(o=> OrderMapper.ToVM(o)).ToList();
         }
-
+       
        public Result<bool> MarkReadyToShip (int orderId)
         {
             var order =_orderRepository.GetEntityById(orderId);

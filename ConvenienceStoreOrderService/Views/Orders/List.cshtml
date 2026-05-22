@@ -25,6 +25,8 @@
             <th>訂單總金額</th>
             <th>取消原因</th>
             <th>訂單狀態</th>
+            <th>寄件代碼</th>
+            <th>物流狀態</th>
             <th>操作</th>
 
         </tr>
@@ -41,60 +43,73 @@
                 <td>@order.OrderTotal</td>
                 <td>@order.CancelReason</td>
                 <td>@order.OrderStatusName</td>
+                <td>@order.ShippingCode</td>
+                <td>@order.ShipmentStatusName</td>
                 <td>
-                    @using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
+                    @if (string.IsNullOrEmpty(order.ShippingCode))
                     {
-                        @Html.Hidden("orderId", order.OrderId)
-                        <input type="text"
-                               name="RecipientName"
-                               placeholder="收件人姓名"
-                               class="form-control"
-                               required
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
-                        <input type="text"
-                               name="RecipientPhone"
-                               placeholder="收件人電話"
-                               class="form-control"
-                               required 
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
-                        <input type="text"
-                               name="PickupStore"
-                               placeholder="取貨門市"
-                               class="form-control"
-                               required
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
+                        using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
+                        {
+                            @Html.Hidden("OrderId", order.OrderId)
+                            <input type="text"
+                                   name="RecipientName"
+                                   placeholder="收件人姓名"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
+                            <input type="text"
+                                   name="RecipientPhone"
+                                   placeholder="收件人電話"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
+                            <input type="text"
+                                   name="PickupStore"
+                                   placeholder="取貨門市"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
 
-                        <input type="text"
-                               name="SenderName"
-                               placeholder="寄件人姓名"
-                               class="form-control"
-                               required 
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
+                            <input type="text"
+                                   name="SenderName"
+                                   placeholder="寄件人姓名"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
 
-                        <input type="text"
-                               name="SenderPhone"
-                               placeholder="寄件人電話"
-                               class="form-control"
-                               required
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
+                            <input type="text"
+                                   name="SenderPhone"
+                                   placeholder="寄件人電話"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
 
-                        <input type="text"
-                               name="ReturnStore"
-                               placeholder="退貨門市"
-                               class="form-control"
-                               required 
-                               oninvalid="this.setCustomValidity('欄位必填')"
-                               oninput="this.setCustomValidity('')"/>
+                            <input type="text"
+                                   name="ReturnStore"
+                                   placeholder="退貨門市"
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('欄位必填')"
+                                   oninput="this.setCustomValidity('')" />
 
-                        <button type="submit" class="btn btn-primary">
-                            取得寄件代碼
-                        </button>
+                            <button type="submit" class="btn btn-primary">
+                                取得寄件代碼
+                            </button>
+                        }
                     }
+                    else
+                    {
+                        <span class="text-success">已取得寄件代碼</span>
+                    }
+
+
+
+
                     @using (Html.BeginForm("MarkShipped", "Orders", FormMethod.Post))
                     {
                         @Html.Hidden("orderId", order.OrderId)

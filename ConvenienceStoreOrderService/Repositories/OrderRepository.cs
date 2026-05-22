@@ -17,25 +17,37 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db = db;
         }
-
-        public List<OrderDto> GetOrdersStatusName() 
+        //查訂單列表 + 查訂單狀態名稱 + 查物流資料
+        public List<OrderDto> GetOrderListForDisplay() 
         {
             var result =
         from o in _db.Orders
         join s in _db.OrderStatuses
             on o.OrderStatusId equals s.OrderStatusId
+
+        join sh in _db.Shipments
+            on o.OrderId equals sh.OrderId into shipmentGroup
+        from shipment in shipmentGroup.DefaultIfEmpty()
         select new 
         {
             Order = o,
-            OrderStatusName = s.OrderStatusName
+            OrderStatusName = s.OrderStatusName,
+            ShippingCode = shipment != null ? shipment.ShippingCode : null,
+            ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null
         };
 
             return result
                 .AsEnumerable()
-                .Select(o => OrderMapper.ToDto(o.Order,o.OrderStatusName))
+                .Select(o => OrderMapper.ToDto(
+                    o.Order,
+                    o.OrderStatusName,
+                    o.ShippingCode,
+                    o.ShipmentStatusId
+                    ))
                 .ToList();
 
         }
+
         public Order GetEntityById(int orderId)
         {
             return _db.Orders

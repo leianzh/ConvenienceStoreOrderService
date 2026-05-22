@@ -9,7 +9,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
     {
         public int ShipmentId { get; set; }
         public int OrderId { get; set; }
-        public int ShippingMethod { get; set; }
+        //public int ShippingMethod { get; set; }
         public string RecipientName { get; set; }
         public string RecipientPhone { get; set; }
         public string PickupStore { get; set; }
@@ -17,7 +17,9 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public string SenderPhone { get; set; }
         public string ReturnStore { get; set; }
         public string TrackingNo { get; set; }
-        public int ShipmentStatus { get; set; }
+        public int? ShipmentStatusId { get; set; }
+        public string ShipmentStatusCode { get; set; }
+        public string ShipmentStatusName { get; set; }
 
         public string ShippingCode { get; set; }
         public DateTime ShippingCodeGeneratedAt { get; set; }
