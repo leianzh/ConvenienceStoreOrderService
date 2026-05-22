@@ -12,7 +12,7 @@ namespace ConvenienceStoreOrderService.Mappings
     public static class OrderMapper
     {
         public static  OrderDto ToDto(Order entity, string orderStatusName, string shippingCode,
-    int? shipmentStatusId)
+    int? shipmentStatusId,string trackingNo)
         {
             return new OrderDto
             {
@@ -35,7 +35,8 @@ namespace ConvenienceStoreOrderService.Mappings
             : "",
                 ShipmentStatusName = shipmentStatusId.HasValue
             ? ShipmentStatusHelper.GetName(shipmentStatusId.Value)
-            : ""
+            : "",
+                TrackingNo = trackingNo
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)
@@ -55,6 +56,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 ShipmentStatusId = dto.ShipmentStatusId,
                 ShipmentStatusCode = dto.ShipmentStatusCode,
                 ShipmentStatusName = dto.ShipmentStatusName,
+                TrackingNo=dto.TrackingNo,
             };
         }
     }

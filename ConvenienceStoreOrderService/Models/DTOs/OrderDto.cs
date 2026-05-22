@@ -27,5 +27,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string ShipmentStatusCode { get; set; }
 
         public string ShipmentStatusName { get; set; }
+
+        public string TrackingNo { get; set; }
     }
 }

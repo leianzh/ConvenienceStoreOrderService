@@ -27,6 +27,7 @@
             <th>訂單狀態</th>
             <th>寄件代碼</th>
             <th>物流狀態</th>
+            <th>物流追蹤碼</th>
             <th>操作</th>
 
         </tr>
@@ -45,6 +46,7 @@
                 <td>@order.OrderStatusName</td>
                 <td>@order.ShippingCode</td>
                 <td>@order.ShipmentStatusName</td>
+                <td>@order.TrackingNo</td>
                 <td>
                     @if (string.IsNullOrEmpty(order.ShippingCode))
                     {
@@ -110,12 +112,12 @@
 
 
 
-                    @using (Html.BeginForm("MarkShipped", "Orders", FormMethod.Post))
+                    @using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
                     {
-                        @Html.Hidden("orderId", order.OrderId)
-                        <button type="submit" class="btn btn-warning">
-                            改為已出貨
-                        </button>
+                        @Html.Hidden("OrderId", order.OrderId)
+                <button type="submit" class="btn btn-warning">
+                    模擬已寄件
+                </button>
                     }
                     @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
                     {

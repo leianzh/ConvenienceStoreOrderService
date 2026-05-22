@@ -12,6 +12,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     public interface IShipmentService
     {
         Result<bool> GetShipCode(ShipmentCreateDto shipmentDto);
-       string  GenerateShippingCode(int orderId);
+       string  CreateShippingCode(int orderId);
+        Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto);
     }
 }

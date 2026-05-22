@@ -33,7 +33,8 @@ namespace ConvenienceStoreOrderService.Repositories
             Order = o,
             OrderStatusName = s.OrderStatusName,
             ShippingCode = shipment != null ? shipment.ShippingCode : null,
-            ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null
+            ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
+            TrackingNo =shipment.TrackingNo
         };
 
             return result
@@ -42,7 +43,8 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.Order,
                     o.OrderStatusName,
                     o.ShippingCode,
-                    o.ShipmentStatusId
+                    o.ShipmentStatusId,
+                    o.TrackingNo
                     ))
                 .ToList();
 

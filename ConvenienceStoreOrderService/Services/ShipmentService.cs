@@ -43,7 +43,7 @@ namespace ConvenienceStoreOrderService.Services
                 return Result<bool>.Fail(markReadyResult.ErrorCode, markReadyResult.Message);
             }
             var now = DateTime.Now;
-            var shippingCode = GenerateShippingCode(shipmentDto.OrderId);
+            var shippingCode = CreateShippingCode(shipmentDto.OrderId);
             var shipment =ShipmentMapper.ToEntity(shipmentDto);
             shipment.ShippingMethod = 1;
             shipment.ShipmentStatusId = 2;
@@ -59,10 +59,43 @@ namespace ConvenienceStoreOrderService.Services
 
 
         }
+        //模擬已寄件
+        public Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto)
+        {
+            if (shipmentDto == null)
+            { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
+            if (shipmentDto.OrderId == null)
+            { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
+            
 
-        public string GenerateShippingCode(int orderId)
+            //更新 Orders.OrderStatusId = Shipped
+            var shippedResult = _orderService.MarkShipped(shipmentDto.OrderId);
+            if (!shippedResult.IsSuccess)
+            {
+                return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
+            }
+            //更新 ShipmentStatus、TrackingNo
+            var now = DateTime.Now;
+            var trackingNo = CreateTrackingNo(shipmentDto.OrderId);
+            var shipment = _shipmentRepository.UpdateShipmentAsShipped(shipmentDto.OrderId);
+            shipment.ShipmentStatusId = 3;
+            shipment.TrackingNo = trackingNo;
+            shipment.UpdatedAt = now;
+            _shipmentRepository.SaveChanges();
+            return Result<bool>.Success(true, trackingNo);
+
+        }
+        //產生寄件代碼
+        public string CreateShippingCode(int orderId)
         {
             return $"SHIP{DateTime.Now:yyyyMMdd}{orderId.ToString().PadLeft(4, '0')}";
+        }
+        //產生物流追蹤碼
+        public string CreateTrackingNo(int orderId)
+        {
+            return "T"
+                + DateTime.Now.ToString("yyyyMMddHHmmss")
+                + new Random().Next(1000, 9999);
         }
     }
 }

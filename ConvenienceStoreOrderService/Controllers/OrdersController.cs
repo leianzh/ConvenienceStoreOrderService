@@ -78,6 +78,21 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        [HttpPost]
+        public ActionResult UpdateShipmentAsShipped(ShipmentCreateDto dto)
+        {
+            var result = _shipmentService.MarkShipmentAsShipped(dto);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] = "物流已寄出：" + result.Message;
+
+            return RedirectToAction("List");
+        }
 
 
     }
