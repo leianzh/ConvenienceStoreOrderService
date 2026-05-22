@@ -115,9 +115,24 @@
                     @using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
                     {
                         @Html.Hidden("OrderId", order.OrderId)
-                <button type="submit" class="btn btn-warning">
-                    模擬已寄件
-                </button>
+                        <button type="submit" class="btn btn-warning">
+                            模擬已寄件
+                        </button>
+                    }
+                    @using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+                    {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-success">
+                            模擬已到店
+                        </button>
+                    }
+                    
+                    @using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
+                    {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-info">
+                            模擬已取貨
+                        </button>
                     }
                     @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
                     {

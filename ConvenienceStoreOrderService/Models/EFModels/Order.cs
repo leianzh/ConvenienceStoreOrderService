@@ -19,35 +19,55 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int OrderTotal { get; set; }
         public string CancelReason { get; set; }
         //處理中->待出貨
-        public string MarkReadyToShip(string currentStatusCode, int shippedStatusId)
+        public string MarkReadyToShip( int statusId, string currentStatusCode)
         {
             if (currentStatusCode != "Processing")
             {
                 return "只有處理中的訂單可以改成待出貨。";
             }
 
-            OrderStatusId = shippedStatusId;
+            OrderStatusId = statusId;
 
             return "";
         }
         //待出貨->已出貨
-        public string MarkShipped (string currentStatusCode, int shippedStatusId)
+        public string MarkShipped (int statusId, string currentStatusCode)
         {
             if(currentStatusCode != "ReadyToShip")
             {
                 return "只有待出貨的訂單可以改成已出貨。";
             }
-            OrderStatusId = shippedStatusId;
+            OrderStatusId = statusId;
+            return "";
+        }
+        //已出貨->已到店
+        public string MarkArrived (int statusId, string currentStatusCode)
+        {
+            if (currentStatusCode != "Shipped")
+            {
+                return "只有已出貨的訂單可以改成已到店。";
+            }
+            OrderStatusId = statusId;
+            return "";
+        }
+        //已到店->已取貨
+        public string MarkPickedUp(int statusId, string currentStatusCode)
+        {
+            if (currentStatusCode != "Arrived")
+            {
+                return "只有已到店的訂單可以改成已取貨。";
+            }
+            OrderStatusId = statusId;
             return "";
         }
         //寄件前才能取消訂單
-        public string CancelOrder(string currentStatusCode, int CancelledStatusId)
+        public string CancelOrder(int statusId, string currentStatusCode)
         {
             if(currentStatusCode != "Processing" && currentStatusCode != "ReadyToShip")
             {
                 return "寄件前才能取消訂單";
             }
-            OrderStatusId = CancelledStatusId;
+            OrderStatusId = statusId;
             return "";
         }
 

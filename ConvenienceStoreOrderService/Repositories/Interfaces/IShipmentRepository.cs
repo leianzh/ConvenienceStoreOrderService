@@ -15,6 +15,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
         void SaveChanges();
         void Add(Shipment shipment);
         bool ExistsByOrderId(int orderId);
-        Shipment UpdateShipmentAsShipped(int orderId);
+        Shipment UpdateShipment(int orderId);
     }
 }

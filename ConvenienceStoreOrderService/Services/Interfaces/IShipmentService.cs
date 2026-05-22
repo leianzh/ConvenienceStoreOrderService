@@ -14,5 +14,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> GetShipCode(ShipmentCreateDto shipmentDto);
        string  CreateShippingCode(int orderId);
         Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto);
+        Result<bool> MarkShipmentAsArrived(ShipmentCreateDto shipmentDto);
+        Result<bool> MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto);
     }
 }

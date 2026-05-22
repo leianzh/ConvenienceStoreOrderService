@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ConvenienceStoreOrderService.Models.Common;
 
 namespace ConvenienceStoreOrderService.Controllers
 {
@@ -93,7 +94,36 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        [HttpPost]
+        public ActionResult MarkShipmentAsArrived(ShipmentCreateDto shipmentDto)
+        {
+            var result = _shipmentService.MarkShipmentAsArrived(shipmentDto);
 
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] =  result.Message;
+
+            return RedirectToAction("List");
+        }
+        [HttpPost]
+        public ActionResult MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto)
+        {
+            var result = _shipmentService.MarkShipmentAsPickedUp(shipmentDto);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+
+            return RedirectToAction("List");
+        }
 
     }
 }

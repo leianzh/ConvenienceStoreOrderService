@@ -29,7 +29,7 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db.Shipments.Add(shipment);
         }
-        public Shipment UpdateShipmentAsShipped(int orderId)
+        public Shipment UpdateShipment(int orderId)
         {
             return _db.Shipments
                 .FirstOrDefault(s => s.OrderId == orderId);

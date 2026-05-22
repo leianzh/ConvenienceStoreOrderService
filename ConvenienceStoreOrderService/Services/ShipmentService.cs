@@ -5,6 +5,8 @@ using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Services.Interfaces;
+using ConvenienceStoreOrderService.Models.Helpers;
+using ConvenienceStoreOrderService.Models.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,15 +76,64 @@ namespace ConvenienceStoreOrderService.Services
             {
                 return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
             }
+            
             //更新 ShipmentStatus、TrackingNo
             var now = DateTime.Now;
             var trackingNo = CreateTrackingNo(shipmentDto.OrderId);
-            var shipment = _shipmentRepository.UpdateShipmentAsShipped(shipmentDto.OrderId);
+            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
             shipment.ShipmentStatusId = 3;
             shipment.TrackingNo = trackingNo;
             shipment.UpdatedAt = now;
             _shipmentRepository.SaveChanges();
             return Result<bool>.Success(true, trackingNo);
+
+        }
+        //模擬已到店
+        public Result<bool> MarkShipmentAsArrived(ShipmentCreateDto shipmentDto)
+        {
+            if (shipmentDto == null)
+            { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
+            if (shipmentDto.OrderId == null)
+            { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
+
+
+            //更新 Orders.OrderStatusId = Arrived
+            var shippedResult = _orderService.MarkArrived(shipmentDto.OrderId);
+            if (!shippedResult.IsSuccess)
+            {
+                return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
+            }
+            //更新 ShipmentStatus、UpdatedAt
+            var now = DateTime.Now;           
+            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            shipment.ShipmentStatusId = 4;           
+            shipment.UpdatedAt = now;
+            _shipmentRepository.SaveChanges();
+            return Result<bool>.Success(true, "物流更新為已到店");
+
+        }
+        //模擬已取貨
+        public Result<bool> MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto)
+        {
+            if (shipmentDto == null)
+            { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
+            if (shipmentDto.OrderId == null)
+            { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
+
+
+            //更新 Orders.OrderStatusId = PickedUp
+            var shippedResult = _orderService.MarkPickedUp(shipmentDto.OrderId);
+            if (!shippedResult.IsSuccess)
+            {
+                return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
+            }
+            //更新 ShipmentStatus、UpdatedAt
+            var now = DateTime.Now;
+            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            shipment.ShipmentStatusId = 5;
+            shipment.UpdatedAt = now;
+            _shipmentRepository.SaveChanges();
+            return Result<bool>.Success(true, "物流更新為已取貨");
 
         }
         //產生寄件代碼
