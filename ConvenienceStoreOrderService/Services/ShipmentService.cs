@@ -48,7 +48,13 @@ namespace ConvenienceStoreOrderService.Services
             var shippingCode = CreateShippingCode(shipmentDto.OrderId);
             var shipment =ShipmentMapper.ToEntity(shipmentDto);
             shipment.ShippingMethod = 1;
-            shipment.ShipmentStatusId = 2;
+            
+            
+            shipment.ShipmentStatusId = ShipmentStatusIds.ReadyToShip;
+            if (shipment.ShipmentStatusId != ShipmentStatusIds.ReadyToShip)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流狀態設定失敗，未成功設定為待寄件");
+            }
             shipment.ShippingCode = shippingCode;
             shipment.ShippingCodeGeneratedAt = now;
             shipment.CreatedAt = now;
@@ -81,7 +87,11 @@ namespace ConvenienceStoreOrderService.Services
             var now = DateTime.Now;
             var trackingNo = CreateTrackingNo(shipmentDto.OrderId);
             var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
-            shipment.ShipmentStatusId = 3;
+            shipment.ShipmentStatusId = ShipmentStatusIds.Shipped;
+            if (shipment.ShipmentStatusId != ShipmentStatusIds.Shipped)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流狀態設定失敗，未成功設定為已寄件");
+            }
             shipment.TrackingNo = trackingNo;
             shipment.UpdatedAt = now;
             _shipmentRepository.SaveChanges();
@@ -106,7 +116,11 @@ namespace ConvenienceStoreOrderService.Services
             //更新 ShipmentStatus、UpdatedAt
             var now = DateTime.Now;           
             var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
-            shipment.ShipmentStatusId = 4;           
+            shipment.ShipmentStatusId = ShipmentStatusIds.Arrived;
+            if (shipment.ShipmentStatusId != ShipmentStatusIds.Arrived)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流狀態設定失敗，未成功設定為已到店");
+            }
             shipment.UpdatedAt = now;
             _shipmentRepository.SaveChanges();
             return Result<bool>.Success(true, "物流更新為已到店");
@@ -130,7 +144,11 @@ namespace ConvenienceStoreOrderService.Services
             //更新 ShipmentStatus、UpdatedAt
             var now = DateTime.Now;
             var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
-            shipment.ShipmentStatusId = 5;
+            shipment.ShipmentStatusId =ShipmentStatusIds.PickedUp;
+            if (shipment.ShipmentStatusId != ShipmentStatusIds.PickedUp)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流狀態設定失敗，未成功設定為已取貨");
+            }
             shipment.UpdatedAt = now;
             _shipmentRepository.SaveChanges();
             return Result<bool>.Success(true, "物流更新為已取貨");
