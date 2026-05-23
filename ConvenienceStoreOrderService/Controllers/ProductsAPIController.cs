@@ -26,7 +26,7 @@ namespace ConvenienceStoreOrderService.Controllers
                 ProductKeyword = keyword,
                 IsActive=isActive
             };
-            var result = _productService.Search(criteria);
+            var result = _productService.SearchApi(criteria);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);

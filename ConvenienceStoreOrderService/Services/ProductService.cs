@@ -8,6 +8,7 @@ using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.Common;
 using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -74,6 +75,21 @@ namespace ConvenienceStoreOrderService.Services
                 return Result<List<ProductDto>>.Fail(ErrorCodes.NotFound, "查無商品");
             }
             return Result<List<ProductDto>>.Success( products );
+        }
+
+        public Result<List<ProductDto>> SearchApi(ProductSearchCriteria criteria)
+        {
+            if (criteria == null)
+            {
+                criteria = new ProductSearchCriteria();
+            }
+            var product = _productRepository.SearchApi(criteria);
+            if (product == null)
+            {
+                product = new List<ProductDto>();
+            }
+
+            return Result<List<ProductDto>>.Success(product);
         }
     }
 }

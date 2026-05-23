@@ -79,5 +79,24 @@ namespace ConvenienceStoreOrderService.Repositories
 
 
         }
+
+        public List<ProductDto> SearchApi(ProductSearchCriteria criteria)
+        {
+            var query = _db.Products.AsQueryable();
+            //查關鍵字
+            if(! string.IsNullOrEmpty(criteria.ProductKeyword) ) 
+            {
+                query =query.Where(p =>p.ProductName.Contains(criteria.ProductKeyword));
+            }
+            //查上下架
+            if (criteria.IsActive.HasValue)
+            {
+                query = query.Where(p =>p.IsActive == criteria.IsActive);
+            }
+            return query
+                .AsEnumerable()
+                .Select(p =>ProductMapper.ToDto(p))
+                .ToList();
+        }
     }
 }

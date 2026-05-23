@@ -16,6 +16,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 ProductId = entity.ProductId,
                 ProductName = entity.ProductName,
                 Price = entity.Price,
+                IsActive = entity.IsActive,
             };
         }
     }

@@ -14,5 +14,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         List<ProductViewModel> GetProducts();
         Result< List<ProductViewModel> >Search(ProductSearchCriteria criteria);
         Result<List<ProductDto>> GetProductsAPI();
+        Result<List<ProductDto>> SearchApi(ProductSearchCriteria criteria);
     }
 }
