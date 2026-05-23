@@ -19,11 +19,12 @@ namespace ConvenienceStoreOrderService.Controllers
         }
         [HttpGet]
         [Route("api/products")]
-        public IHttpActionResult GetProductsAPI(string keyword = null) 
+        public IHttpActionResult GetProductsAPI(string keyword = null,bool? isActive = null) 
         {
             var criteria = new ProductSearchCriteria
             {
-                ProductKeyword = keyword
+                ProductKeyword = keyword,
+                IsActive=isActive
             };
             var result = _productService.Search(criteria);
             if (!result.IsSuccess)
