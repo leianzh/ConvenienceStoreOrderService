@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
+using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Services.Interfaces;
 
 namespace ConvenienceStoreOrderService.Controllers
@@ -18,9 +19,13 @@ namespace ConvenienceStoreOrderService.Controllers
         }
         [HttpGet]
         [Route("api/products")]
-        public IHttpActionResult GetProductsAPI() 
+        public IHttpActionResult GetProductsAPI(string keyword = null) 
         {
-            var result = _productService.GetProductsAPI();
+            var criteria = new ProductSearchCriteria
+            {
+                ProductKeyword = keyword
+            };
+            var result = _productService.Search(criteria);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);
