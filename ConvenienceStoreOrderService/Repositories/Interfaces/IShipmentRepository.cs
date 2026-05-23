@@ -9,13 +9,12 @@ using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
-    public interface IOrderRepository
+    public interface IShipmentRepository
     {
-         List<OrderDto> GetOrderListForDisplay();
-        Order GetEntityById(int orderId);
-
-
+        List<ShipmentCreateDto> GetShipCode();
         void SaveChanges();
-
+        void Add(Shipment shipment);
+        bool ExistsByOrderId(int orderId);
+        Shipment UpdateShipment(int orderId);
     }
 }

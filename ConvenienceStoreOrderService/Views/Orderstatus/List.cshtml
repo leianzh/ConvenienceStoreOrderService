@@ -1,0 +1,8 @@
+﻿@model ConvenienceStoreOrderService.Models.ViewModels.OrderStatusCriteria
+<select name="SelectedOrderStatusCode">
+    <option value="">請選擇</option>
+    @foreach (var item in Model.OrderStatusOptions)
+    {
+        <option value="@item.OrderStatusCode">@item.OrderStatusName</option>
+    }
+</select>
