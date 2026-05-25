@@ -52,6 +52,8 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<IOrderStatusRepository, OrderStatusRepository>();
             container.RegisterType<IShipmentRepository,ShipmentRepository >();
             container.RegisterType<IShipmentService, ShipmentService>();
+            container.RegisterType<IOrderDetailService,OrderDetailService>();
+            container.RegisterType<IOrderDetailRepository, OrderDetailRepository>();
 
 
 

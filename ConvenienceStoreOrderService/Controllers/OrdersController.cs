@@ -14,7 +14,7 @@ namespace ConvenienceStoreOrderService.Controllers
     public class OrdersController : Controller
     {
         private IOrderService _orderService;
-        private readonly IShipmentService _shipmentService;
+        private  IShipmentService _shipmentService;
 
         public OrdersController(IOrderService orderService, IShipmentService shipmentService)
         {

@@ -174,6 +174,7 @@
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\OrderDetailsController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\OrderstatusController.cs" />
     <Compile Include="Controllers\PaymentStatusController.cs" />
@@ -183,14 +184,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mappings\OrderDetailMapper.cs" />
     <Compile Include="Mappings\OrderMapper.cs" />
     <Compile Include="Mappings\OrderStatusMapper.cs" />
     <Compile Include="Mappings\PaymentStatusMapper.cs" />
-
     <Compile Include="Mappings\ProductMapper.cs" />
-
     <Compile Include="Mappings\ShipmentMapper.cs" />
-
     <Compile Include="Migrations\202604291156368_InitialBaseline.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.designer.cs">
       <DependentUpon>202604291156368_InitialBaseline.cs</DependentUpon>
@@ -203,22 +202,22 @@
     <Compile Include="Models\Common\ErrorCodes.cs" />
     <Compile Include="Models\Common\Result.cs" />
     <Compile Include="Models\Constants\ShipmentStatusIds.cs" />
+    <Compile Include="Models\DTOs\OrderDetailDto.cs" />
     <Compile Include="Models\DTOs\OrderDto.cs" />
     <Compile Include="Models\DTOs\OrderStatusDto.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
-
     <Compile Include="Models\DTOs\ProductDto.cs" />
-
     <Compile Include="Models\DTOs\ShipmentCreateDto.cs" />
-
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Order.cs" />
+    <Compile Include="Models\EFModels\OrderDetail.cs" />
     <Compile Include="Models\EFModels\OrderStatus.cs" />
     <Compile Include="Models\EFModels\PaymentStatus.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\EFModels\Shipment.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />
+    <Compile Include="Models\ViewModels\OrderDetailViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderStatusCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderViewModel.cs" />
@@ -305,6 +304,7 @@
     <Content Include="Views\Orders\List.cshtml" />
     <Content Include="Views\Orderstatus\List.cshtml" />
     <Content Include="Views\Shipment\List.cshtml" />
+    <Content Include="Views\OrderDetails\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

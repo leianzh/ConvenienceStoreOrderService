@@ -16,7 +16,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int PaymentMethod { get; set; }
         public DateTime CreatedAt { get; set; }
         public int ShippingFee { get; set; }
-        public int OrderTotal { get; set; }
+        public int OrderTotal { get; set; }//SubTotal+ShippingFee
         public string CancelReason { get; set; }
         //處理中->待出貨
         public string MarkReadyToShip( int statusId, string currentStatusCode)
