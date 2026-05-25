@@ -17,5 +17,16 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db = db;
         }
+
+        public List<OrderDetailDto> GetOrderDetails()
+        {
+            
+            var orderDetail = _db.OrderDetails
+                .AsEnumerable()
+                .Select(o =>OrderDetailMapper.ToDto(o))
+                .ToList();
+            return orderDetail;
+            
+        }
     }
 }

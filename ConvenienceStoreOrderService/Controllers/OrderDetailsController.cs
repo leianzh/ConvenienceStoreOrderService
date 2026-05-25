@@ -1,4 +1,5 @@
-﻿using ConvenienceStoreOrderService.Services.Interfaces;
+﻿using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,13 @@ namespace ConvenienceStoreOrderService.Controllers
         // GET: OrderDetails
         public ActionResult List()
         {
-            return View();
+            var result=_orderDetailService.GetOrderDetails();
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return  RedirectToAction("List"); ;
+            }
+            return View(result.Data);
         }
     }
 }

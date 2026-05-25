@@ -11,5 +11,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IOrderDetailRepository
     {
+        List<OrderDetailDto> GetOrderDetails();
     }
 }

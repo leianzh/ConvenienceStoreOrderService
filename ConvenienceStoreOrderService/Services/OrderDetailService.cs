@@ -9,6 +9,7 @@ using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -18,6 +19,15 @@ namespace ConvenienceStoreOrderService.Services
         public OrderDetailService(IOrderDetailRepository orderDetailRepository) 
         {
             _orderDetailRepository = orderDetailRepository;
+        }
+
+        public Result<List<OrderDetailViewModel>> GetOrderDetails()
+        {
+            var dtos = _orderDetailRepository.GetOrderDetails();
+            var vm =dtos.AsEnumerable()
+                .Select(o => OrderDetailMapper.ToVM(o))
+                .ToList();
+            return Result<List<OrderDetailViewModel>>.Success(vm);
         }
     }
 }

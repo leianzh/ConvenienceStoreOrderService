@@ -11,5 +11,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IOrderDetailService
     {
+        Result<List<OrderDetailViewModel>> GetOrderDetails();
     }
 }

@@ -1,7 +1,42 @@
-﻿
-@{
-    ViewBag.Title = "List";
+﻿@model List<ConvenienceStoreOrderService.Models.ViewModels.OrderDetailViewModel>
+
+
+<h2>訂單明細</h2>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
 }
 
-<h2>List</h2>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+<table class="table">
+    <thead>
 
+        <tr>
+            <th>訂單編號</th>
+            <th>商品名稱</th>
+            <th>數量</th>
+            <th>單價</th>
+            <th>小計</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OrderId</td>
+                <td>@item.ProductName</td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitPrice</td>
+                <td>@item.SubTotal</td>
+            </tr>
+        }
+    </tbody>
+</table>
