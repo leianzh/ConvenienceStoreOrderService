@@ -20,7 +20,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Shipment> Shipments { get; set; }
-
+        public DbSet<Payment> Payments { get; set; }
 
     }
 }
