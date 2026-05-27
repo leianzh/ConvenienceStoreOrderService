@@ -17,15 +17,15 @@ namespace ConvenienceStoreOrderService.Controllers
         }
 
         // GET: OrderDetails
-        public ActionResult List()
-        {
-            var result=_orderDetailService.GetOrderDetails();
-            if (!result.IsSuccess)
-            {
-                TempData["ErrorMessage"] = result.Message;
-                return  RedirectToAction("List"); ;
-            }
-            return View(result.Data);
-        }
+        //public ActionResult List()
+        //{
+        //    var result=_orderDetailService.GetOrderDetails(int or);
+        //    if (!result.IsSuccess)
+        //    {
+        //        TempData["ErrorMessage"] = result.Message;
+        //        return  RedirectToAction("List"); ;
+        //    }
+        //    return View(result.Data);
+        //}
     }
 }

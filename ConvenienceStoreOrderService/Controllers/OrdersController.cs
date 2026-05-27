@@ -15,11 +15,13 @@ namespace ConvenienceStoreOrderService.Controllers
     {
         private IOrderService _orderService;
         private  IShipmentService _shipmentService;
+        private IOrderDetailService _orderDetailService;
 
-        public OrdersController(IOrderService orderService, IShipmentService shipmentService)
+        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService)
         {
             _orderService = orderService;
             _shipmentService = shipmentService;
+            _orderDetailService = orderDetailService;
         }
         // GET: Order
         public ActionResult List()
@@ -139,12 +141,19 @@ namespace ConvenienceStoreOrderService.Controllers
             }
 
             TempData["SuccessMessage"] = "下單成功";
-            return RedirectToAction("List", "Products");
+            return RedirectToAction("List", "Orders");
         }
-        public ActionResult Details(int id)
+        public ActionResult Details(int orderId)
         {
+            var result = _orderDetailService.GetOrderDetails(orderId);
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List", "Orders");
+            }
+
+            return View(result.Data);
             
-            return View();
         }
     }
 }

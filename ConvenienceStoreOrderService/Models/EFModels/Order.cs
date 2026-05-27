@@ -18,7 +18,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }//SubTotal+ShippingFee
         public string CancelReason { get; set; }
-        public DateTime PaymentDueAt { get; set; }
+        public DateTime? PaymentDueAt { get; set; }
         //建立訂單一開始就是 Processing
         public void InitProcessing(int processingStatusId)
         {

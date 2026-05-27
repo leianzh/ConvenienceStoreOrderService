@@ -21,9 +21,9 @@ namespace ConvenienceStoreOrderService.Services
             _orderDetailRepository = orderDetailRepository;
         }
 
-        public Result<List<OrderDetailViewModel>> GetOrderDetails()
+        public Result<List<OrderDetailViewModel>> GetOrderDetails(int orderId)
         {
-            var dtos = _orderDetailRepository.GetOrderDetails();
+            var dtos = _orderDetailRepository.GetOrderDetails(orderId);
             var vm =dtos.AsEnumerable()
                 .Select(o => OrderDetailMapper.ToVM(o))
                 .ToList();

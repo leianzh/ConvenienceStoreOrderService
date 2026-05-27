@@ -317,6 +317,7 @@
     <Content Include="Views\Shipment\List.cshtml" />
     <Content Include="Views\OrderDetails\List.cshtml" />
     <Content Include="Views\Payments\List.cshtml" />
+    <Content Include="Views\Orders\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -20,10 +20,11 @@ namespace ConvenienceStoreOrderService.Repositories
 
         
 
-        public List<OrderDetailDto> GetOrderDetails()
+        public List<OrderDetailDto> GetOrderDetails(int orderId)
         {
             
             var orderDetail = _db.OrderDetails
+                .Where(od => od.OrderId == orderId)
                 .AsEnumerable()
                 .Select(o =>OrderDetailMapper.ToDto(o))
                 .ToList();

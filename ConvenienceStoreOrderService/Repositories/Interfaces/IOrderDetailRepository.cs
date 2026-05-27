@@ -11,7 +11,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IOrderDetailRepository
     {
-        List<OrderDetailDto> GetOrderDetails();
+        List<OrderDetailDto> GetOrderDetails(int orderId);
         void Add(OrderDetail orderDetail);
         
     }
