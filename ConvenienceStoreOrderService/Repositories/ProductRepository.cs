@@ -98,5 +98,12 @@ namespace ConvenienceStoreOrderService.Repositories
                 .Select(p =>ProductMapper.ToDto(p))
                 .ToList();
         }
+
+        public Product GetEntityById(int productId)
+        {
+            return _db.Products.FirstOrDefault(p => p.ProductId == productId);
+        }
+
+        
     }
 }

@@ -25,7 +25,7 @@ namespace ConvenienceStoreOrderService.Services
             var dto=_orderStatusRepository.GetByCode(orderStatusCode);
             if(dto == null)
             {
-                return Result<OrderStatusDto>.Fail(ErrorCodes.Validation, "找不到指定單");
+                return Result<OrderStatusDto>.Fail(ErrorCodes.Validation, "找不到訂單狀態");
             }
             return Result<OrderStatusDto>.Success(dto);
         }

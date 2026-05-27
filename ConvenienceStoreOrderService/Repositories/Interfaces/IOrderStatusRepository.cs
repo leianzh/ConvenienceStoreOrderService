@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.Common;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
@@ -14,5 +15,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
         List<OrderStatusDto> GetOrderStatusesOptions();
         OrderStatusDto GetById(int orderStatusId);
         OrderStatusDto GetByCode(string orderStatusCode);
+
+        
     }
 }

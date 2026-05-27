@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using ConvenienceStoreOrderService.Models.Common;
 
 namespace ConvenienceStoreOrderService.Models.EFModels
 {
@@ -21,5 +22,6 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int StockOnHand { get; set; }
         public int StockReserved { get; set; }
         public int ProductVersion { get; set; }
+
     }
 }

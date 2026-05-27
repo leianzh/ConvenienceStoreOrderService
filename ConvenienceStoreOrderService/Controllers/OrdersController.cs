@@ -124,6 +124,27 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult PlaceOrder(PlaceOrderDto dto)
+        {
+            var result = _orderService.PlaceOrder(dto);
 
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+
+                // 失敗先回商品列表
+                return RedirectToAction("List", "Products");
+            }
+
+            TempData["SuccessMessage"] = "下單成功";
+            return RedirectToAction("List", "Products");
+        }
+        public ActionResult Details(int id)
+        {
+            
+            return View();
+        }
     }
 }

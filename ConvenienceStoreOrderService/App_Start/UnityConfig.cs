@@ -7,6 +7,9 @@ using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 using ConvenienceStoreOrderService.Models.EFModels;
 using System.ComponentModel;
+using Unity.Lifetime;
+
+
 
 namespace ConvenienceStoreOrderService
 {
@@ -41,7 +44,9 @@ namespace ConvenienceStoreOrderService
             // e.g. container.RegisterType<ITestService, TestService>();
             container.RegisterType<IProductService, ProductService>();//DI딩쩤
             container.RegisterType<IProductRepository, ProductRepository>();//DI딩쩤
-            container.RegisterType<AppDbContext>();//DI딩쩤
+            //container.RegisterType<AppDbContext>();//DI딩쩤
+            container.RegisterType<AppDbContext>(new HierarchicalLifetimeManager());
+
             container.RegisterType<IPaymentStatusService, PaymentStatusService>();//DI딩쩤
             container.RegisterType<IPaymentStatusRepository, PaymentStatusRepository>();//DI딩쩤
             container.RegisterType<IOrderService, OrderService>();

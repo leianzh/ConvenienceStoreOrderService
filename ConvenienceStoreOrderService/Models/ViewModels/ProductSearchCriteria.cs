@@ -17,6 +17,10 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public bool? IsActive { get; set; }
 
         public int? TemperatureType { get; set; }
+        public int ProductId { get; set; }
+        public int SellerUserId { get; set; }
+        public string ProductName { get; set; }
+        public int Price { get; set; }
         // 下拉選單資料
         public List<SelectListItem> IsActiveOptions { get; set; }
 

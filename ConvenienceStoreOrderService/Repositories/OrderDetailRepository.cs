@@ -18,6 +18,8 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
+        
+
         public List<OrderDetailDto> GetOrderDetails()
         {
             
@@ -28,5 +30,11 @@ namespace ConvenienceStoreOrderService.Repositories
             return orderDetail;
             
         }
+        public void Add(OrderDetail orderDetail)
+        {
+            _db.OrderDetails.Add(orderDetail);
+        }
+
+        
     }
 }

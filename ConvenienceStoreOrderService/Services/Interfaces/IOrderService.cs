@@ -18,6 +18,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> CancelOrder(int orderId,string cancelReason);
         Result<bool> MarkArrived(int orderId);
         Result<bool> MarkPickedUp(int orderId);
+        Result<int> PlaceOrder(PlaceOrderDto dto);
 
 
 

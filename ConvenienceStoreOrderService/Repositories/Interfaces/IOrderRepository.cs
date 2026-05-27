@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
     {
          List<OrderDto> GetOrderListForDisplay();
         Order GetEntityById(int orderId);
-
+        void Add(Order order);
 
         void SaveChanges();
 

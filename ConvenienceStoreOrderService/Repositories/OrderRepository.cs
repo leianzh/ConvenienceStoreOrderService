@@ -55,6 +55,11 @@ namespace ConvenienceStoreOrderService.Repositories
             return _db.Orders
                 .FirstOrDefault(o => o.OrderId == orderId);
         }
+        //新增一筆訂單
+        public void Add(Order order)
+        {
+            _db.Orders.Add(order);
+        }
         public void SaveChanges()
         {
             _db.SaveChanges();

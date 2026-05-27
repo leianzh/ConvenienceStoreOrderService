@@ -17,5 +17,12 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db = db;
         }
+
+        public void Add(Payment payment)
+        {
+            _db.Payments.Add(payment);
+        }
+
+        
     }
 }

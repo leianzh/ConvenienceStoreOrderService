@@ -6,6 +6,19 @@
 
 <h2>商品列表</h2>
 @Html.ValidationSummary()
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="color:red;">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="color:green;">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
 @using (Html.BeginForm("List", "Products", FormMethod.Get))
 {
@@ -41,6 +54,8 @@
         <tr>
             <th>商品名稱</th>
             <th>價格</th>
+            <th>購買數量</th>
+             <th>操作</th>
         </tr>
     </thead>
     <tbody>
@@ -49,6 +64,28 @@
             <tr>
                 <td>@item.ProductName</td>
                 <td>@item.Price</td>
+                @using (Html.BeginForm("PlaceOrder", "Orders", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.Hidden("ProductId", item.ProductId)
+
+                    // 先寫死測試用
+                    @Html.Hidden("BuyerUserId", 1)
+                    @Html.Hidden("SellerUserId", 2)
+                    @Html.Hidden("PaymentMethod", 1)
+
+                    <td>
+                        <input type="number"
+                               name="Quantity"
+                               value="1"
+                               min="1" />
+                    </td>
+
+                    <td>
+                        <button type="submit">立即下單</button>
+                    </td>
+                }
             </tr>
         }
     </tbody>

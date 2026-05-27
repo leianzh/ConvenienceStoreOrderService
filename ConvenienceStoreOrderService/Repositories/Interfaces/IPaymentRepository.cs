@@ -11,5 +11,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IPaymentRepository
     {
+        void Add(Payment payment);
+        
     }
 }

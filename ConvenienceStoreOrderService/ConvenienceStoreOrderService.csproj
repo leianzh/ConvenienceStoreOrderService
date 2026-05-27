@@ -177,6 +177,7 @@
     <Compile Include="Controllers\OrderDetailsController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\OrderstatusController.cs" />
+    <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PaymentStatusController.cs" />
     <Compile Include="Controllers\ProductsAPIController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
@@ -206,12 +207,14 @@
     <Compile Include="Models\DTOs\OrderDto.cs" />
     <Compile Include="Models\DTOs\OrderStatusDto.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
+    <Compile Include="Models\DTOs\PlaceOrderDto.cs" />
     <Compile Include="Models\DTOs\ProductDto.cs" />
     <Compile Include="Models\DTOs\ShipmentCreateDto.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Order.cs" />
     <Compile Include="Models\EFModels\OrderDetail.cs" />
     <Compile Include="Models\EFModels\OrderStatus.cs" />
+    <Compile Include="Models\EFModels\Payment.cs" />
     <Compile Include="Models\EFModels\PaymentStatus.cs" />
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\EFModels\Shipment.cs" />
@@ -229,24 +232,28 @@
     <Compile Include="Repositories\Interfaces\IOrderDetailRepository.cs" />
     <Compile Include="Repositories\Interfaces\IOrderRepository.cs" />
     <Compile Include="Repositories\Interfaces\IOrderStatusRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IPaymentRepository.cs" />
     <Compile Include="Repositories\Interfaces\IPaymentStatusRepository.cs" />
     <Compile Include="Repositories\Interfaces\IProductRepository.cs" />
     <Compile Include="Repositories\Interfaces\IShipmentRepository.cs" />
     <Compile Include="Repositories\OrderDetailRepository.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Repositories\OrderStatusRepository.cs" />
+    <Compile Include="Repositories\PaymentRepository.cs" />
     <Compile Include="Repositories\PaymentStatusRepository.cs" />
     <Compile Include="Repositories\ProductRepository.cs" />
     <Compile Include="Repositories\ShipmentRepository.cs" />
     <Compile Include="Services\Interfaces\IOrderDetailService.cs" />
     <Compile Include="Services\Interfaces\IOrderService.cs" />
     <Compile Include="Services\Interfaces\IOrderStatusService.cs" />
+    <Compile Include="Services\Interfaces\IPaymentService.cs" />
     <Compile Include="Services\Interfaces\IPaymentStatusService.cs" />
     <Compile Include="Services\Interfaces\IProductService.cs" />
     <Compile Include="Services\Interfaces\IShipmentService.cs" />
     <Compile Include="Services\OrderDetailService.cs" />
     <Compile Include="Services\OrderService.cs" />
     <Compile Include="Services\OrderStatusService.cs" />
+    <Compile Include="Services\PaymentService.cs" />
     <Compile Include="Services\PaymentStatusService.cs" />
     <Compile Include="Services\ProductService.cs" />
     <Compile Include="Services\ShipmentService.cs" />
@@ -309,6 +316,7 @@
     <Content Include="Views\Orderstatus\List.cshtml" />
     <Content Include="Views\Shipment\List.cshtml" />
     <Content Include="Views\OrderDetails\List.cshtml" />
+    <Content Include="Views\Payments\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
