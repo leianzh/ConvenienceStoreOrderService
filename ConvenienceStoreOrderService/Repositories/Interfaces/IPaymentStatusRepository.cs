@@ -11,5 +11,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
     public interface IPaymentStatusRepository
     {
         List<PaymentStatusDto> GetPaymentStatusOptions();
+        PaymentStatusDto GetByCode(string paymentStatusCode);
     }
 }

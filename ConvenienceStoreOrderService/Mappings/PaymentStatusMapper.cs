@@ -14,16 +14,22 @@ namespace ConvenienceStoreOrderService.Mappings
         {
             return new PaymentStatusDto
             {
+                PaymentStatusId = entity.PaymentStatusId,
                 PaymentStatusCode = entity.PaymentStatusCode,
-                PaymentStatusName = entity.PaymentStatusName
+                PaymentStatusName = entity.PaymentStatusName,
+                PaymentStatusSort = entity.PaymentStatusSort,
+                IsActive = entity.IsActive,
             };
         }
         public static PaymentStatusViewModel ToVm(PaymentStatusDto dto)
         {
             return new PaymentStatusViewModel
             {
+                PaymentStatusId = dto.PaymentStatusId,
                 PaymentStatusCode = dto.PaymentStatusCode,
-                PaymentStatusName = dto.PaymentStatusName
+                PaymentStatusName = dto.PaymentStatusName,
+                PaymentStatusSort = dto.PaymentStatusSort,
+                IsActive = dto.IsActive,
             };
         }
     }

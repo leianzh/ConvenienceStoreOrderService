@@ -8,6 +8,7 @@ using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Mappings;
 using ConvenienceStoreOrderService.Models.Common;
+using ConvenienceStoreOrderService.Models.DTOs;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -20,7 +21,17 @@ namespace ConvenienceStoreOrderService.Services
         _paymentStatusRepository = paymentStatusRepository;
     }
 
-    public Result< List<PaymentStatusViewModel>> GetPaymentStatusOptions()
+        public Result<PaymentStatusDto> GetByCode(string paymentStatusCode)
+        {
+            var dto = _paymentStatusRepository.GetByCode(paymentStatusCode);
+            if (dto == null)
+            {
+                return Result<PaymentStatusDto>.Fail(ErrorCodes.Validation, "找不到訂單狀態");
+            }
+            return Result<PaymentStatusDto>.Success(dto);
+        }
+
+        public Result< List<PaymentStatusViewModel>> GetPaymentStatusOptions()
     {
             try 
             {

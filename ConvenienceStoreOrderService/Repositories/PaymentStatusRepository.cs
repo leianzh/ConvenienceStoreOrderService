@@ -19,6 +19,17 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
+        public PaymentStatusDto GetByCode(string paymentStatusCode)
+        {
+            var entity =_db.PaymentStatuses
+                .FirstOrDefault(p => p.PaymentStatusCode == paymentStatusCode && p.IsActive);
+            if (entity == null) 
+            {
+                return null;
+            }
+            return PaymentStatusMapper.ToDto(entity);
+        }
+
         public List<PaymentStatusDto> GetPaymentStatusOptions()
         {
             return _db.PaymentStatuses
