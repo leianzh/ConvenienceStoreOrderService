@@ -155,5 +155,17 @@ namespace ConvenienceStoreOrderService.Controllers
             return View(result.Data);
             
         }
+        public ActionResult DetailPage(int orderId)
+        {
+            var result = _orderDetailService.GetOrderDetailsPage(orderId);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List", "Orders");
+            }
+
+            return View(result.Data);
+        }
     }
 }

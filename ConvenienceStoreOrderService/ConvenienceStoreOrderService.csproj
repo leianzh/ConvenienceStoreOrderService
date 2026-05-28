@@ -186,6 +186,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Mappings\OrderDetailMapper.cs" />
+    <Compile Include="Mappings\OrderDetailsPageMapper.cs" />
     <Compile Include="Mappings\OrderMapper.cs" />
     <Compile Include="Mappings\OrderStatusMapper.cs" />
     <Compile Include="Mappings\PaymentStatusMapper.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="Models\Common\Result.cs" />
     <Compile Include="Models\Constants\ShipmentStatusIds.cs" />
     <Compile Include="Models\DTOs\OrderDetailDto.cs" />
+    <Compile Include="Models\DTOs\OrderDetailsPageDto.cs" />
     <Compile Include="Models\DTOs\OrderDto.cs" />
     <Compile Include="Models\DTOs\OrderStatusDto.cs" />
     <Compile Include="Models\DTOs\PaymentStatusDto.cs" />
@@ -220,6 +222,7 @@
     <Compile Include="Models\EFModels\Shipment.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />
+    <Compile Include="Models\ViewModels\OrderDetailsPageViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderDetailViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderStatusCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusViewModel.cs" />
@@ -318,6 +321,7 @@
     <Content Include="Views\OrderDetails\List.cshtml" />
     <Content Include="Views\Payments\List.cshtml" />
     <Content Include="Views\Orders\Details.cshtml" />
+    <Content Include="Views\Orders\OrderDetailsPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

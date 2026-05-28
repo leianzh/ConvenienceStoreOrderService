@@ -29,5 +29,13 @@ namespace ConvenienceStoreOrderService.Services
                 .ToList();
             return Result<List<OrderDetailViewModel>>.Success(vm);
         }
+
+        public Result<OrderDetailsPageViewModel> GetOrderDetailsPage(int orderId)
+        {
+            var dtos=_orderDetailRepository.GetOrderDetailsPage(orderId);
+            var vm = OrderDetailsPageMapper.ToVm(dtos);
+            return Result<OrderDetailsPageViewModel>.Success(vm);
+
+        }
     }
 }

@@ -1,0 +1,97 @@
+﻿@model ConvenienceStoreOrderService.Models.ViewModels.OrderDetailsPageViewModel
+<h2 class="mb-3">訂單明細</h2>
+
+<div class="card mb-3">
+    <div class="card-header">
+        訂單資訊
+    </div>
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">訂單編號</div>
+            <div class="col-md-9">@Model.OrderNo</div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">訂購時間</div>
+            <div class="col-md-9">@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">訂單狀態</div>
+            <div class="col-md-9">
+                <span class="badge bg-secondary">@Model.OrderStatusName</span>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">寄件代碼</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.ShippingCode) ? "尚未取得" : Model.ShippingCode)
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">物流狀態</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.ShipmentStatusName) ? "尚未建立物流" : Model.ShipmentStatusName)
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">物流追蹤碼</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.TrackingNo) ? "-" : Model.TrackingNo)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        商品明細
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>商品名稱</th>
+                    <th>單價</th>
+                    <th>數量</th>
+                    <th>小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>NT$ @item.UnitPrice</td>
+                        <td>@item.Quantity</td>
+                        <td>NT$ @item.SubTotal</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end">
+            <p>運費：NT$ @Model.ShippingFee</p>
+            <h5>總計：NT$ @Model.OrderTotal</h5>
+        </div>
+    </div>
+</div>
+
+@*<div class="card mb-3">
+    <div class="card-header">
+        付款資訊
+    </div>
+    <div class="card-body">
+        <p>付款方式：@Model.PaymentMethodName</p>
+        <p>付款狀態：@Model.PaymentStatusName</p>
+    </div>
+</div>*@
+
+<a href="@Url.Action("List", "Orders")" class="btn btn-secondary">
+    回訂單列表
+</a>
+

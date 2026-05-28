@@ -36,6 +36,60 @@ namespace ConvenienceStoreOrderService.Repositories
             _db.OrderDetails.Add(orderDetail);
         }
 
-        
+        public OrderDetailsPageDto GetOrderDetailsPage(int orderId)
+        {
+            var orderData =
+        (from o in _db.Orders
+
+         
+
+         join os in _db.OrderStatuses
+            on o.OrderStatusId equals os.OrderStatusId
+
+         join p in _db.Payments
+            on o.OrderId equals p.OrderId
+
+         join ps in _db.PaymentStatuses
+            on p.PaymentStatusId equals ps.PaymentStatusId
+
+         join sh in _db.Shipments
+            on o.OrderId equals sh.OrderId into shipmentGroup
+         from shipment in shipmentGroup.DefaultIfEmpty()
+
+         where o.OrderId == orderId
+
+         select new
+         {
+             Order = o,
+             OrderStatusName = os.OrderStatusName,
+             PaymentStatusName = ps.PaymentStatusName,
+             ShippingCode = shipment != null ? shipment.ShippingCode : null,
+             TrackingNo = shipment != null ? shipment.TrackingNo : null,
+             ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
+
+         })
+        .FirstOrDefault();
+            if (orderData == null)
+            {
+                return null;
+            }
+
+            var items = _db.OrderDetails
+                .Where(od => od.OrderId == orderId)
+                .AsEnumerable()
+                .Select(od => OrderDetailMapper.ToDto(od))
+                .ToList();
+
+            return  OrderDetailsPageMapper.ToDto(
+                orderData.Order,
+                orderData.OrderStatusName,
+                orderData.PaymentStatusName,
+                orderData.ShippingCode,
+                orderData.TrackingNo,
+                items,
+                orderData.ShipmentStatusId
+                               
+            );
+        }
     }
 }

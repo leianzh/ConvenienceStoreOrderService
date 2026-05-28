@@ -1,161 +1,184 @@
 ﻿@model List<ConvenienceStoreOrderService.Models.ViewModels.OrderViewModel>
-<h2>訂單資訊</h2>
+<h2 class="mb-3">訂單資訊</h2>
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
+<div class="alert alert-success">
+    @TempData["SuccessMessage"]
+</div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
+<div class="alert alert-danger">
+    @TempData["ErrorMessage"]
+</div>
 }
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>訂單編號</th>
-            <th>訂單來源</th>
-            <th>付款方式</th>
-            <th>建立時間</th>
-            <th>運費</th>
-            <th>訂單總金額</th>
-            <th>取消原因</th>
-            <th>訂單狀態</th>
-            <th>寄件代碼</th>
-            <th>物流狀態</th>
-            <th>物流追蹤碼</th>
-            <th>操作</th>
-
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model)
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>訂購日期</th>
+                <th>訂單編號</th>
+                @*<th>付款方式</th>*@
+                <th>運費</th>
+                <th>訂單總金額</th>
+                <th>訂單狀態</th>
+                <th>訂單取消原因</th>
+                <th>寄件代碼</th>
+                <th>物流狀態</th>
+                <th>物流追蹤碼</th>
+                <th style="width: 220px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
         {
             <tr>
-                <td>@order.OrderNo</td>
-                <td>@order.OrderSource</td>
-                <td>@order.PaymentMethod</td>
                 <td>@order.CreatedAt</td>
-                <td>@order.ShippingFee</td>
-                <td>@order.OrderTotal</td>
-                <td>@order.CancelReason</td>
-                <td>@order.OrderStatusName</td>
-                <td>@order.ShippingCode</td>
-                <td>@order.ShipmentStatusName</td>
-                <td>@order.TrackingNo</td>
+                <td>@order.OrderNo</td>
+                @*<td>@order.PaymentMethod</td>*@
+                <td>NT$@order.ShippingFee</td>
+                <td>NT$@order.OrderTotal</td>
+                <td>
+                    <span class="badge bg-secondary">
+                        @order.OrderStatusName
+                    </span>
+                </td>
+                <td>
+                    @if (string.IsNullOrEmpty(order.CancelReason))
+    {
+                    <span class="text-muted">-</span>
+    }
+    else
+    {
+                    <span class="text-danger">@order.CancelReason</span>
+    }
+                </td>
+                <td>
+                    @if (string.IsNullOrEmpty(order.ShippingCode))
+                        {
+                    <span class="text-muted">尚未取得</span>
+                        }
+                        else
+                        {
+                    <span>@order.ShippingCode</span>
+                        }
+                </td>
+                <td>
+                    @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+                        {
+                    <span class="text-muted">尚未建立物流</span>
+                        }
+                        else
+                        {
+                    <span class="badge bg-info text-dark">
+                        @order.ShipmentStatusName
+                    </span>
+                        }
+                </td>
+                <td>
+                    @if (string.IsNullOrEmpty(order.TrackingNo))
+                        {
+                    <span class="text-muted">-</span>
+                        }
+                        else
+                        {
+                    <span>@order.TrackingNo</span>
+                        }
+                </td>
                 <td>
                     <a href="@Url.Action("Details", "Orders", new { orderId = order.OrderId })"
-                       class="btn btn-secondary">
+                       class="btn btn-outline-secondary btn-sm">
                         查看明細
                     </a>
-                    @if (string.IsNullOrEmpty(order.ShippingCode))
-                    {
-                        using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
-                        {
-                    @Html.Hidden("OrderId", order.OrderId)
-                    <input type="text"
-                           name="RecipientName"
-                           placeholder="收件人姓名"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-                    <input type="text"
-                           name="RecipientPhone"
-                           placeholder="收件人電話"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-                    <input type="text"
-                           name="PickupStore"
-                           placeholder="取貨門市"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-
-                    <input type="text"
-                           name="SenderName"
-                           placeholder="寄件人姓名"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-
-                    <input type="text"
-                           name="SenderPhone"
-                           placeholder="寄件人電話"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-
-                    <input type="text"
-                           name="ReturnStore"
-                           placeholder="退貨門市"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('欄位必填')"
-                           oninput="this.setCustomValidity('')" />
-
-                    <button type="submit" class="btn btn-primary">
-                        取得寄件代碼
+                    <button class="btn btn-outline-primary btn-sm"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#shipmentActions_@order.OrderId">
+                        物流操作
                     </button>
-                        }
-                    }
-                    else
-                    {
-                    <span class="text-success">已取得寄件代碼</span>
-                    }
-
-
-
-
-                    @using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
-                    {
-                    @Html.Hidden("OrderId", order.OrderId)
-                    <button type="submit" class="btn btn-warning">
-                        模擬已寄件
-                    </button>
-                    }
-                    @using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
-                    {
-                    @Html.Hidden("OrderId", order.OrderId)
-                    <button type="submit" class="btn btn-success">
-                        模擬已到店
-                    </button>
-                    }
-
-                    @using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
-                    {
-                    @Html.Hidden("OrderId", order.OrderId)
-                    <button type="submit" class="btn btn-info">
-                        模擬已取貨
-                    </button>
-                    }
-                    @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
-                    {
-                    @Html.Hidden("orderId", order.OrderId)
-                    <input type="text"
-                           name="cancelReason"
-                           placeholder="請輸入取消原因"
-                           class="form-control"
-                           required
-                           oninvalid="this.setCustomValidity('取消原因必填')"
-                           oninput="this.setCustomValidity('')" />
-
-                    <button type="submit" class="btn btn-danger">
+                    <button class="btn btn-outline-danger btn-sm"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#cancelBox_@order.OrderId">
                         取消訂單
                     </button>
-                    }
-                </td>
+                    <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
 
-            </tr>
+                        @if (string.IsNullOrEmpty(order.ShippingCode))
+    {
+        using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("OrderId", order.OrderId)
+
+                        <input type="text" name="RecipientName" placeholder="收件人姓名" class="form-control mb-1" required />
+                        <input type="text" name="RecipientPhone" placeholder="收件人電話" class="form-control mb-1" required />
+                        <input type="text" name="PickupStore" placeholder="取貨門市" class="form-control mb-1" required />
+
+                        <input type="text" name="SenderName" placeholder="寄件人姓名" class="form-control mb-1" required />
+                        <input type="text" name="SenderPhone" placeholder="寄件人電話" class="form-control mb-1" required />
+                        <input type="text" name="ReturnStore" placeholder="退貨門市" class="form-control mb-1" required />
+
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            取得寄件代碼
+                        </button>
         }
-    </tbody>
-</table>
+    }
+    else
+    {
+                        <div class="text-success mb-2">
+                            已取得寄件代碼：@order.ShippingCode
+                        </div>
+
+        using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-warning btn-sm mb-1">
+                            模擬已寄件
+                        </button>
+        }
+
+        using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-success btn-sm mb-1">
+                            模擬已到店
+                        </button>
+        }
+
+        using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-info btn-sm mb-1">
+                            模擬已取貨
+                        </button>
+        }
+    }
+                    </div>
+                    <div class="collapse mt-2" id="cancelBox_@order.OrderId">
+                        @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("orderId", order.OrderId)
+
+                        <input type="text"
+                               name="cancelReason"
+                               placeholder="請輸入取消原因"
+                               class="form-control form-control-sm mb-2"
+                               required
+                               oninvalid="this.setCustomValidity('取消原因必填')"
+                               oninput="this.setCustomValidity('')" />
+
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            送出取消
+                        </button>
+        }
+                    </div>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
