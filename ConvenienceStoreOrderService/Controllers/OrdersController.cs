@@ -155,7 +155,7 @@ namespace ConvenienceStoreOrderService.Controllers
             return View(result.Data);
             
         }
-        public ActionResult DetailPage(int orderId)
+        public ActionResult OrderDetailsPage(int orderId)
         {
             var result = _orderDetailService.GetOrderDetailsPage(orderId);
 

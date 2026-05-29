@@ -7,19 +7,36 @@ using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Mappings;
+using Microsoft.Ajax.Utilities;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
         private readonly AppDbContext _db;
-        public OrderRepository(AppDbContext db)
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IPaymentStatusRepository _paymentStatusRepository;
+        public OrderRepository(AppDbContext db,IPaymentRepository paymentRepository,    IPaymentStatusRepository paymentStatusRepository)
         {
             _db = db;
+            _paymentRepository = paymentRepository;
+            _paymentStatusRepository = paymentStatusRepository;
         }
-        //查訂單列表 + 查訂單狀態名稱 + 查物流資料
+        
+        
+        //查訂單列表 + 查訂單狀態名稱 + 查物流資料+付款狀態
         public List<OrderDto> GetOrderListForDisplay() 
         {
+            var paymentResult =
+                from py in _db.Payments
+                join ps in _db.PaymentStatuses
+                on py.PaymentStatusId equals ps.PaymentStatusId
+                select new 
+                {
+                    Payment = py,
+                    PaymentStatusName = ps.PaymentStatusName,
+                };
+
             var result =
         from o in _db.Orders
         join s in _db.OrderStatuses
@@ -27,14 +44,23 @@ namespace ConvenienceStoreOrderService.Repositories
 
         join sh in _db.Shipments
             on o.OrderId equals sh.OrderId into shipmentGroup
-        from shipment in shipmentGroup.DefaultIfEmpty()
+            from shipment in shipmentGroup.DefaultIfEmpty()
+
+            join ps in paymentResult
+            on o.OrderId equals ps.Payment.OrderId into paymentGroup
+            from payment in paymentGroup.DefaultIfEmpty()
+
+
         select new 
         {
             Order = o,
             OrderStatusName = s.OrderStatusName,
             ShippingCode = shipment != null ? shipment.ShippingCode : null,
             ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
-            TrackingNo =shipment.TrackingNo
+            TrackingNo =shipment.TrackingNo,
+            PaymentStatusId = payment.Payment.PaymentStatusId,
+            PaymentStatusName =  payment.PaymentStatusName
+
         };
 
             return result
@@ -44,7 +70,9 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.OrderStatusName,
                     o.ShippingCode,
                     o.ShipmentStatusId,
-                    o.TrackingNo
+                    o.TrackingNo,
+                    o.PaymentStatusId,
+                    o.PaymentStatusName
                     ))
                 .ToList();
 

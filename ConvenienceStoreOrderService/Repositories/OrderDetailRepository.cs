@@ -38,23 +38,30 @@ namespace ConvenienceStoreOrderService.Repositories
 
         public OrderDetailsPageDto GetOrderDetailsPage(int orderId)
         {
+            var paymentResult =
+                from py in _db.Payments
+                join ps in _db.PaymentStatuses
+                on py.PaymentStatusId equals ps.PaymentStatusId
+                select new
+                {
+                    OrderId=py.OrderId,
+                    PaymentStatusId = py.PaymentStatusId,
+                    PaymentStatusName = ps.PaymentStatusName,
+
+                };
+
             var orderData =
         (from o in _db.Orders
-
-         
-
          join os in _db.OrderStatuses
             on o.OrderStatusId equals os.OrderStatusId
-
-         join p in _db.Payments
-            on o.OrderId equals p.OrderId
-
-         join ps in _db.PaymentStatuses
-            on p.PaymentStatusId equals ps.PaymentStatusId
 
          join sh in _db.Shipments
             on o.OrderId equals sh.OrderId into shipmentGroup
          from shipment in shipmentGroup.DefaultIfEmpty()
+
+         join ps in paymentResult
+            on o.OrderId equals ps.OrderId into paymentGroup
+         from payment in paymentGroup.DefaultIfEmpty()
 
          where o.OrderId == orderId
 
@@ -62,9 +69,9 @@ namespace ConvenienceStoreOrderService.Repositories
          {
              Order = o,
              OrderStatusName = os.OrderStatusName,
-             PaymentStatusName = ps.PaymentStatusName,
-             ShippingCode = shipment != null ? shipment.ShippingCode : null,
-             TrackingNo = shipment != null ? shipment.TrackingNo : null,
+             PaymentStatusName = payment == null ? "" : payment.PaymentStatusName,
+             ShippingCode = shipment == null ? "" : shipment.ShippingCode ,
+             TrackingNo = shipment == null ? "" :shipment.TrackingNo,
              ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
 
          })

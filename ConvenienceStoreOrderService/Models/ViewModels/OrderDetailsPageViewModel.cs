@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public DateTime CreatedAt { get; set; }
         public string OrderStatusName { get; set; }
         //public string PaymentMethodName { get; set; }
-        //public string PaymentStatusName { get; set; }
+        public string PaymentStatusName { get; set; }
         public string ShippingCode { get; set; }
         public string TrackingNo { get; set; }
         public int ShippingFee { get; set; }

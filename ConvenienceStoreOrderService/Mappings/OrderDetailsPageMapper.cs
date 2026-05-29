@@ -29,7 +29,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 CreatedAt = entity.CreatedAt,
 
                 OrderStatusName = orderStatusName,
-                //PaymentStatusName = paymentStatusName,
+                PaymentStatusName = paymentStatusName,
 
                 ShippingFee = entity.ShippingFee,              
                 OrderTotal = entity.OrderTotal,
@@ -60,7 +60,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 CreatedAt = dto.CreatedAt,
 
                 OrderStatusName = dto.OrderStatusName,
-                //PaymentStatusName = dto.PaymentStatusName,
+                PaymentStatusName = dto.PaymentStatusName,
 
                 //PaymentMethod = dto.PaymentMethod,
                 ShippingFee = dto.ShippingFee,

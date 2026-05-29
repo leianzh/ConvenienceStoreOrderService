@@ -81,15 +81,15 @@
     </div>
 </div>
 
-@*<div class="card mb-3">
+<div class="card mb-3">
     <div class="card-header">
         付款資訊
     </div>
     <div class="card-body">
-        <p>付款方式：@Model.PaymentMethodName</p>
+        @*<p>付款方式：@Model.PaymentMethodName</p>*@
         <p>付款狀態：@Model.PaymentStatusName</p>
     </div>
-</div>*@
+</div>
 
 <a href="@Url.Action("List", "Orders")" class="btn btn-secondary">
     回訂單列表

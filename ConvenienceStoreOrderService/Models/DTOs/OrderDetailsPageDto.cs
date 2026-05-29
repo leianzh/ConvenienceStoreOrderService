@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public DateTime CreatedAt { get; set; }
         public string OrderStatusName { get; set; }
 
-        //public string PaymentStatusName { get; set; }
+        public string PaymentStatusName { get; set; }
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
         public string ShippingCode { get; set; }

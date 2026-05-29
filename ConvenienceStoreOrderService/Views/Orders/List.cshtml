@@ -23,6 +23,7 @@
                 <th>運費</th>
                 <th>訂單總金額</th>
                 <th>訂單狀態</th>
+                <th>付款狀態</th>
                 <th>訂單取消原因</th>
                 <th>寄件代碼</th>
                 <th>物流狀態</th>
@@ -40,8 +41,13 @@
                 <td>NT$@order.ShippingFee</td>
                 <td>NT$@order.OrderTotal</td>
                 <td>
-                    <span class="badge bg-secondary">
+                    <span class="badge bg-primary">
                         @order.OrderStatusName
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-success">
+                        @order.PaymentStatusName
                     </span>
                 </td>
                 <td>
@@ -87,7 +93,7 @@
                         }
                 </td>
                 <td>
-                    <a href="@Url.Action("Details", "Orders", new { orderId = order.OrderId })"
+                    <a href="@Url.Action("OrderDetailsPage", "Orders", new { orderId = order.OrderId })"
                        class="btn btn-outline-secondary btn-sm">
                         查看明細
                     </a>
