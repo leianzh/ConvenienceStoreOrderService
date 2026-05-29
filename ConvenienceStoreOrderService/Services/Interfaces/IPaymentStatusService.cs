@@ -13,5 +13,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     {
        Result< List<PaymentStatusViewModel>> GetPaymentStatusOptions();
         Result<PaymentStatusDto> GetByCode(string paymentStatusCode);
+        Result<PaymentStatusDto> GetById(int paymentStatusId);
+
     }
 }

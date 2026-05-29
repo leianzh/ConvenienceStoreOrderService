@@ -26,7 +26,17 @@ namespace ConvenienceStoreOrderService.Services
             var dto = _paymentStatusRepository.GetByCode(paymentStatusCode);
             if (dto == null)
             {
-                return Result<PaymentStatusDto>.Fail(ErrorCodes.Validation, "找不到訂單狀態");
+                return Result<PaymentStatusDto>.Fail(ErrorCodes.Validation, "找不到付款狀態");
+            }
+            return Result<PaymentStatusDto>.Success(dto);
+        }
+
+        public Result<PaymentStatusDto> GetById(int paymentStatusId)
+        {
+            var dto = _paymentStatusRepository.GetById(paymentStatusId);
+            if(dto == null) 
+            {
+                return Result<PaymentStatusDto>.Fail(ErrorCodes.Validation, "找不到付款狀態");
             }
             return Result<PaymentStatusDto>.Success(dto);
         }

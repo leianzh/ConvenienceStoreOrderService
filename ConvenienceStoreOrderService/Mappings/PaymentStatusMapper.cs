@@ -14,6 +14,7 @@ namespace ConvenienceStoreOrderService.Mappings
         {
             return new PaymentStatusDto
             {
+                
                 PaymentStatusId = entity.PaymentStatusId,
                 PaymentStatusCode = entity.PaymentStatusCode,
                 PaymentStatusName = entity.PaymentStatusName,
