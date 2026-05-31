@@ -27,5 +27,8 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             return _db.Payments.FirstOrDefault(x => x.OrderId == orderId);
         }
+        public void SaveChanges()
+        {
+            _db.SaveChanges();
+        }
     }
-}

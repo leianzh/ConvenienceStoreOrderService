@@ -179,41 +179,64 @@ namespace ConvenienceStoreOrderService.Services
             _orderRepository.SaveChanges();
             return Result<bool>.Success(true, "訂單狀態已更新為已到店。");
         }
-        //Arrived->PickedUp
+        //Arrived->PickedUp，COD取貨付款
         public Result<bool> MarkPickedUp(int orderId)
         {
-            var order = _orderRepository.GetEntityById(orderId);
-            if (order == null)
+            var tran = _db.Database.BeginTransaction();
+            try
             {
-                return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
-            }
-            //查Order的OrderStatusId目前訂單狀態
-            var currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
-            if (!currentStatusResult.IsSuccess)
-            {
-                return Result<bool>.Fail(ErrorCodes.SystemError,
-            "查詢目前訂單狀態失敗。");
-            }
-            //查要改的StatusCode「已取貨」狀態
-            var targetStatusResult = _orderStatusService.GetByCode("PickedUp");
-            if (!targetStatusResult.IsSuccess)
-            {
-                return Result<bool>.Fail(ErrorCodes.SystemError,
-                    "找不到已到店狀態設定。");
-            }
-            //改orderstatusId
-            var result = order.MarkPickedUp
-                (
-                 targetStatusResult.Data.OrderStatusId,
-                currentStatusResult.Data.OrderStatusCode
+                var order = _orderRepository.GetEntityById(orderId);
+                if (order == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
+                }
+                //查Order的OrderStatusId目前訂單狀態
+                var currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
+                if (!currentStatusResult.IsSuccess)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.SystemError,
+                "查詢目前訂單狀態失敗。");
+                }
+                //查要改的StatusCode「已取貨」狀態
+                var targetStatusResult = _orderStatusService.GetByCode("PickedUp");
+                if (!targetStatusResult.IsSuccess)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.SystemError,
+                        "找不到已取貨狀態。");
+                }
+                //改orderstatusId
+                var result = order.MarkPickedUp
+                    (
+                     targetStatusResult.Data.OrderStatusId,
+                    currentStatusResult.Data.OrderStatusCode
 
-                );
-            if (!string.IsNullOrEmpty(result))
-            {
-                return Result<bool>.Fail(ErrorCodes.Conflict, result);
+                    );
+                if (!string.IsNullOrEmpty(result))
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Conflict, result);
+                }
+                //付款狀態
+                var paymentResult = _paymentService.MarkCodPaidWhenPickedUp(orderId);
+
+                if (!paymentResult.IsSuccess)
+                {
+                    tran.Rollback();
+                    return paymentResult;
+                }
+                _orderRepository.SaveChanges();
+                tran.Commit();
+                return Result<bool>.Success(true, "訂單狀態已更新為已取貨。");
             }
-            _orderRepository.SaveChanges();
-            return Result<bool>.Success(true, "訂單狀態已更新為已取貨。");
+            catch (Exception ex) 
+            { 
+                tran.Rollback();
+                return Result<bool>.Fail(ErrorCodes.SystemError, "取貨失敗，請稍後再試");
+            }
+            finally { tran.Dispose(); }
         }
         //取消訂單
         public Result<bool> CancelOrder (int orderId,string cancelReson) 
@@ -384,7 +407,7 @@ namespace ConvenienceStoreOrderService.Services
                     RawCallBack = null,
                     CreatedAt = now,
                     PaymentProvider = "測試",
-                    PaymentMethod = PaymentMethodName.COD
+                    PaymentMethod = PaymentMethodName.CreditCard
 
                 };
                 payment.InitPending(paymentStatusResult.Data.PaymentStatusId);

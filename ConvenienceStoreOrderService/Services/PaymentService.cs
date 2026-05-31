@@ -72,5 +72,48 @@ namespace ConvenienceStoreOrderService.Services
             }
             
         }
+        //線上付款成功
+        public Result<bool> MarkPaid(int orderId)
+        {                
+            var payment =_paymentRepository.GetOrderId(orderId);
+            if(payment == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+
+            }
+            
+            var result = payment.MarkPaid();
+            if(!string.IsNullOrEmpty(result))
+            {
+                return Result<bool>.Fail(ErrorCodes.Conflict, result);
+            }
+            _paymentRepository.SaveChanges();
+            return Result<bool>.Success(true, "付款成功");
+        }
+        //COD取貨付款成功
+        public Result<bool> MarkCodPaidWhenPickedUp(int orderId)
+        {
+            var payment = _paymentRepository.GetOrderId(orderId);
+
+            if (payment == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+            }
+
+            // 如果不是 COD，就不用處理
+            if (payment.PaymentMethod != PaymentMethodName.COD)
+            {
+                return Result<bool>.Success(true);
+            }
+
+            var errorMessage = payment.MarkPaidForCodPickedUp();
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
+            }
+
+            return Result<bool>.Success(true, "COD 取貨付款成功");
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     {
         Result<bool> CancelPayment(int orderId);
         Result<bool> CheckCanShip(int orderId);
+        Result<bool> MarkPaid(int orderId);
+        Result<bool> MarkCodPaidWhenPickedUp(int orderId);
 
 
     }

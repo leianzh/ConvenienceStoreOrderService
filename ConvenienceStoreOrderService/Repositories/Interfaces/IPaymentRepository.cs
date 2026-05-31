@@ -13,5 +13,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
     {
         void Add(Payment payment);
         Payment GetOrderId(int orderId);
+        void SaveChanges();
+
     }
 }
