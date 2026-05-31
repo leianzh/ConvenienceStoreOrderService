@@ -22,7 +22,8 @@ namespace ConvenienceStoreOrderService.Services
         private IProductRepository _productRepository;
         private IPaymentStatusService _paymentStatusService;
         private IPaymentRepository _paymentRepository;
-        public OrderService(IOrderRepository orderRepository, IOrderStatusService orderStatusService,AppDbContext db, IProductRepository productRepository, IPaymentStatusService paymentStatusService, IOrderDetailRepository orderDetailRepository, IPaymentRepository paymentRepository)
+        private IPaymentService _paymentService;
+        public OrderService(IOrderRepository orderRepository, IOrderStatusService orderStatusService,AppDbContext db, IProductRepository productRepository, IPaymentStatusService paymentStatusService,IPaymentService paymentService,IOrderDetailRepository orderDetailRepository, IPaymentRepository paymentRepository)
         {
             _orderRepository = orderRepository;
             _orderStatusService = orderStatusService;
@@ -31,6 +32,10 @@ namespace ConvenienceStoreOrderService.Services
             _paymentStatusService = paymentStatusService;
             _orderDetailRepository = orderDetailRepository;
             _paymentRepository = paymentRepository;
+            _paymentService = paymentService;
+
+
+
         }
         public List<OrderViewModel> GetOrders()
         {
@@ -185,37 +190,71 @@ namespace ConvenienceStoreOrderService.Services
         //取消訂單
         public Result<bool> CancelOrder (int orderId,string cancelReson) 
         {
-            //取消原因必填
-            if (string.IsNullOrWhiteSpace(cancelReson))
+            var tran =_db.Database.BeginTransaction();
+            try 
             {
-                return Result<bool>.Fail(ErrorCodes.Validation, "取消原因必填");
+                //取消原因必填
+                if (string.IsNullOrWhiteSpace(cancelReson))
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, "取消原因必填");
+                }
+                //找orderId
+                var order = _orderRepository.GetEntityById(orderId);
+                if (order == null)
+                { 
+                    return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
+                }
+                //找order.statusId的code、name
+                var currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
+                if (!currentStatusResult.IsSuccess)
+                {
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到物流狀態");
+                }
+                //找Cancelled對應的id、name
+                var targetStatusResult = _orderStatusService.GetByCode("Cancelled");
+                if (!targetStatusResult.IsSuccess)
+                {
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到取消訂單");
+                }
+                //把code、id丟給ORDER.CS判斷，不是就回錯誤訊息
+                var errorMessage = order.CancelOrder(
+                    targetStatusResult.Data.OrderStatusId, currentStatusResult.Data.OrderStatusCode);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
+                }
+                
+                //判斷訂單付款狀態
+                var paymentResult =_paymentService.CancelPayment(orderId);
+                if (!paymentResult.IsSuccess) 
+                {
+                    tran.Rollback();
+                    return paymentResult;
+                }
+                //釋放預留庫存
+                var releaseReault = ReleaseReservedStock(orderId);
+                if (!releaseReault.IsSuccess)
+                {
+                    tran.Rollback();
+                    return releaseReault;
+                }
+                order.CancelReason = cancelReson;
+                _orderRepository.SaveChanges();
+                tran.Commit();
+                return Result<bool>.Success(true, "訂單已取消，已釋放預留庫存");
             }
-            //找orderId
-            var order = _orderRepository.GetEntityById(orderId);
-            if (order == null)
-            { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); }
-            //找order.statusId的code、name
-            var currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
-if(!currentStatusResult.IsSuccess) 
+            catch (Exception ex)
             {
-                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到物流狀態");
+                tran.Rollback();
+                return Result<bool>.Fail(ErrorCodes.SystemError, "取消訂單失敗，請稍後再試");
             }
-            //找Cancelled對應的id、name
-            var targetStatusResult = _orderStatusService.GetByCode("Cancelled");
-            if(!targetStatusResult.IsSuccess) 
+            finally
             {
-                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到取消訂單");
+                tran.Dispose();
             }
-            //把code、id丟給ORDER.CS判斷，不是就回錯誤訊息
-            var errorMessage = order.CancelOrder(
-                targetStatusResult.Data.OrderStatusId, currentStatusResult.Data.OrderStatusCode);
-            if (!string.IsNullOrEmpty(errorMessage)) 
-            {
-                return Result<bool>.Fail(ErrorCodes.Conflict,errorMessage);
-            }
-            order.CancelReason = cancelReson;
-            _orderRepository.SaveChanges();
-            return Result<bool>.Success(true, "訂單已取消。");
+            
+            
+            
             
         }
         //建立訂單
@@ -345,6 +384,27 @@ if(!currentStatusResult.IsSuccess)
             return "TRADE"
                 + DateTime.Now.ToString("yyyyMMddHHmmss")
                 + new Random().Next(1000, 9999);
+        }
+        //釋放預留庫存
+        public Result<bool> ReleaseReservedStock(int orderId)
+        {
+            var orderDetail =_orderRepository.GetOrderDetailId(orderId);
+            if (orderDetail == null || !orderDetail.Any())
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到訂單明細");
+            foreach (var item in orderDetail)
+            {
+                var product =_productRepository.GetEntityById(item.ProductId);
+                if (product == null)
+                {
+                    return Result<bool>.Fail(ErrorCodes.NotFound, "找不到商品資料");
+                }
+                if(product.StockReserved < item.Quantity)
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, "預留庫存不足，無法釋放");
+                }
+                product.StockReserved -= item.Quantity;
+            }
+            return Result<bool>.Success(true);
         }
     }
 }

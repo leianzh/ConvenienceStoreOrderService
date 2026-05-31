@@ -23,6 +23,9 @@ namespace ConvenienceStoreOrderService.Repositories
             _db.Payments.Add(payment);
         }
 
-        
+        public Payment GetOrderId(int orderId)
+        {
+            return _db.Payments.FirstOrDefault(x => x.OrderId == orderId);
+        }
     }
 }

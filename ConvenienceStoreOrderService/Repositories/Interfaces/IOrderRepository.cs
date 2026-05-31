@@ -16,6 +16,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
         void Add(Order order);
 
         void SaveChanges();
-
+       List< OrderDetail> GetOrderDetailId(int orderId);
     }
 }

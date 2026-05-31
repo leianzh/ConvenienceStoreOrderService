@@ -92,5 +92,10 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db.SaveChanges();
         }
+
+        public List< OrderDetail> GetOrderDetailId(int orderId)
+        {
+            return _db.OrderDetails.Where(od => od.OrderId == orderId).ToList();
+        }
     }
 }

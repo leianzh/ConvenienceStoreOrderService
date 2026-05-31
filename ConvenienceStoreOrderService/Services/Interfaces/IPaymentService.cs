@@ -1,12 +1,18 @@
-﻿using System;
+﻿using ConvenienceStoreOrderService.Models.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConvenienceStoreOrderService.Models.ViewModels;
+using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IPaymentService
     {
+        Result<bool> CancelPayment(int orderId);
+        
     }
 }

@@ -41,6 +41,8 @@ namespace ConvenienceStoreOrderService.Repositories
             return PaymentStatusMapper.ToDto(result);
         }
 
+        
+
         public List<PaymentStatusDto> GetPaymentStatusOptions()
         {
             return _db.PaymentStatuses

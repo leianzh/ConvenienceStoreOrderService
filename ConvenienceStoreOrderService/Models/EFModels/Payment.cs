@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -22,5 +23,28 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         {
             PaymentStatusId=pendingStatusId;
         }
+        //Pending取消
+        public string CancelPending(int paymentStatusId)
+        {
+            if (PaymentStatusId != 1)
+            {
+               return "只有待付款可以取消";
+            }
+
+            PaymentStatusId = 4;
+
+            return "";
+        }
+        //Paid取消，先維持paid
+        public string CancelPaid(int paymentStatusId)
+        {
+            if (PaymentStatusId != 2) 
+            {
+                return "取消付款失敗";
+            }
+            PaymentStatusId = 2;
+            return "";
+        }
+
     }
 }

@@ -19,6 +19,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> MarkArrived(int orderId);
         Result<bool> MarkPickedUp(int orderId);
         Result<int> PlaceOrder(PlaceOrderDto dto);
+        Result<bool> ReleaseReservedStock(int orderId);
+
 
 
 
