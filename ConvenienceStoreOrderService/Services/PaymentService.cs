@@ -10,6 +10,8 @@ using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Repositories;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.DTOs;
+using ConvenienceStoreOrderService.Models.Constants;
+
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -45,6 +47,30 @@ namespace ConvenienceStoreOrderService.Services
             }
             return Result<bool>.Success(true);
 
+        }
+        //檢查能不能出貨
+        public Result<bool> CheckCanShip(int orderId)
+        {
+            var payment = _paymentRepository.GetOrderId(orderId);
+            if(payment == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+            }
+            //COD
+            if(payment.PaymentMethod == PaymentMethodName.COD)
+            {
+                return Result< bool>.Success(true);
+            }
+            //線上付款必須 Paid 才能出貨
+            if(payment.PaymentStatusId ==2)
+            {
+                return Result<bool>.Success(true);
+            }
+            else
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "線上付款尚未完成，不能出貨");
+            }
+            
         }
     }
 }

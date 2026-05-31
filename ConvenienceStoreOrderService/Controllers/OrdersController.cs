@@ -127,6 +127,21 @@ namespace ConvenienceStoreOrderService.Controllers
             return RedirectToAction("List");
         }
         [HttpPost]
+        public ActionResult MarkReturned(ShipmentCreateDto shipmentDto)
+        {
+            var result = _shipmentService.MarkShipmentAsReturn(shipmentDto);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+
+            return RedirectToAction("List");
+        }
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult PlaceOrder(PlaceOrderDto dto)
         {

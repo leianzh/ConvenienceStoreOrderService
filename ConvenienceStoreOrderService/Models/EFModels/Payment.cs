@@ -18,6 +18,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public string RawCallBack { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string PaymentMethod { get; set; }
         //建立訂單一開始就是Pending
         public void InitPending(int pendingStatusId)
         {

@@ -159,6 +159,13 @@
                             模擬已取貨
                         </button>
         }
+                        using (Html.BeginForm("MarkReturned", "Orders", FormMethod.Post))
+        {
+                        @Html.Hidden("OrderId", order.OrderId)
+                        <button type="submit" class="btn btn-secondary btn-sm mb-1">
+                            模擬已退貨
+                        </button>
+        }
     }
                     </div>
                     <div class="collapse mt-2" id="cancelBox_@order.OrderId">

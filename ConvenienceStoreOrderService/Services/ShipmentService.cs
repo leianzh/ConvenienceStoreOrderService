@@ -154,6 +154,34 @@ namespace ConvenienceStoreOrderService.Services
             return Result<bool>.Success(true, "物流更新為已取貨");
 
         }
+        //模擬退貨
+        public Result<bool> MarkShipmentAsReturn(ShipmentCreateDto shipmentDto)
+        {
+            if (shipmentDto == null)
+            { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
+            if (shipmentDto.OrderId == null)
+            { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
+
+
+            //更新 Orders.OrderStatusId = Return
+            var shippedResult = _orderService.ShipmentReturned(shipmentDto.OrderId);
+            if (!shippedResult.IsSuccess)
+            {
+                return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
+            }
+            //更新 ShipmentStatus、UpdatedAt
+            var now = DateTime.Now;
+            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            shipment.ShipmentStatusId = ShipmentStatusIds.Returned;
+            if (shipment.ShipmentStatusId != ShipmentStatusIds.Returned)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流退貨失敗");
+            }
+            shipment.UpdatedAt = now;
+            _shipmentRepository.SaveChanges();
+            return Result<bool>.Success(true, "物流更新為已退貨");
+
+        }
         //產生寄件代碼
         public string CreateShippingCode(int orderId)
         {
@@ -166,5 +194,6 @@ namespace ConvenienceStoreOrderService.Services
                 + DateTime.Now.ToString("yyyyMMddHHmmss")
                 + new Random().Next(1000, 9999);
         }
+        
     }
 }

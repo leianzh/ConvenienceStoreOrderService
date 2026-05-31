@@ -13,6 +13,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     public interface IPaymentService
     {
         Result<bool> CancelPayment(int orderId);
-        
+        Result<bool> CheckCanShip(int orderId);
+
+
     }
 }

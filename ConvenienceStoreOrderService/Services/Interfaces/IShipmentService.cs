@@ -16,5 +16,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsArrived(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto);
+        Result<bool> MarkShipmentAsReturn(ShipmentCreateDto shipmentDto);
     }
 }
