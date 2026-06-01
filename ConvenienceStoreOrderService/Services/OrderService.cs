@@ -345,34 +345,33 @@ namespace ConvenienceStoreOrderService.Services
                 {
                     return Result<int>.Fail(ErrorCodes.Conflict, "庫存不足");
                 }
-                // 3. 預留庫存
+                // 預留庫存
                 product.StockReserved += dto.Quantity;
                 // ProductVersion+1
                 product.ProductVersion += 1;
-                // 4. 計算金額
+                // 計算金額
                 var unitPrice = product.Price;
                 var subTotal = unitPrice * dto.Quantity;
                 var orderTotal = subTotal + shippingFee;
-                // 5. 取得初始訂單狀態 Processing
+                // 取得訂單狀態 Processing
                 var orderStatusResult = _orderStatusService.GetByCode("Processing");
                 if (!orderStatusResult.IsSuccess)
                 {
                     return Result<int>.Fail(ErrorCodes.SystemError, "找不到訂單狀態");
                 }
-                // 6. 取得初始付款狀態 Pending
+                // 取得付款狀態 Pending
                 var paymentStatusResult = _paymentStatusService.GetByCode("Pending");
                 if (!paymentStatusResult.IsSuccess) 
                 {
                     return Result<int>.Fail(ErrorCodes.SystemError, "找不到付款狀態");
                 }
-                // 7. 建立 Order
+                // 建立 Order
                 var order = new Order
                 {
                     OrderNo = CreateOrderNo(),
                     BuyerUserId = dto.BuyerUserId,
                     SellerUserId = dto.SellerUserId,
-                    OrderSource = 1,
-                    PaymentMethod = dto.PaymentMethod,
+                    OrderSource = 1,                    
                     CreatedAt = now,
                     ShippingFee = shippingFee,
                     OrderTotal = orderTotal,
@@ -383,7 +382,7 @@ namespace ConvenienceStoreOrderService.Services
                 // 產生OrderId 
                 _orderRepository.Add(order);
                 _orderRepository.SaveChanges();
-                // 8. 建立 OrderDetail
+                // 建立 OrderDetail
                 var orderDetail = new OrderDetail
                 {
                     OrderId = order.OrderId,
@@ -396,7 +395,7 @@ namespace ConvenienceStoreOrderService.Services
                 };
                 _orderDetailRepository.Add(orderDetail);
 
-                // 9. 建立 Payment
+                // 建立 Payment
                 
                 var payment = new Payment
                 {
@@ -407,12 +406,13 @@ namespace ConvenienceStoreOrderService.Services
                     RawCallBack = null,
                     CreatedAt = now,
                     PaymentProvider = "測試",
-                    PaymentMethod = PaymentMethodName.CreditCard
+                    PaymentMethod = dto.PaymentMethod,
+                    
 
                 };
                 payment.InitPending(paymentStatusResult.Data.PaymentStatusId);
                 _paymentRepository.Add(payment);
-                // 10. 存 OrderDetail + Payment + Product.StockReserved
+                // 存 OrderDetail + Payment + Product.StockReserved
                 _orderRepository.SaveChanges();
                 tran.Commit();
                 return Result<int>.Success(order.OrderId);

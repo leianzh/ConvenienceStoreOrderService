@@ -10,7 +10,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
        public int OrderId { get; set; }
         public string OrderNo { get; set; }
         public int OrderSource { get; set; }
-        public int PaymentMethod { get; set; }
+        
         public DateTime CreatedAt { get; set; }
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
@@ -28,6 +28,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public string TrackingNo { get; set; }
         public int? PaymentStatusId { get; set; }
         public string PaymentStatusName { get; set; }
+        public string PaymentMethod { get; set; }
 
 
     }

@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Mappings
     {
         public static  OrderDto ToDto(Order entity, string orderStatusName, string shippingCode,
     int? shipmentStatusId,string trackingNo, int? paymentStatusId,
-    string paymentStatusName)
+    string paymentStatusName,string paymentMethod)
         {
             return new OrderDto
             {
@@ -22,8 +22,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 BuyerUserId = entity.BuyerUserId,
                 SellerUserId = entity.SellerUserId,
                 OrderStatusId = entity.OrderStatusId,
-                OrderSource = entity.OrderSource,
-                PaymentMethod = entity.PaymentMethod,
+                OrderSource = entity.OrderSource,               
                 CreatedAt = entity.CreatedAt,
                 ShippingFee = entity.ShippingFee,
                 OrderTotal = entity.OrderTotal,
@@ -40,6 +39,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 TrackingNo = trackingNo,
                 PaymentStatusId = paymentStatusId,
                 PaymentStatusName = paymentStatusName,
+                PaymentMethod = paymentMethod,
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)

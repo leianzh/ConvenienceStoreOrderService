@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public int SellerUserId { get; set; }
         public int OrderStatusId { get; set; }
         public int OrderSource { get; set; }
-        public int PaymentMethod { get; set; }
+        
         public DateTime CreatedAt { get; set; }
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
@@ -31,5 +31,6 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string TrackingNo { get; set; }
         public int? PaymentStatusId { get; set; }
         public string PaymentStatusName { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

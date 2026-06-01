@@ -19,7 +19,7 @@
             <tr>
                 <th>訂購日期</th>
                 <th>訂單編號</th>
-                @*<th>付款方式</th>*@
+                <th>付款方式</th>
                 <th>運費</th>
                 <th>訂單總金額</th>
                 <th>訂單狀態</th>
@@ -37,7 +37,20 @@
             <tr>
                 <td>@order.CreatedAt</td>
                 <td>@order.OrderNo</td>
-                @*<td>@order.PaymentMethod</td>*@
+                <td>
+                    @if (order.PaymentMethod == "COD")
+    {
+                    <span>取貨付款</span>
+    }
+    else if (order.PaymentMethod == "CreditCard")
+    {
+                    <span>信用卡</span>
+    }
+    else if (order.PaymentMethod == "LinePay")
+    {
+                    <span>LinePay</span>
+    }
+                </td>
                 <td>NT$@order.ShippingFee</td>
                 <td>NT$@order.OrderTotal</td>
                 <td>

@@ -12,6 +12,6 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public int ProductId { get; set; }
         public int Quantity { get; set; }
         public int ShippingFee { get; set; }
-        public int PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

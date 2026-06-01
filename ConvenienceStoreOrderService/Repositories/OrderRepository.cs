@@ -8,6 +8,7 @@ using ConvenienceStoreOrderService.Repositories.Interfaces;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Mappings;
 using Microsoft.Ajax.Utilities;
+using static Unity.Storage.RegistrationSet;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
@@ -35,6 +36,7 @@ namespace ConvenienceStoreOrderService.Repositories
                 {
                     Payment = py,
                     PaymentStatusName = ps.PaymentStatusName,
+                    PaymentMethod=py.PaymentMethod,
                 };
 
             var result =
@@ -59,7 +61,8 @@ namespace ConvenienceStoreOrderService.Repositories
             ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
             TrackingNo =shipment.TrackingNo,
             PaymentStatusId = payment.Payment.PaymentStatusId,
-            PaymentStatusName =  payment.PaymentStatusName
+            PaymentStatusName =  payment.PaymentStatusName,
+            PaymentMethod = payment.PaymentMethod
 
         };
 
@@ -72,7 +75,8 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.ShipmentStatusId,
                     o.TrackingNo,
                     o.PaymentStatusId,
-                    o.PaymentStatusName
+                    o.PaymentStatusName,
+                    o.PaymentMethod
                     ))
                 .ToList();
 

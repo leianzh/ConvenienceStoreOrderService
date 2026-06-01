@@ -10,10 +10,10 @@ using ConvenienceStoreOrderService.Repositories.Interfaces;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
-    public class PaymentRepository :IPaymentRepository
+    public class PaymentRepository : IPaymentRepository
     {
         private readonly AppDbContext _db;
-        public PaymentRepository(AppDbContext db) 
+        public PaymentRepository(AppDbContext db)
         {
             _db = db;
         }
@@ -32,3 +32,4 @@ namespace ConvenienceStoreOrderService.Repositories
             _db.SaveChanges();
         }
     }
+}

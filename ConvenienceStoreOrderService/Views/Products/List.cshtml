@@ -112,7 +112,7 @@
                                 @* 先寫死測試用 *@
                                 @Html.Hidden("BuyerUserId", 1)
                                 @Html.Hidden("SellerUserId", 2)
-                                @Html.Hidden("PaymentMethod", 1)
+                                @*@Html.Hidden("PaymentMethod", 1)*@
 
                                 <div class="mb-3">
                                     <label class="form-label">購買數量</label>
@@ -122,6 +122,20 @@
                                            min="1"
                                            class="form-control" />
                                 </div>
+                                <div class="mb-3">
+    <label for="PaymentMethod" class="form-label">付款方式</label>
+
+    <select name="PaymentMethod" id="PaymentMethod" class="form-select" required>
+        <option value="">請選擇付款方式</option>
+        <option value="COD">取貨付款</option>
+        <option value="CreditCard">信用卡</option>
+        <option value="LinePay">LinePay</option>
+    </select>
+
+    <div class="form-text">
+        請選擇本次訂單的付款方式
+    </div>
+</div>
 
                                 <button type="submit" class="btn btn-success w-100 mt-auto">
                                     立即下單

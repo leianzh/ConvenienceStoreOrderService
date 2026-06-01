@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int SellerUserId { get; set; }
         public int OrderStatusId { get;private set; }
         public int OrderSource { get; set; }
-        public int PaymentMethod { get; set; }
+        
         public DateTime CreatedAt { get; set; }
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }//SubTotal+ShippingFee
