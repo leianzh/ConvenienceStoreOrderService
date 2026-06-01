@@ -80,6 +80,7 @@ namespace ConvenienceStoreOrderService.Repositories
                     ))
                 .ToList();
 
+            
         }
 
         public Order GetEntityById(int orderId)

@@ -11,6 +11,7 @@ using ConvenienceStoreOrderService.Models.Common;
 using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.Constants;
+using System.Data.Entity.Infrastructure;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -322,110 +323,139 @@ namespace ConvenienceStoreOrderService.Services
             {
                 return Result<int>.Fail(ErrorCodes.Validation, "購買數量必須大於 0");
             }
+            int maxRetry = 3;//最多嘗試下單三次
             var tran=_db.Database.BeginTransaction();
-            try
+            for (int attempt = 1; attempt <= maxRetry; attempt++)
             {
-                //下單流程
-                var now = DateTime.Now;
-                const int shippingFee = 60;
-                // 查商品
-                var product =_productRepository.GetEntityById(dto.ProductId);
-                if (product == null)
+                try
                 {
-                    return Result<int>.Fail(ErrorCodes.NotFound, "找不到商品");
-                }
+                    //下單流程
+                    var now = DateTime.Now;
+                    const int shippingFee = 60;
+                    // 查商品
+                    var product = _productRepository.GetEntityById(dto.ProductId);
+                    if (product == null)
+                    {
+                        return Result<int>.Fail(ErrorCodes.NotFound, "找不到商品");
+                    }
 
-                if (!product.IsActive)
-                {
-                    return Result<int>.Fail(ErrorCodes.Validation, "商品未上架");
-                }
-                // 檢查可賣庫存
-                var stock = product.StockOnHand - product.StockReserved;
-                if (stock < dto.Quantity) 
-                {
-                    return Result<int>.Fail(ErrorCodes.Conflict, "庫存不足");
-                }
-                // 預留庫存
-                product.StockReserved += dto.Quantity;
-                // ProductVersion+1
-                product.ProductVersion += 1;
-                // 計算金額
-                var unitPrice = product.Price;
-                var subTotal = unitPrice * dto.Quantity;
-                var orderTotal = subTotal + shippingFee;
-                // 取得訂單狀態 Processing
-                var orderStatusResult = _orderStatusService.GetByCode("Processing");
-                if (!orderStatusResult.IsSuccess)
-                {
-                    return Result<int>.Fail(ErrorCodes.SystemError, "找不到訂單狀態");
-                }
-                // 取得付款狀態 Pending
-                var paymentStatusResult = _paymentStatusService.GetByCode("Pending");
-                if (!paymentStatusResult.IsSuccess) 
-                {
-                    return Result<int>.Fail(ErrorCodes.SystemError, "找不到付款狀態");
-                }
-                // 建立 Order
-                var order = new Order
-                {
-                    OrderNo = CreateOrderNo(),
-                    BuyerUserId = dto.BuyerUserId,
-                    SellerUserId = dto.SellerUserId,
-                    OrderSource = 1,                    
-                    CreatedAt = now,
-                    ShippingFee = shippingFee,
-                    OrderTotal = orderTotal,
-                    PaymentDueAt = now.AddMinutes(15)
-                };
-                // 狀態初始化走 Order 封裝
-                order.InitProcessing(orderStatusResult.Data.OrderStatusId);
-                // 產生OrderId 
-                _orderRepository.Add(order);
-                _orderRepository.SaveChanges();
-                // 建立 OrderDetail
-                var orderDetail = new OrderDetail
-                {
-                    OrderId = order.OrderId,
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    UnitPrice = unitPrice,
-                    Quantity = dto.Quantity,
-                    SubTotal = subTotal
+                    if (!product.IsActive)
+                    {
+                        return Result<int>.Fail(ErrorCodes.Validation, "商品未上架");
+                    }
+                    // 檢查可賣庫存
+                    var stock = product.StockOnHand - product.StockReserved;
+                    if (stock < dto.Quantity)
+                    {
+                        return Result<int>.Fail(ErrorCodes.Conflict, "庫存不足");
+                    }
+                    // 預留庫存
+                    product.StockReserved += dto.Quantity;
+                    // ProductVersion+1
+                    product.ProductVersion += 1;
+                    // 計算金額
+                    var unitPrice = product.Price;
+                    var subTotal = unitPrice * dto.Quantity;
+                    var orderTotal = subTotal + shippingFee;
+                    // 取得訂單狀態 Processing
+                    var orderStatusResult = _orderStatusService.GetByCode("Processing");
+                    if (!orderStatusResult.IsSuccess)
+                    {
+                        return Result<int>.Fail(ErrorCodes.SystemError, "找不到訂單狀態");
+                    }
+                    // 取得付款狀態 Pending
+                    var paymentStatusResult = _paymentStatusService.GetByCode("Pending");
+                    if (!paymentStatusResult.IsSuccess)
+                    {
+                        return Result<int>.Fail(ErrorCodes.SystemError, "找不到付款狀態");
+                    }
+                    // 建立 Order
+                    var order = new Order
+                    {
+                        OrderNo = CreateOrderNo(),
+                        BuyerUserId = dto.BuyerUserId,
+                        SellerUserId = dto.SellerUserId,
+                        OrderSource = 1,
+                        CreatedAt = now,
+                        ShippingFee = shippingFee,
+                        OrderTotal = orderTotal,
+                        PaymentDueAt = now.AddMinutes(15)
+                    };
+                    // 狀態初始化走 Order 封裝
+                    order.InitProcessing(orderStatusResult.Data.OrderStatusId);
+                    // 產生OrderId 
+                    _orderRepository.Add(order);
+                    _orderRepository.SaveChanges();
+                    // 建立 OrderDetail
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        UnitPrice = unitPrice,
+                        Quantity = dto.Quantity,
+                        SubTotal = subTotal
 
-                };
-                _orderDetailRepository.Add(orderDetail);
+                    };
+                    _orderDetailRepository.Add(orderDetail);
 
-                // 建立 Payment
-                
-                var payment = new Payment
+                    // 建立 Payment
+
+                    var payment = new Payment
+                    {
+                        OrderId = order.OrderId,
+                        TradeNo = CreateTradeNo(),
+                        Amount = orderTotal,
+                        PaidAt = null,
+                        RawCallBack = null,
+                        CreatedAt = now,
+                        PaymentProvider = "測試",
+                        PaymentMethod = dto.PaymentMethod,
+
+
+                    };
+                    payment.InitPending(paymentStatusResult.Data.PaymentStatusId);
+                    _paymentRepository.Add(payment);
+                    // 存 OrderDetail + Payment + Product.StockReserved
+                    _orderRepository.SaveChanges();
+                    tran.Commit();
+                    return Result<int>.Success(order.OrderId);
+                }
+                catch (DbUpdateConcurrencyException)
                 {
-                    OrderId = order.OrderId,
-                    TradeNo = CreateTradeNo(),
-                    Amount = orderTotal,
-                    PaidAt = null,
-                    RawCallBack = null,
-                    CreatedAt = now,
-                    PaymentProvider = "測試",
-                    PaymentMethod = dto.PaymentMethod,
+                    tran.Rollback();
                     
+                    // 清掉 EF 追蹤狀態
+                    foreach (var entry in _db.ChangeTracker.Entries())
+                    {
+                        entry.State = System.Data.Entity.EntityState.Detached;
+                    }
 
-                };
-                payment.InitPending(paymentStatusResult.Data.PaymentStatusId);
-                _paymentRepository.Add(payment);
-                // 存 OrderDetail + Payment + Product.StockReserved
-                _orderRepository.SaveChanges();
-                tran.Commit();
-                return Result<int>.Success(order.OrderId);
+                    if (attempt == maxRetry)
+                    {
+                        return Result<int>.Fail(
+                            ErrorCodes.Conflict,
+                            "商品庫存正在被其他訂單更新，請重新下單。");
+                    }
+
+                    // 還沒到最大重試次數，就重新查最新庫存再試一次
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+
+                    return Result<int>.Fail(
+                        ErrorCodes.SystemError,
+                        "下單失敗：" + ex.Message);
+                }
+                finally
+                {
+                    tran.Dispose();
+                }
+                
             }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                return Result<int>.Fail(ErrorCodes.SystemError, "下單失敗，請稍後再試");
-            }
-            finally
-            {
-                tran.Dispose();
-            }
+            return Result<int>.Fail(ErrorCodes.SystemError, "下單失敗");
         }
         //物流退貨
         public Result<bool> ShipmentReturned(int orderId)

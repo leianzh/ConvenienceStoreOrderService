@@ -21,6 +21,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int TemperatureType { get; set; }
         public int StockOnHand { get; set; }
         public int StockReserved { get; set; }
+        [ConcurrencyCheck]
         public int ProductVersion { get; set; }
 
     }
