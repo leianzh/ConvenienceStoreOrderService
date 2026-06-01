@@ -17,5 +17,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> MarkShipmentAsArrived(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsReturn(ShipmentCreateDto shipmentDto);
+        Result<int> ClearExpiredShippingCodes();
+
+        Result<bool> ClearShippingCode(int shipmentId);
     }
 }

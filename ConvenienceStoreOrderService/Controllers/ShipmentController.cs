@@ -19,5 +19,20 @@ namespace ConvenienceStoreOrderService.Controllers
         {
             return View();
         }
+        public ActionResult TestClearExpiredShippingCodes()
+        {
+            var result = _shipmentService.ClearExpiredShippingCodes();
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"清除過期寄件代碼完成，本次清除 {result.Data} 筆";
+            }
+
+            return RedirectToAction("List", "Orders");
+        }
     }
 }

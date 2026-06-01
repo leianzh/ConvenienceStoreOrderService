@@ -20,9 +20,16 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public int ShipmentStatusId { get; set; }
 
         public string ShippingCode { get; set; }
-        public DateTime ShippingCodeGeneratedAt { get; set; }
+        public DateTime? ShippingCodeGeneratedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        //
+        public void ClearShippingCode()
+        {
+            ShippingCode = null;
+            ShippingCodeGeneratedAt = null;
+            UpdatedAt = DateTime.Now;
+        }
 
     }
 }

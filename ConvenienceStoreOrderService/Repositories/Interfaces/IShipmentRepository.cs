@@ -16,5 +16,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
         void Add(Shipment shipment);
         bool ExistsByOrderId(int orderId);
         Shipment UpdateShipment(int orderId);
+        List<int> GetExpiredShippingCodeShipmentIds(DateTime now);
+        Shipment GetEntityById(int shipmentId);
     }
 }
