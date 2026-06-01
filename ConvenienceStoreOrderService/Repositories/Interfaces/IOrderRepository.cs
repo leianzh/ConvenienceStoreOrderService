@@ -17,5 +17,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 
         void SaveChanges();
        List< OrderDetail> GetOrderDetailId(int orderId);
+        List<int> GetUnpaidOrderIds(DateTime now);
     }
 }

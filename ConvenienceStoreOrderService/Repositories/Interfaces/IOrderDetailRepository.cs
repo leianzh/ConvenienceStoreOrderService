@@ -14,5 +14,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
         List<OrderDetailDto> GetOrderDetails(int orderId);
         void Add(OrderDetail orderDetail);
         OrderDetailsPageDto GetOrderDetailsPage(int orderId);
+       
     }
 }

@@ -22,7 +22,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> StockWhenShipped(int orderId);
         Result<bool> ReleaseReservedStock(int orderId);
         Result<bool> ShipmentReturned(int orderId);
-
+        Result<int> AutoCancelUnpaidOrders();
+        Result<bool> CancelExpiredUnpaidOrder(int orderId);
 
 
     }

@@ -74,7 +74,10 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             {
                 return "寄件前才能取消訂單";
             }
+            
             OrderStatusId = statusId;
+            
+            
             return "";
         }
         //物流退貨

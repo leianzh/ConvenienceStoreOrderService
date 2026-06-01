@@ -102,5 +102,28 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             return _db.OrderDetails.Where(od => od.OrderId == orderId).ToList();
         }
+        //查詢逾期訂單
+       public List<int> GetUnpaidOrderIds(DateTime now)
+        {
+            //Orders、Payments、PaymentStatuses、OrderStatuses
+            var result =
+                from o in _db.Orders
+                join p in _db.Payments
+                on o.OrderId equals p.OrderId
+                join ps in _db.PaymentStatuses
+                on p.PaymentStatusId equals ps.PaymentStatusId
+                join os in _db.OrderStatuses
+                on o.OrderStatusId equals os.OrderStatusId
+                where o.PaymentDueAt != null
+                && o.PaymentDueAt < now
+                && ps.PaymentStatusCode == "Pending"
+                && os.OrderStatusCode == "Processing"
+                && p.PaymentMethod != "COD"
+                select o.OrderId;
+
+            return result.ToList();
+
+
+        }
     }
 }

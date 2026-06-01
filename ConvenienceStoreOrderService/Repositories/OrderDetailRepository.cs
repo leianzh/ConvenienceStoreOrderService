@@ -18,8 +18,8 @@ namespace ConvenienceStoreOrderService.Repositories
             _db = db;
         }
 
-        
 
+        
         public List<OrderDetailDto> GetOrderDetails(int orderId)
         {
             

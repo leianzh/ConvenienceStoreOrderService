@@ -182,5 +182,21 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return View(result.Data);
         }
+
+        public ActionResult TestAutoCancelExpiredUnpaidOrders()
+        {
+            var result = _orderService.AutoCancelUnpaidOrders();
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"自動取消完成，本次取消 {result.Data} 筆訂單";
+            }
+
+            return RedirectToAction("List");
+        }
     }
 }
