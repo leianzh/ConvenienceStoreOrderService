@@ -8,6 +8,7 @@ using ConvenienceStoreOrderService.Services.Interfaces;
 using ConvenienceStoreOrderService.Models.EFModels;
 using System.ComponentModel;
 using Unity.Lifetime;
+using ConvenienceStoreOrderService.Jobs;
 
 
 
@@ -61,6 +62,8 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<IOrderDetailRepository, OrderDetailRepository>();
             container.RegisterType<IPaymentService,PaymentService>();
             container.RegisterType<IPaymentRepository,PaymentRepository>();
+            container.RegisterType<OrderJob>();
+            container.RegisterType<ShipmentJob>();
 
 
 

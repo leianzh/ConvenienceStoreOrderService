@@ -636,6 +636,7 @@ namespace ConvenienceStoreOrderService.Services
 
         public Result<int> AutoCancelUnpaidOrders()
         {
+            
             var now=DateTime.Now;
             var expiredOrderIds = _orderRepository.GetUnpaidOrderIds(now);
             
@@ -663,6 +664,7 @@ namespace ConvenienceStoreOrderService.Services
             return Result<int>.Success(count);
             
         }
+        
         //取消單筆逾期訂單
         public Result<bool> CancelExpiredUnpaidOrder(int orderId)
         {
