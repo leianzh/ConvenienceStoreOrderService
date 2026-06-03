@@ -19,6 +19,13 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string PaymentMethod { get; set; }
+        public int RefundStatusId { get; set; }
+        public DateTime? RefundRequestedAt { get; set; }
+        public DateTime? RefundedAt { get; set; }
+        public int? RefundAmount { get; set; }
+        public string RefundReason { get; set; }
+        public string RefundProviderTradeNo { get; set; }
+        public string RefundRawResponse { get; set; }
         //建立訂單一開始就是Pending
         public void InitPending(int pendingStatusId)
         {
@@ -106,6 +113,33 @@ namespace ConvenienceStoreOrderService.Models.EFModels
 
             return "";
         }
+        //退款判斷
+        public void RequestRefund(int refundStatusId, int refundAmount, string reason)
+        {
+            if (refundAmount <= 0)
+            {
+                throw new InvalidOperationException("退款金額必須大於 0");
+            }
 
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                throw new InvalidOperationException("退款原因必填");
+            }
+
+            RefundStatusId = refundStatusId;
+            RefundAmount = refundAmount;
+            RefundReason = reason;
+            RefundRequestedAt = DateTime.Now;
+            UpdatedAt = DateTime.Now;
+        }
+        //退款
+        public void MarkRefunded(int refundedStatusId, string refundProviderTradeNo, string rawResponse)
+        {
+            RefundStatusId = refundedStatusId;
+            RefundedAt = DateTime.Now;
+            RefundProviderTradeNo = refundProviderTradeNo;
+            RefundRawResponse = rawResponse;
+            UpdatedAt = DateTime.Now;
+        }
     }
 }

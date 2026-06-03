@@ -62,6 +62,8 @@ namespace ConvenienceStoreOrderService
             container.RegisterType<IOrderDetailRepository, OrderDetailRepository>();
             container.RegisterType<IPaymentService,PaymentService>();
             container.RegisterType<IPaymentRepository,PaymentRepository>();
+            container.RegisterType<IRefundStatusService,RefundStatusService>();
+            container.RegisterType<IRefundStatusRepository,RefundStatusRepository>();
             container.RegisterType<OrderJob>();
             container.RegisterType<ShipmentJob>();
 
