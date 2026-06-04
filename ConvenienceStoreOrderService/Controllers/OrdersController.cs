@@ -15,7 +15,7 @@ namespace ConvenienceStoreOrderService.Controllers
     public class OrdersController : Controller
     {
         private IOrderService _orderService;
-        private  IShipmentService _shipmentService;
+        private IShipmentService _shipmentService;
         private IOrderDetailService _orderDetailService;
 
         public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService)
@@ -27,14 +27,14 @@ namespace ConvenienceStoreOrderService.Controllers
         // GET: Order
         public ActionResult List()
         {
-            var orders=_orderService.GetOrders();
+            var orders = _orderService.GetOrders();
             return View(orders);
         }
         [HttpPost]
         public ActionResult MarkReadyToShip(int orderId)
         {
             var result = _orderService.MarkReadyToShip(orderId);
-            if(! result.IsSuccess)
+            if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List");
@@ -43,28 +43,28 @@ namespace ConvenienceStoreOrderService.Controllers
             return RedirectToAction("List");
         }
         [HttpPost]
-        public ActionResult MarkShipped (int orderId)
+        public ActionResult MarkShipped(int orderId)
         {
-            var result =_orderService.MarkShipped(orderId);
-            if(! result.IsSuccess) 
+            var result = _orderService.MarkShipped(orderId);
+            if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List");
             }
-            TempData["SuccessMessage"] =result.Message;
+            TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
         }
         [HttpPost]
-        public ActionResult Cancel (int orderId,string cancelReason) 
+        public ActionResult Cancel(int orderId, string cancelReason)
         {
-            
+
             var result = _orderService.CancelOrder(orderId, cancelReason);
-            if(! result.IsSuccess) 
+            if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List");
             }
-            TempData["SuccessMessage"] = "訂單已成功取消";
+            TempData["SuccessMessage"] = "訂單已取消，付款狀態已同步處理";
             return RedirectToAction("List");
         }
         [HttpPost]
@@ -108,7 +108,7 @@ namespace ConvenienceStoreOrderService.Controllers
                 return RedirectToAction("List");
             }
 
-            TempData["SuccessMessage"] =  result.Message;
+            TempData["SuccessMessage"] = result.Message;
 
             return RedirectToAction("List");
         }
@@ -169,7 +169,7 @@ namespace ConvenienceStoreOrderService.Controllers
             }
 
             return View(result.Data);
-            
+
         }
         public ActionResult OrderDetailsPage(int orderId)
         {
@@ -200,4 +200,6 @@ namespace ConvenienceStoreOrderService.Controllers
             return RedirectToAction("List");
         }
         
+        }
+    
 }

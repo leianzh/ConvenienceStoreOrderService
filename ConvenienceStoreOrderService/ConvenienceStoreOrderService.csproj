@@ -211,6 +211,7 @@
     <Compile Include="Mappings\OrderStatusMapper.cs" />
     <Compile Include="Mappings\PaymentStatusMapper.cs" />
     <Compile Include="Mappings\ProductMapper.cs" />
+    <Compile Include="Mappings\RefundStatusMapper.cs" />
     <Compile Include="Mappings\ShipmentMapper.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.cs" />
     <Compile Include="Migrations\202604291156368_InitialBaseline.designer.cs">
@@ -224,6 +225,8 @@
     <Compile Include="Models\Common\ErrorCodes.cs" />
     <Compile Include="Models\Common\Result.cs" />
     <Compile Include="Models\Constants\PaymentMethodName.cs" />
+    <Compile Include="Models\Constants\PaymentStatusIds.cs" />
+    <Compile Include="Models\Constants\RefundStatusIds.cs" />
     <Compile Include="Models\Constants\ShipmentStatusIds.cs" />
     <Compile Include="Models\DTOs\OrderDetailDto.cs" />
     <Compile Include="Models\DTOs\OrderDetailsPageDto.cs" />

@@ -26,7 +26,8 @@ namespace ConvenienceStoreOrderService.Services
         private IPaymentRepository _paymentRepository;
         private IPaymentService _paymentService;
         private IPaymentStatusRepository _paymentStatusRepository;
-        public OrderService(IOrderRepository orderRepository, IOrderStatusService orderStatusService,AppDbContext db, IProductRepository productRepository, IPaymentStatusService paymentStatusService,IPaymentService paymentService,IOrderDetailRepository orderDetailRepository, IPaymentRepository paymentRepository,IPaymentStatusRepository paymentStatusRepository)
+        private IShipmentRepository _shipmentRepository;
+        public OrderService(IOrderRepository orderRepository, IOrderStatusService orderStatusService,AppDbContext db, IProductRepository productRepository, IPaymentStatusService paymentStatusService,IPaymentService paymentService,IOrderDetailRepository orderDetailRepository, IPaymentRepository paymentRepository,IPaymentStatusRepository paymentStatusRepository,IShipmentRepository shipmentRepository)
         {
             _orderRepository = orderRepository;
             _orderStatusService = orderStatusService;
@@ -37,6 +38,7 @@ namespace ConvenienceStoreOrderService.Services
             _paymentRepository = paymentRepository;
             _paymentService = paymentService;
             _paymentStatusRepository= paymentStatusRepository;
+            _shipmentRepository = shipmentRepository;
 
 
 
@@ -283,9 +285,9 @@ namespace ConvenienceStoreOrderService.Services
                     tran.Rollback();
                     return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
                 }
-                
-                //判斷訂單付款狀態
-                var paymentResult =_paymentService.CancelPayment(orderId);
+
+                // 處理付款、退款
+                var paymentResult =_paymentService.HandleCancelPayment(orderId,cancelReson);
                 if (!paymentResult.IsSuccess) 
                 {
                     tran.Rollback();
@@ -459,8 +461,8 @@ namespace ConvenienceStoreOrderService.Services
             }
             return Result<int>.Fail(ErrorCodes.SystemError, "下單失敗");
         }
-        //物流退貨
-        public Result<bool> ShipmentReturned(int orderId)
+        //物流退貨，建立退款申請
+        public Result<bool> ShipmentReturned(int orderId,string returnReson)
         {
             var tran =_db.Database.BeginTransaction();
             try 
@@ -499,6 +501,16 @@ namespace ConvenienceStoreOrderService.Services
                     tran.Rollback();
                     return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
                 }
+                // 找物流
+                var shipment = _shipmentRepository.GetByOrderId(orderId);
+                if (shipment == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.NotFound, "找不到物流資料");
+                }
+                // ShipmentStatus 改 Returned、UpdatedAt
+                var shipmentStatus = shipment.ShipmentStatusId = ShipmentStatusIds.Returned;
+                shipment.UpdatedAt = DateTime.Now;
                 // 物流退回：回補 OnHand，Reserved 不動
                 var restoreResult = AddStockOnHand(orderId);
                 if (!restoreResult.IsSuccess)
@@ -506,10 +518,8 @@ namespace ConvenienceStoreOrderService.Services
                     tran.Rollback();
                     return restoreResult;
                 }
-                // 處理付款狀態
-                // COD Pending -> Cancelled
-                // 線上 Paid ，先維持paid
-                var paymentResult = _paymentService.CancelPayment(orderId);
+                // 處理付款狀態               
+                var paymentResult = _paymentService.RequestRefund(orderId,returnReson);
 
                 if (!paymentResult.IsSuccess)
                 {
@@ -522,7 +532,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 tran.Commit();
 
-                return Result<bool>.Success(true, "訂單已退回，庫存已回補");
+                return Result<bool>.Success(true, "訂單已退回，物流已退回，庫存已回補，已建立退款申請");
 
 
             }
@@ -730,7 +740,7 @@ namespace ConvenienceStoreOrderService.Services
                     tran.Rollback();
                     return Result<bool>.Fail(ErrorCodes.SystemError, "找不到 Cancelled 付款狀態");
                 }
-                var paymentError = payment.CancelPending(cancelledPaymentStatus.PaymentStatusId);
+                var paymentError = payment.CancelPending(); 
                 if (!string.IsNullOrEmpty(paymentError))
                 {
                     tran.Rollback();

@@ -38,7 +38,7 @@ namespace ConvenienceStoreOrderService.Services
             var now= DateTime.Now;
             var shippingCode = CreateShippingCode(shipmentDto.OrderId);
             //訂單有沒有shipment
-            var existingShipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            var existingShipment = _shipmentRepository.GetByOrderId(shipmentDto.OrderId);
             //有shipment
             if(existingShipment != null)
             {
@@ -103,7 +103,7 @@ namespace ConvenienceStoreOrderService.Services
             //更新 ShipmentStatus、TrackingNo
             var now = DateTime.Now;
             var trackingNo = CreateTrackingNo(shipmentDto.OrderId);
-            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            var shipment = _shipmentRepository.GetByOrderId(shipmentDto.OrderId);
             shipment.ShipmentStatusId = ShipmentStatusIds.Shipped;
             if (shipment.ShipmentStatusId != ShipmentStatusIds.Shipped)
             {
@@ -132,7 +132,7 @@ namespace ConvenienceStoreOrderService.Services
             }
             //更新 ShipmentStatus、UpdatedAt
             var now = DateTime.Now;           
-            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            var shipment = _shipmentRepository.GetByOrderId(shipmentDto.OrderId);
             shipment.ShipmentStatusId = ShipmentStatusIds.Arrived;
             if (shipment.ShipmentStatusId != ShipmentStatusIds.Arrived)
             {
@@ -160,7 +160,7 @@ namespace ConvenienceStoreOrderService.Services
             }
             //更新 ShipmentStatus、UpdatedAt
             var now = DateTime.Now;
-            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
+            var shipment = _shipmentRepository.GetByOrderId(shipmentDto.OrderId);
             shipment.ShipmentStatusId =ShipmentStatusIds.PickedUp;
             if (shipment.ShipmentStatusId != ShipmentStatusIds.PickedUp)
             {
@@ -180,23 +180,13 @@ namespace ConvenienceStoreOrderService.Services
             { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
 
 
-            //更新 Orders.OrderStatusId = Return
-            var shippedResult = _orderService.ShipmentReturned(shipmentDto.OrderId);
+            //更新 Orders.OrderStatusId = Return、Payment.RefundReason、Shipment=Return
+            var shippedResult = _orderService.ShipmentReturned(shipmentDto.OrderId,shipmentDto.RefundReason);
             if (!shippedResult.IsSuccess)
             {
                 return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
             }
-            //更新 ShipmentStatus、UpdatedAt
-            var now = DateTime.Now;
-            var shipment = _shipmentRepository.UpdateShipment(shipmentDto.OrderId);
-            shipment.ShipmentStatusId = ShipmentStatusIds.Returned;
-            if (shipment.ShipmentStatusId != ShipmentStatusIds.Returned)
-            {
-                return Result<bool>.Fail(ErrorCodes.Validation, "物流退貨失敗");
-            }
-            shipment.UpdatedAt = now;
-            _shipmentRepository.SaveChanges();
-            return Result<bool>.Success(true, "物流更新為已退貨");
+            return Result<bool>.Success(true, "物流已退回，訂單已退回，已建立退款申請");
 
         }
         //產生寄件代碼

@@ -20,32 +20,50 @@ namespace ConvenienceStoreOrderService.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentStatusService _paymentStatusService;
         private readonly IPaymentStatusRepository _paymentStatusRepository;
-        public PaymentService(IPaymentRepository paymentRepository,IPaymentStatusService paymentStatusService,IPaymentStatusRepository paymentStatusRepository)
+        private readonly IRefundStatusRepository _refundStatusRepository;
+        public PaymentService(IPaymentRepository paymentRepository,IPaymentStatusService paymentStatusService,IPaymentStatusRepository paymentStatusRepository,IRefundStatusRepository refundStatusRepository)
         {
             _paymentRepository = paymentRepository;
             _paymentStatusService = paymentStatusService;
             _paymentStatusRepository = paymentStatusRepository;
+            _refundStatusRepository = refundStatusRepository;
         }
-        
-        public Result<bool> CancelPayment(int orderId)
+        //根據付款狀態判斷「取消未付款」或「申請退款」
+        public Result<bool> HandleCancelPayment(int orderId,string cancleReson)
         {
             var payment=_paymentRepository.GetOrderId(orderId);
             if (payment == null)
             {
                 return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
             }
-            //pending待付款            
-            if(payment.PaymentStatusId == 1)
+            //pending待付款直接取消            
+            if(payment.PaymentStatusId == PaymentStatusIds.Pending)
             {
-                //改成cancel
-                payment.CancelPending(payment.PaymentStatusId);
+                 var errorMessage = payment.CancelPending();
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, errorMessage);
+                }
+
+                return Result<bool>.Success(true);
             }
-            //Paid已付款
-            if (payment.PaymentStatusId == 2)
+            //Paid已付款，付款狀態維持 Paid，改成退款申請中
+            if (payment.PaymentStatusId == PaymentStatusIds.Paid)
             {
-                payment.CancelPaid(payment.PaymentStatusId);
+                var errorMessage = payment.RequestRefund(
+            RefundStatusIds.Requested,
+            payment.Amount,
+            cancleReson
+        );
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, errorMessage);
+                }
+
+                return Result<bool>.Success(true);
             }
-            return Result<bool>.Success(true);
+            return Result<bool>.Fail(ErrorCodes.Validation, "此付款狀態不能取消或退款");
 
         }
         //檢查能不能出貨
@@ -114,6 +132,45 @@ namespace ConvenienceStoreOrderService.Services
             }
 
             return Result<bool>.Success(true, "COD 取貨付款成功");
+        }
+        //申請退款
+        public Result<bool> RequestRefund(int orderId, string reason)
+        {
+            var payment = _paymentRepository.GetOrderId(orderId);
+
+            if (payment == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+            }
+
+            var paymentStatus = _paymentStatusService.GetById(payment.PaymentStatusId);
+
+            if (!paymentStatus.IsSuccess)
+            {
+                return Result<bool>.Fail(ErrorCodes.SystemError, "查詢付款狀態失敗");
+            }
+
+            if (paymentStatus.Data.PaymentStatusCode != "Paid")
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "只有已付款訂單才能申請退款");
+            }
+
+            var refundStatus = _refundStatusRepository.GetByCode("Requested");
+
+            if (refundStatus == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到退款狀態：Requested");
+            }
+
+            payment.RequestRefund(
+                refundStatus.RefundStatusId,
+                payment.Amount,
+                reason
+            );
+
+            _paymentRepository.SaveChanges();
+
+            return Result<bool>.Success(true);
         }
     }
 }

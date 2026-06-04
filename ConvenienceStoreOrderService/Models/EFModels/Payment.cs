@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ConvenienceStoreOrderService.Models.Constants;
 
 namespace ConvenienceStoreOrderService.Models.EFModels
 {
@@ -31,28 +32,20 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         {
             PaymentStatusId=pendingStatusId;
         }
-        //Pending取消
-        public string CancelPending(int paymentStatusId)
+        //Pending取消付款
+        public string CancelPending()
         {
-            if (PaymentStatusId != 1)
+            if (PaymentStatusId != PaymentStatusIds.Pending)
             {
                return "只有待付款可以取消";
             }
 
-            PaymentStatusId = 4;
+            PaymentStatusId = PaymentStatusIds.Cancelled;
+            UpdatedAt = DateTime.Now;
 
             return "";
         }
-        //Paid取消，先維持paid
-        public string CancelPaid(int paymentStatusId)
-        {
-            if (PaymentStatusId != 2) 
-            {
-                return "取消付款失敗";
-            }
-            PaymentStatusId = 2;
-            return "";
-        }
+        
         //Paid線上
         public string MarkPaid()
         {
@@ -113,26 +106,41 @@ namespace ConvenienceStoreOrderService.Models.EFModels
 
             return "";
         }
-        //退款判斷
-        public void RequestRefund(int refundStatusId, int refundAmount, string reason)
+        //Paid 申請退款
+        public string RequestRefund(int refundStatusId, int refundAmount, string refundReason)
         {
+            if (PaymentStatusId != PaymentStatusIds.Paid)
+            {
+                return "只有已付款訂單可以申請退款";
+            }
+
+            if (RefundStatusId == RefundStatusIds.Requested)
+            {
+                return "此付款已申請退款，不能重複申請";
+            }
+
+            if (RefundStatusId == RefundStatusIds.Refunded)
+            {
+                return "此付款已退款完成，不能重複退款";
+            }
             if (refundAmount <= 0)
             {
-                throw new InvalidOperationException("退款金額必須大於 0");
+                return "退款金額必須大於 0";
             }
-
-            if (string.IsNullOrWhiteSpace(reason))
+            if (string.IsNullOrWhiteSpace(refundReason))
             {
-                throw new InvalidOperationException("退款原因必填");
+                return "退款原因必填";
             }
 
+            //申請退款PaymentStatusId 不改，繼續維持 Paid
             RefundStatusId = refundStatusId;
             RefundAmount = refundAmount;
-            RefundReason = reason;
+            RefundReason = refundReason;
             RefundRequestedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
+            return "";
         }
-        //退款
+        //退款完成
         public void MarkRefunded(int refundedStatusId, string refundProviderTradeNo, string rawResponse)
         {
             RefundStatusId = refundedStatusId;
