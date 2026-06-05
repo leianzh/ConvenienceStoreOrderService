@@ -15,10 +15,33 @@ namespace ConvenienceStoreOrderService.App_Start
         {
             _container = container;
         }
-
-        public override object ActivateJob(Type jobType)
+        public override JobActivatorScope BeginScope(JobActivatorContext context)
         {
-            return _container.Resolve(jobType);
+            return new UnityJobActivatorScope(_container.CreateChildContainer());
         }
+
+        private class UnityJobActivatorScope : JobActivatorScope
+        {
+            private readonly IUnityContainer _childContainer;
+
+            public UnityJobActivatorScope(IUnityContainer childContainer)
+            {
+                _childContainer = childContainer;
+            }
+
+            public override object Resolve(Type type)
+            {
+                return _childContainer.Resolve(type);
+            }
+
+            public override void DisposeScope()
+            {
+                _childContainer.Dispose();
+            }
+        }
+        //public override object ActivateJob(Type jobType)
+        //{
+        //    return _container.Resolve(jobType);
+        //}
     }
 }

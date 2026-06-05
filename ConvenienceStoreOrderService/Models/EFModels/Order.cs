@@ -83,19 +83,18 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         //物流退貨
         public string MarkReturned(int statusId, string currentStatusCode)
         {
-            if (currentStatusCode != "Shipped" &&
-                currentStatusCode != "Arrived")
-            {
-                return "只有已出貨或已到店的訂單可以改成已退回。";
-            }
             if (currentStatusCode == "Returned")
             {
                 return "此訂單已經退回，不能重複退回。";
             }
-
             if (currentStatusCode == "ReadyToShip")
             {
                 return "待出貨的訂單尚未寄出，不能直接退回。";
+            }
+            if (currentStatusCode != "Shipped" &&
+                currentStatusCode != "Arrived" && currentStatusCode != "PickedUp")
+            {
+                return "只有已出貨、已到店或已取貨的訂單可以改成已退回。";
             }
 
             OrderStatusId = statusId;

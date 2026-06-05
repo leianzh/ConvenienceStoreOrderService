@@ -415,6 +415,7 @@ namespace ConvenienceStoreOrderService.Services
                         CreatedAt = now,
                         PaymentProvider = "測試",
                         PaymentMethod = dto.PaymentMethod,
+                        RefundStatusId = RefundStatusIds.None
 
 
                     };
