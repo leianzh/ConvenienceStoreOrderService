@@ -17,12 +17,14 @@ namespace ConvenienceStoreOrderService.Controllers
         private IOrderService _orderService;
         private IShipmentService _shipmentService;
         private IOrderDetailService _orderDetailService;
+        private IPaymentService _paymentService;
 
-        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService)
+        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService, IPaymentService paymentService)
         {
             _orderService = orderService;
             _shipmentService = shipmentService;
             _orderDetailService = orderDetailService;
+            _paymentService = paymentService;
         }
         // GET: Order
         public ActionResult List()
@@ -199,7 +201,27 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
-        
+        //模擬退款完成
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkRefunded(int orderId)
+        {
+            var result = _paymentService.MarkRefunded(
+                orderId,
+                "TEST_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                "模擬藍新退款成功"
+            );
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List");
+            }
+
+            TempData["SuccessMessage"] = "退款已完成。";
+            return RedirectToAction("List");
         }
+
+    }
     
 }

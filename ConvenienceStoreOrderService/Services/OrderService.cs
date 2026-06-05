@@ -544,11 +544,10 @@ namespace ConvenienceStoreOrderService.Services
             
         }
         //訂單編號
+        private static readonly Random _random = new Random();
         public string CreateOrderNo()
         {
-            return "ORD"
-                + DateTime.Now.ToString("yyyyMMddHHmmss")
-                + new Random().Next(1000, 9999);
+            return "ORD" + DateTime.Now.ToString("MMdd") + _random.Next(100, 999);
         }
         //交易編號
         public string CreateTradeNo()

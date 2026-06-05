@@ -17,6 +17,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> MarkPaid(int orderId);
         Result<bool> MarkCodPaidWhenPickedUp(int orderId);
         Result<bool> RequestRefund(int orderId, string reason);
+        Result<bool> MarkRefunded(int orderId, string refundProviderTradeNo, string rawResponse);
 
 
     }

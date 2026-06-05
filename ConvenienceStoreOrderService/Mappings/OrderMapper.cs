@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Mappings
     {
         public static  OrderDto ToDto(Order entity, string orderStatusName, string shippingCode,
     int? shipmentStatusId,string trackingNo, int? paymentStatusId,
-    string paymentStatusName,string paymentMethod)
+    string paymentStatusName,string paymentMethod,string refundStatusName,string refundStatusCode, DateTime? refundRequestedAt, DateTime? refundedAt,string refundReason,string orderStatusCode,string paymentStatusCode)
         {
             return new OrderDto
             {
@@ -40,6 +40,13 @@ namespace ConvenienceStoreOrderService.Mappings
                 PaymentStatusId = paymentStatusId,
                 PaymentStatusName = paymentStatusName,
                 PaymentMethod = paymentMethod,
+                RefundStatusName = refundStatusName,
+                RefundStatusCode = refundStatusCode,
+                RefundRequestedAt = refundRequestedAt,
+                RefundedAt = refundedAt,
+                RefundReason=refundReason,
+                OrderStatusCode=orderStatusCode,
+                PaymentStatusCode=paymentStatusCode,
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)
@@ -62,6 +69,13 @@ namespace ConvenienceStoreOrderService.Mappings
                 TrackingNo=dto.TrackingNo,
                 PaymentStatusId=dto.PaymentStatusId,
                 PaymentStatusName = dto.PaymentStatusName,
+                RefundStatusName=dto.RefundStatusName,
+                RefundStatusCode=dto.RefundStatusCode,
+                RefundRequestedAt=dto.RefundRequestedAt,
+                RefundedAt = dto.RefundedAt,
+                RefundReason=dto.RefundReason,
+                OrderStatusCode=dto.OrderStatusCode,
+                PaymentStatusCode=dto.PaymentStatusCode,
             };
         }
     }

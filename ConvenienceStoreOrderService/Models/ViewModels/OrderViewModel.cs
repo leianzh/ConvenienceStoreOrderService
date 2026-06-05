@@ -15,7 +15,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public int ShippingFee { get; set; }
         public int OrderTotal { get; set; }
         public string CancelReason { get; set; }
-
+        public string OrderStatusCode { get; set; }
         public string OrderStatusName { get; set; }
         public string ShippingCode { get; set; }
 
@@ -27,8 +27,16 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
 
         public string TrackingNo { get; set; }
         public int? PaymentStatusId { get; set; }
+        public string PaymentStatusCode { get; set; }
         public string PaymentStatusName { get; set; }
         public string PaymentMethod { get; set; }
+        
+        public string RefundStatusName { get; set; }
+        public string RefundStatusCode { get; set; }
+        public DateTime? RefundRequestedAt { get; set; }
+        public DateTime? RefundedAt { get; set; }
+        public string RefundReason { get; set; }
+        
 
 
     }

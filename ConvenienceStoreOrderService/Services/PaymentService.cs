@@ -172,5 +172,29 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<bool>.Success(true);
         }
+        //退款完成
+        public Result<bool> MarkRefunded(int orderId, string refundProviderTradeNo, string rawResponse)
+        {
+            var payment =_paymentRepository.GetOrderId(orderId);
+            if(payment == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+            }
+            var refundStatus = _refundStatusRepository.GetByCode
+                (RefundStatusIds.Refunded.ToString());
+            if (refundStatus == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到退款狀態：Refunded");
+            }
+            payment.MarkRefunded(
+                refundStatus.RefundStatusId,
+                refundProviderTradeNo,
+                rawResponse
+                );
+
+            _paymentRepository.SaveChanges();
+
+            return Result<bool>.Success(true);
+        }
     }
 }

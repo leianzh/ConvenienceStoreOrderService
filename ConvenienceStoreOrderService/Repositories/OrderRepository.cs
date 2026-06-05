@@ -32,11 +32,21 @@ namespace ConvenienceStoreOrderService.Repositories
                 from py in _db.Payments
                 join ps in _db.PaymentStatuses
                 on py.PaymentStatusId equals ps.PaymentStatusId
+
+                join rs in _db.RefundStatuses
+                on py.RefundStatusId equals rs.RefundStatusId
                 select new 
                 {
                     Payment = py,
                     PaymentStatusName = ps.PaymentStatusName,
                     PaymentMethod=py.PaymentMethod,
+                    rs.RefundStatusName,
+                    rs.RefundStatusCode,
+                    py.RefundRequestedAt,
+                    py.RefundedAt,
+                    py.RefundReason,
+                    ps.PaymentStatusCode,
+                    
                 };
 
             var result =
@@ -56,13 +66,20 @@ namespace ConvenienceStoreOrderService.Repositories
         select new 
         {
             Order = o,
+            s.OrderStatusCode,
             OrderStatusName = s.OrderStatusName,
             ShippingCode = shipment != null ? shipment.ShippingCode : null,
             ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
             TrackingNo =shipment.TrackingNo,
             PaymentStatusId = payment.Payment.PaymentStatusId,
             PaymentStatusName =  payment.PaymentStatusName,
-            PaymentMethod = payment.PaymentMethod
+            PaymentMethod = payment.PaymentMethod,
+            payment.RefundStatusName,
+            payment.RefundStatusCode,           
+            payment.RefundRequestedAt,
+            payment.RefundedAt,
+            payment.RefundReason,
+            payment.PaymentStatusCode,
 
         };
 
@@ -76,7 +93,14 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.TrackingNo,
                     o.PaymentStatusId,
                     o.PaymentStatusName,
-                    o.PaymentMethod
+                    o.PaymentMethod,
+                    o.RefundStatusName,
+                    o.RefundStatusCode,
+                    o.RefundRequestedAt,
+                    o.RefundedAt,
+                    o.RefundReason,
+                    o.OrderStatusCode,
+                    o.PaymentStatusCode
                     ))
                 .ToList();
 

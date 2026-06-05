@@ -13,8 +13,23 @@
     @TempData["ErrorMessage"]
 </div>
 }
+<style>
+    .order-table {
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+        .order-table th,
+        .order-table td {
+            vertical-align: middle;
+        }
+
+        .order-table .action-cell {
+            min-width: 220px;
+        }
+</style>
 <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
+    <table class="table table-bordered table-hover  table-sm align-middle order-table">
         <thead class="table-light">
             <tr>
                 <th>訂購日期</th>
@@ -24,55 +39,155 @@
                 <th>訂單總金額</th>
                 <th>訂單狀態</th>
                 <th>付款狀態</th>
-                <th>訂單取消原因</th>
+                <th>退款狀態</th>
+                @*<th>退款申請時間</th>
+                    <th>退款完成時間</th>
+                    <th>退貨退款原因</th>
+                    <th>訂單取消原因</th>*@
                 <th>寄件代碼</th>
                 <th>物流狀態</th>
                 <th>物流追蹤碼</th>
-                <th style="width: 220px;">操作</th>
+                <th class="action-cell">操作</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach (var order in Model)
-        {
+            {
             <tr>
                 <td>@order.CreatedAt</td>
                 <td>@order.OrderNo</td>
                 <td>
                     @if (order.PaymentMethod == "COD")
-    {
+                    {
                     <span>取貨付款</span>
-    }
-    else if (order.PaymentMethod == "CreditCard")
-    {
+                    }
+                    else if (order.PaymentMethod == "CreditCard")
+                    {
                     <span>信用卡</span>
-    }
-    else if (order.PaymentMethod == "LinePay")
-    {
+                    }
+                    else if (order.PaymentMethod == "LinePay")
+                    {
                     <span>LinePay</span>
-    }
+                    }
                 </td>
                 <td>NT$@order.ShippingFee</td>
                 <td>NT$@order.OrderTotal</td>
                 <td>
+                    @if (order.OrderStatusCode == "Cancelled")
+                    {
+                    <span class="badge bg-danger">
+                        @order.OrderStatusName
+                    </span>
+
+                        if (!string.IsNullOrEmpty(order.CancelReason))
+                        {
+                    <button class="btn btn-outline-danger btn-sm me-sm-1"
+                            style="padding: 2px 6px; font-size: 12px;"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#cancelReason_@order.OrderId">
+                        取消原因
+                    </button>
+                        }
+                    }
+                    else
+                    {
                     <span class="badge bg-primary">
                         @order.OrderStatusName
                     </span>
+                     }
                 </td>
                 <td>
+                    @if (order.PaymentStatusCode == "Failed" || order.PaymentStatusCode == "Cancelled")
+                    {
+                    <span class="badge bg-danger">
+                        @order.PaymentStatusName
+                    </span>
+                    }
+                    else
+                    {
                     <span class="badge bg-success">
                         @order.PaymentStatusName
                     </span>
+                    }
                 </td>
                 <td>
-                    @if (string.IsNullOrEmpty(order.CancelReason))
-    {
+                    @if (order.RefundStatusCode == "None")
+                    {
+                    <span class="badge bg-warning text-dark ms-1">無退款</span>
+                        }
+                    else if (order.RefundStatusCode == "Requested")
+                    {
+                    <span class="badge bg-warning text-dark ms-1">退款申請中</span>
+                    }
+
+                    else if (order.RefundStatusCode == "Refunded")
+                    {
+                    <span class="badge bg-success ms-1">已退款</span>
+                    }
+                    else if (order.RefundStatusCode == "Failed")
+                    {
+                    <span class="badge bg-danger ms-1">退款失敗</span>
+                    }
+                    else
+                    {
                     <span class="text-muted">-</span>
-    }
-    else
-    {
-                    <span class="text-danger">@order.CancelReason</span>
-    }
+                    }
+                    @if (order.RefundStatusCode != "None")
+                        {
+                    <button class="btn btn-outline-secondary btn-sm ms-1"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#refundInfo_@order.OrderId">
+                        退款資訊
+                    </button>
+                        }
                 </td>
+                @*<td>
+                        @if (!order.RefundRequestedAt.HasValue)
+                        {
+                        <span class="text-muted"></span>
+                        }
+                        else
+                        {
+                        <span class="text-danger">
+                            @order.RefundRequestedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                        </span>
+                        }
+                    </td>
+                    <td>
+                        @if (!order.RefundedAt.HasValue)
+                        {
+                        <span class="text-muted"></span>
+                        }
+                        else
+                        {
+                        <span class="text-danger">
+                            @order.RefundedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                        </span>
+                        }
+                    </td>
+                    <td>
+                        @if (string.IsNullOrEmpty(order.RefundReason))
+                        {
+                        <span class="text-muted">-</span>
+                        }
+                        else
+                         {
+                        <span class="text-danger">@order.RefundReason</span>
+                         }
+                    </td>*@
+                @*<td>
+                        @if (string.IsNullOrEmpty(order.CancelReason))
+                        {
+                        <span class="text-muted">-</span>
+                        }
+                        else
+                         {
+                        <span class="text-danger">@order.CancelReason</span>
+                         }
+                    </td>*@
                 <td>
                     @if (string.IsNullOrEmpty(order.ShippingCode))
                         {
@@ -85,38 +200,41 @@
                 </td>
                 <td>
                     @if (string.IsNullOrEmpty(order.ShipmentStatusName))
-                        {
+                    {
                     <span class="text-muted">尚未建立物流</span>
-                        }
-                        else
-                        {
+                    }
+                    else
+                    {
                     <span class="badge bg-info text-dark">
                         @order.ShipmentStatusName
                     </span>
-                        }
+                    }
                 </td>
                 <td>
                     @if (string.IsNullOrEmpty(order.TrackingNo))
-                        {
+                    {
                     <span class="text-muted">-</span>
-                        }
-                        else
-                        {
+                    }
+                    else
+                    {
                     <span>@order.TrackingNo</span>
-                        }
+                   }
                 </td>
                 <td>
                     <a href="@Url.Action("OrderDetailsPage", "Orders", new { orderId = order.OrderId })"
-                       class="btn btn-outline-secondary btn-sm">
+                       class="btn btn-outline-secondary btn-sm mb-1"
+                       style="padding: 2px 6px; font-size: 12px;">
                         查看明細
                     </a>
-                    <button class="btn btn-outline-primary btn-sm"
+                    <button class="btn btn-outline-primary btn-sm mb-1"
+                            style="padding: 2px 6px; font-size: 12px;"
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#shipmentActions_@order.OrderId">
                         物流操作
                     </button>
-                    <button class="btn btn-outline-danger btn-sm"
+                    <button class="btn btn-outline-danger btn-sm mb-1"
+                            style="padding: 2px 6px; font-size: 12px;"
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#cancelBox_@order.OrderId">
@@ -125,9 +243,9 @@
                     <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
 
                         @if (string.IsNullOrEmpty(order.ShippingCode))
-    {
-        using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
-        {
+                      {
+                            using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post))
+                        {
                         @Html.Hidden("OrderId", order.OrderId)
 
                         <input type="text" name="RecipientName" placeholder="收件人姓名" class="form-control mb-1" required />
@@ -141,49 +259,50 @@
                         <button type="submit" class="btn btn-primary btn-sm">
                             取得寄件代碼
                         </button>
-        }
-    }
-    else
-    {
+                        }
+                     }
+                     else
+                     {
                         <div class="text-success mb-2">
                             已取得寄件代碼：@order.ShippingCode
                         </div>
 
-        using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
-        {
+                        using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
+                        {
                         @Html.Hidden("OrderId", order.OrderId)
                         <button type="submit" class="btn btn-warning btn-sm mb-1">
                             模擬已寄件
                         </button>
-        }
+                        }
 
-        using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
-        {
+                        using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+                        {
                         @Html.Hidden("OrderId", order.OrderId)
                         <button type="submit" class="btn btn-success btn-sm mb-1">
                             模擬已到店
                         </button>
-        }
+                        }
 
-        using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
-        {
+                        using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
+                        {
                         @Html.Hidden("OrderId", order.OrderId)
                         <button type="submit" class="btn btn-info btn-sm mb-1">
                             模擬已取貨
                         </button>
-        }
+                        }
                         using (Html.BeginForm("MarkReturned", "Orders", FormMethod.Post))
-        {
+                        {
                         @Html.Hidden("OrderId", order.OrderId)
                         <button type="submit" class="btn btn-secondary btn-sm mb-1">
                             模擬已退貨
                         </button>
-        }
-    }
+                        }
+                    }
                     </div>
+
                     <div class="collapse mt-2" id="cancelBox_@order.OrderId">
                         @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
-        {
+                        {
                         @Html.Hidden("orderId", order.OrderId)
 
                         <input type="text"
@@ -194,13 +313,86 @@
                                oninvalid="this.setCustomValidity('取消原因必填')"
                                oninput="this.setCustomValidity('')" />
 
-                        <button type="submit" class="btn btn-danger btn-sm">
+                        <button type="submit" class="btn btn-danger btn-sm" >
                             送出取消
                         </button>
-        }
+                        }
                     </div>
                 </td>
             </tr>
+             if (order.RefundStatusCode != "None")
+                {
+            <tr class="collapse" id="refundInfo_@order.OrderId">
+                <td colspan="12" class="collapse-detail">
+                    <div class="card card-body bg-light">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="text-muted small">退款申請時間</div>
+
+                                <div>
+                                    @if (order.RefundRequestedAt.HasValue)
+                                            {
+                                    <span class="text-danger">
+                                        @order.RefundRequestedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                    </span>
+                                            }
+                                            else
+                                            {
+                                    <span class="text-muted">-</span>
+                                            }
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="text-muted small">退款完成時間</div>
+
+                                <div>
+                                    @if (order.RefundedAt.HasValue)
+                                            {
+                                    <span class="text-danger">
+                                        @order.RefundedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                    </span>
+                                            }
+                                            else
+                                            {
+                                    <span class="text-muted">-</span>
+                                            }
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="text-muted small">退貨退款原因</div>
+
+                                <div>
+                                    @if (string.IsNullOrEmpty(order.RefundReason))
+                                            {
+                                    <span class="text-muted">-</span>
+                                            }
+                                            else
+                                            {
+                                    <span class="text-danger">
+                                        @order.RefundReason
+                                    </span>
+                                            }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+                }
+
+                if (order.OrderStatusName == "已取消" && !string.IsNullOrEmpty(order.CancelReason))
+                {
+            <tr class="collapse" id="cancelReason_@order.OrderId">
+                <td colspan="12" class="collapse-detail">
+                    <div class="alert alert-danger mb-0 py-2">
+                        <strong>訂單取消原因：</strong>
+                        @order.CancelReason
+                    </div>
+                </td>
+            </tr>
+                }
             }
         </tbody>
     </table>
