@@ -1,5 +1,7 @@
 ﻿@model List<ConvenienceStoreOrderService.Models.ViewModels.OrderViewModel>
 
+
+
 <h2 class="mb-3">訂單資訊</h2>
 
 @if (TempData["SuccessMessage"] != null)
@@ -44,7 +46,15 @@
         padding: 2px 6px;
         font-size: 12px;
     }
+
     .shipment-input {
+        width: 130px;
+        height: 28px;
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+
+    .cancel-input {
         width: 130px;
         height: 28px;
         padding: 2px 6px;
@@ -136,18 +146,38 @@
                 </td>
 
                 <td>
+
                     @if (order.PaymentStatusCode == "Failed" || order.PaymentStatusCode == "Cancelled")
-                        {
+                    {
                     <span class="badge bg-danger">
                         @order.PaymentStatusName
                     </span>
-                        }
-                        else
-                        {
+                    }
+                    else if (order.PaymentStatusCode == "Paid")
+                    {
                     <span class="badge bg-success">
                         @order.PaymentStatusName
                     </span>
-                        }
+
+                            if (order.RefundStatusCode == "Requested")
+                            {
+                    <span class="badge bg-warning text-dark ms-1">
+                        退款申請中
+                    </span>
+                            }
+                            else if (order.RefundStatusCode == "Refunded")
+                            {
+                    <span class="badge bg-success ms-1">
+                        已退款
+                    </span>
+                            }
+                     }
+                     else
+                     {
+                    <span class="badge bg-secondary">
+                        @order.PaymentStatusName
+                    </span>
+                     }
                 </td>
 
                 <td>
@@ -232,8 +262,11 @@
                             data-bs-target="#shipmentActions_@order.OrderId"
                             aria-expanded="false"
                             aria-controls="shipmentActions_@order.OrderId">
-                        物流操作
+                        物流
                     </button>
+
+
+
 
                     @if (order.OrderStatusCode != "Cancelled")
                         {
@@ -347,7 +380,7 @@
                             <input type="text"
                                    name="refundReason"
                                    placeholder="請輸入退貨原因"
-                                   class="form-control form-control-sm mb-2"
+                                   class="form-control form-control-sm mb-1 shipment-input"
                                    required
                                    oninvalid="this.setCustomValidity('退貨原因必填')"
                                    oninput="this.setCustomValidity('')" />
@@ -369,7 +402,7 @@
                         <input type="text"
                                name="cancelReason"
                                placeholder="請輸入取消原因"
-                               class="form-control form-control-sm mb-2"
+                               class="form-control form-control-sm mb-2 cancel-input"
                                required
                                oninvalid="this.setCustomValidity('取消原因必填')"
                                oninput="this.setCustomValidity('')" />
@@ -394,15 +427,15 @@
 
                                 <div>
                                     @if (order.RefundRequestedAt.HasValue)
-                                            {
-                                    <span class="text-danger">
+                                    {
+                                        <span class="text-danger">
                                         @order.RefundRequestedAt.Value.ToString("yyyy/MM/dd HH:mm")
-                                    </span>
-                                            }
-                                            else
-                                            {
-                                    <span class="text-muted">-</span>
-                                            }
+                                         </span>
+                                    }
+                                    else
+                                    {
+                                       <span class="text-muted">-</span>
+                                    }
                                 </div>
                             </div>
 
@@ -411,15 +444,15 @@
 
                                 <div>
                                     @if (order.RefundedAt.HasValue)
-                                            {
-                                    <span class="text-danger">
-                                        @order.RefundedAt.Value.ToString("yyyy/MM/dd HH:mm")
-                                    </span>
-                                            }
-                                            else
-                                            {
-                                    <span class="text-muted">-</span>
-                                            }
+                                    {
+                                        <span class="text-danger">
+                                            @order.RefundedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
                                 </div>
                             </div>
 
@@ -428,17 +461,29 @@
 
                                 <div>
                                     @if (string.IsNullOrEmpty(order.RefundReason))
-                                            {
-                                    <span class="text-muted">-</span>
-                                            }
-                                            else
-                                            {
-                                    <span class="text-danger">
-                                        @order.RefundReason
-                                    </span>
-                                            }
+                                    {
+                                            <span class="text-muted">-</span>
+                                     }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            @order.RefundReason
+                                        </span>
+                                    }
                                 </div>
                             </div>
+                            @if (order.PaymentStatusCode == "Paid" && order.RefundStatusCode == "Requested")
+                            {
+                                using (Html.BeginForm("MarkRefunded", "Orders", FormMethod.Post))
+                                {
+
+                                    @Html.Hidden("orderId", order.OrderId)
+                                        <button type="submit"
+                                                class="btn btn-outline-success btn-sm mb-1 small-action-btn">
+                                            模擬退款完成
+                                        </button>
+                                }
+                            }
                         </div>
                     </div>
                 </td>

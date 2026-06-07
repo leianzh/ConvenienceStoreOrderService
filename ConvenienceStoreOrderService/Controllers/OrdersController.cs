@@ -129,6 +129,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        //訂單退回、物流退貨，建立退款申請
         [HttpPost]
         public ActionResult MarkReturned(ShipmentCreateDto shipmentDto)
         {
@@ -203,12 +204,12 @@ namespace ConvenienceStoreOrderService.Controllers
         }
         //模擬退款完成
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public ActionResult MarkRefunded(int orderId)
         {
             var result = _paymentService.MarkRefunded(
                 orderId,
-                "TEST_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                "TEST_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmm"),
                 "模擬藍新退款成功"
             );
 

@@ -141,13 +141,18 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             return "";
         }
         //退款完成
-        public void MarkRefunded(int refundedStatusId, string refundProviderTradeNo, string rawResponse)
+        public string MarkRefunded(int requestedStatusId, int refundedStatusId, string refundProviderTradeNo, string rawResponse)
         {
+            if (RefundStatusId != requestedStatusId)
+            {
+                return "只有退款申請中的訂單，才能退款完成。";
+            }
             RefundStatusId = refundedStatusId;
             RefundedAt = DateTime.Now;
             RefundProviderTradeNo = refundProviderTradeNo;
             RefundRawResponse = rawResponse;
             UpdatedAt = DateTime.Now;
+            return null;
         }
     }
 }

@@ -180,21 +180,33 @@ namespace ConvenienceStoreOrderService.Services
             {
                 return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
             }
-            var refundStatus = _refundStatusRepository.GetByCode
-                (RefundStatusIds.Refunded.ToString());
-            if (refundStatus == null)
+            // 找有沒有Requested
+            var requestedStatus = _refundStatusRepository.GetByCode
+                ("Requested");
+            if (requestedStatus == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到退款狀態：Requested");
+            }
+            //找有沒有Refunded 
+            var refundedStatus = _refundStatusRepository.GetByCode("Refunded");
+            if(refundedStatus == null)
             {
                 return Result<bool>.Fail(ErrorCodes.SystemError, "找不到退款狀態：Refunded");
             }
-            payment.MarkRefunded(
-                refundStatus.RefundStatusId,
+            var errorMessage = payment.MarkRefunded(
+                requestedStatus.RefundStatusId,
+                refundedStatus.RefundStatusId,
                 refundProviderTradeNo,
                 rawResponse
                 );
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
+            }
 
             _paymentRepository.SaveChanges();
 
-            return Result<bool>.Success(true);
+            return Result<bool>.Success(true, "退款已完成");
         }
     }
 }
