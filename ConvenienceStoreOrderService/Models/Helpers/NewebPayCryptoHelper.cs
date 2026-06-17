@@ -5,6 +5,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.IO;
+using ConvenienceStoreOrderService.Models.Common;
+using System.Web.Services.Description;
 
 
 namespace ConvenienceStoreOrderService.Models.Helpers
@@ -75,6 +77,7 @@ namespace ConvenienceStoreOrderService.Models.Helpers
         /// </summary>
         public static string DecryptTradeInfo(string encryptedHexText, string hashKey, string hashIV)
         {
+           
             // HashKey、HashIV 轉 byte[]
             byte[] keyBytes = Encoding.UTF8.GetBytes(hashKey);
             byte[] ivBytes = Encoding.UTF8.GetBytes(hashIV);
@@ -87,7 +90,7 @@ namespace ConvenienceStoreOrderService.Models.Helpers
             aes.Key = keyBytes;              
             aes.IV = ivBytes;                
             aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
+            aes.Padding = PaddingMode.None;
 
             MemoryStream ms = new MemoryStream();
             using (CryptoStream cs = new CryptoStream(
@@ -101,30 +104,77 @@ namespace ConvenienceStoreOrderService.Models.Helpers
 
                     // 解密後的 byte[]
                     byte[] decryptedBytes = ms.ToArray();
+                    //移除padding
+                    byte[] unpaddedBytes = StripPkcs7Padding(decryptedBytes);
 
-                    //轉回字串
-                    return Encoding.UTF8.GetString(decryptedBytes);
+
+                //轉回字串
+                return Encoding.UTF8.GetString(unpaddedBytes);
             }
             
         }
+        /// <summary>
+        /// 解密手動移除padding
+        /// </summary>
+        private static byte[] StripPkcs7Padding(byte[] decryptedBytes)
+        {
+            if (decryptedBytes == null || decryptedBytes.Length == 0)
+            {
+                throw new ArgumentException("解密後資料不可為空。");
+            }
+
+            //padding 長度
+            int paddingLength = decryptedBytes[decryptedBytes.Length - 1];
+            byte paddingByte = (byte)paddingLength;
+
+            
+            if (paddingLength <= 0 || paddingLength > decryptedBytes.Length)
+            {
+                return null;
+            }
+
+            
+            for (int i = decryptedBytes.Length - paddingLength; i < decryptedBytes.Length; i++)
+            {
+                if (decryptedBytes[i] != paddingByte)
+                {
+                    throw new CryptographicException("PKCS7 Padding 內容不正確。");
+                }
+            }
+
+            // 移除 padding
+            byte[] result = new byte[decryptedBytes.Length - paddingLength];
+            Array.Copy(decryptedBytes, result, result.Length);
+
+            return result;
+        }
+
         /// <summary>
         /// 16 進位字串轉 byte[]
         /// </summary>
         private static byte[] HexStringToByteArray(string hex)
         {
-            if (hex.Length % 2 != 0)
+            try
             {
-                throw new ArgumentException("Hex 字串長度必須是偶數。");
+
+                if (hex.Length % 2 != 0)
+                {
+                    throw new ArgumentException("Hex 字串長度必須是偶數。");
+                }
+
+                byte[] bytes = new byte[hex.Length / 2];
+
+                for (int i = 0; i < hex.Length; i += 2)
+                {
+                    bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                }
+
+                return bytes;
             }
-
-            byte[] bytes = new byte[hex.Length / 2];
-
-            for (int i = 0; i < hex.Length; i += 2)
+            catch(Exception ex) 
             {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                throw new ArgumentException("Hex 字串轉 byte[] 失敗", ex);
             }
-
-            return bytes;
         }
     }
 }
