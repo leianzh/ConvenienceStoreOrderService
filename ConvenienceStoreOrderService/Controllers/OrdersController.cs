@@ -9,6 +9,8 @@ using System.Web;
 using System.Web.Mvc;
 using ConvenienceStoreOrderService.Models.Common;
 using Unity;
+using ConvenienceStoreOrderService.Models.Constants;
+using ConvenienceStoreOrderService.Models.EFModels;
 
 namespace ConvenienceStoreOrderService.Controllers
 {
@@ -158,7 +160,17 @@ namespace ConvenienceStoreOrderService.Controllers
                 // 失敗先回商品列表
                 return RedirectToAction("List", "Products");
             }
-
+            var orderId = result.Data;
+            // 如果是信用卡一次付清，下單成功後導去藍新付款流程
+            if (dto.PaymentMethod == PaymentMethodName.CreditCard)
+            {
+                return RedirectToAction(
+                    "PayByCreditCard",
+                    "Payments",
+                    new { orderId = orderId }
+                );
+            }
+            // COD 下單成功就回訂單列表
             TempData["SuccessMessage"] = "下單成功";
             return RedirectToAction("List", "Orders");
         }
@@ -222,6 +234,7 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = "退款已完成。";
             return RedirectToAction("List");
         }
+        
 
     }
     

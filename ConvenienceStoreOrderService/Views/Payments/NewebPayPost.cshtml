@@ -1,0 +1,15 @@
+﻿@model ConvenienceStoreOrderService.Models.DTOs.NewebPayMpgRequestDto
+
+<h2>正在前往藍新信用卡付款頁...</h2>
+
+<form id="newebPayForm" method="post" action="@Model.MpgUrl">
+    <input type="hidden" name="MerchantID" value="@Model.MerchantID" />
+    <input type="hidden" name="TradeInfo" value="@Model.TradeInfo" />
+    <input type="hidden" name="TradeSha" value="@Model.TradeSha" />
+    <input type="hidden" name="Version" value="@Model.Version" />
+    <input type="hidden" name="EncryptType" value="@Model.EncryptType" />
+</form>
+
+<script>
+    document.getElementById("newebPayForm").submit();
+</script>

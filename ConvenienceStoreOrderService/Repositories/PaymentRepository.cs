@@ -31,5 +31,15 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db.SaveChanges();
         }
+        public Payment GetByOrderNo(string orderNo)
+        {
+            return
+                (from p in _db.Payments
+                 join o in _db.Orders
+                    on p.OrderId equals o.OrderId
+                 where o.OrderNo == orderNo
+                 select p)
+                .FirstOrDefault();
+        }
     }
 }

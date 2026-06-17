@@ -47,30 +47,23 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         }
         
         //Paid線上
-        public string MarkPaid()
+        public string MarkPaid(int paidStatusId, string tradeNo, string rawCallBack)
         {
-            if (PaymentStatusId == 2)
+            if (PaymentStatusId != PaymentStatusIds.Pending)
             {
-                return "此訂單已付款，不能重複付款";
+                return "只有待付款可以改成已付款";
             }
 
-            if (PaymentStatusId == 3)
+            if (string.IsNullOrWhiteSpace(tradeNo))
             {
-                return "付款失敗的紀錄不能直接改成已付款";
+                return "藍新交易序號不可為空";
             }
 
-            if (PaymentStatusId == 4)
-            {
-                return "已取消的付款不能改成已付款";
-            }
-
-            if (PaymentStatusId != 1)
-            {
-                return "只有待付款狀態可以改成已付款";
-            }
-
-            PaymentStatusId = 2;
+            PaymentStatusId = paidStatusId;
+            TradeNo = tradeNo;
+            RawCallBack = rawCallBack;
             PaidAt = DateTime.Now;
+            UpdatedAt = DateTime.Now;
 
             return "";
         }
