@@ -30,7 +30,7 @@ namespace ConvenienceStoreOrderService.App_Start
             RecurringJob.AddOrUpdate<ShipmentJob>(
                 "clear-expired-shipping-codes",
                 job => job.ClearExpiredShippingCodes(),
-                Cron.Hourly
+                Cron.MinuteInterval(1)
             );
         }
     }
