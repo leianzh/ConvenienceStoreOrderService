@@ -57,9 +57,6 @@ namespace ConvenienceStoreOrderService.Controllers
         {
             var tradeInfo = Request.Form["TradeInfo"];
             var tradeSha = Request.Form["TradeSha"];
-
-            
-            
             var result = _paymentService.HandleNewebPayNotify(tradeInfo, tradeSha);
 
             if (!result.IsSuccess)

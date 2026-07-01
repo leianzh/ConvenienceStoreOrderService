@@ -149,5 +149,20 @@ namespace ConvenienceStoreOrderService.Repositories
 
 
         }
+        //查物流資料填寫時間
+        public List<int> GetIncompleteOrderIds(DateTime now)
+        {
+            var result =
+                from o in _db.Orders
+                join os in _db.OrderStatuses
+                on o.OrderStatusId equals os.OrderStatusId
+                where o.InfoDueAt != null
+                && o.InfoDueAt < now
+                && o.InfoCompletedAt == null
+                && os.OrderStatusCode == "Processing"
+                select o.OrderId;
+            return result.ToList();
+        }
+
     }
 }

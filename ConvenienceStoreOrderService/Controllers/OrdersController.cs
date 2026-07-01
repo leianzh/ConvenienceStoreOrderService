@@ -74,7 +74,7 @@ namespace ConvenienceStoreOrderService.Controllers
         [HttpPost]
         public ActionResult GetShipCode(ShipmentCreateDto dto)
         {
-            var result = _shipmentService.GetShipCode(dto);
+            var result = _shipmentService.GetShipCode(dto.OrderId);
 
             if (!result.IsSuccess)
             {
@@ -162,16 +162,79 @@ namespace ConvenienceStoreOrderService.Controllers
             }
             var orderId = result.Data;
             // 如果是信用卡一次付清，下單成功後導去藍新付款流程
-            if (dto.PaymentMethod == PaymentMethodName.CreditCard)
+            //if (dto.PaymentMethod == PaymentMethodName.CreditCard)
+            //{
+           
+            //    return RedirectToAction(
+            //        "PayByCreditCard",
+            //        "Payments",
+            //        new { orderId = orderId }
+            //    );
+            //}
+            // COD 下單成功就回訂單列表
+            //TempData["SuccessMessage"] = "下單成功";
+            //return RedirectToAction("List", "Orders");
+            // 下單成功後，先去填物流資料
+            return RedirectToAction(
+                "FillShipmentInfo",
+                "Orders",
+                new { orderId = orderId }
+            );
+        }
+        [HttpGet]
+        public ActionResult FillShipmentInfo(int orderId)
+        {
+            var dto = new ShipmentCreateDto
             {
+                OrderId = orderId
+            };
+
+            return View(dto);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult FillShipmentInfo(ShipmentCreateDto dto)
+        {
+            // 物流資料
+            var saveResult = _shipmentService.CreateShipmentInfo(dto);
+
+            if (!saveResult.IsSuccess)
+            {
+                TempData["ErrorMessage"] = saveResult.Message;
+                return View(dto);
+            }
+
+            // 付款方式
+            var paymentMethodResult = _paymentService.GetPaymentMethodByOrderId(dto.OrderId);
+
+            if (!paymentMethodResult.IsSuccess)
+            {
+                TempData["ErrorMessage"] = paymentMethodResult.Message;
+                return RedirectToAction("List", "Orders");
+            }
+
+            var paymentMethod = paymentMethodResult.Data;
+
+            // 信用卡，填完物流資料後才開始付款倒數，然後導去藍新
+            if (paymentMethod == PaymentMethodName.CreditCard)
+            {
+                var countdownResult = _orderService.StartPaymentCountdown(dto.OrderId);
+
+                if (!countdownResult.IsSuccess)
+                {
+                    TempData["ErrorMessage"] = countdownResult.Message;
+                    return RedirectToAction("List", "Orders");
+                }
+
                 return RedirectToAction(
                     "PayByCreditCard",
                     "Payments",
-                    new { orderId = orderId }
+                    new { orderId = dto.OrderId }
                 );
             }
-            // COD 下單成功就回訂單列表
-            TempData["SuccessMessage"] = "下單成功";
+
+            //COD 填完物流資料後，回訂單列表
+            TempData["SuccessMessage"] = "物流資料已完成，下單成功。";
             return RedirectToAction("List", "Orders");
         }
         public ActionResult Details(int orderId)

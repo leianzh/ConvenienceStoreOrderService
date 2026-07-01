@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -27,62 +28,102 @@ namespace ConvenienceStoreOrderService.Services
             _db = db;
             
         }
-        public Result<bool> GetShipCode(ShipmentCreateDto shipmentDto)
+        public Result<bool> GetShipCode(int orderId)
         {
-            
-            if (shipmentDto == null)
-            { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
-            if(shipmentDto.OrderId == null)
-            { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
+
+            if(orderId == null)
+            {  return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");  }
 
             var now= DateTime.Now;
-            var shippingCode = CreateShippingCode(shipmentDto.OrderId);
+            var shippingCode = CreateShippingCode(orderId);
             //訂單有沒有shipment
-            var existingShipment = _shipmentRepository.GetByOrderId(shipmentDto.OrderId);
-            //有shipment
-            if(existingShipment != null)
+            var shipment = _shipmentRepository.GetByOrderId(orderId);
+            if (shipment == null)
             {
-                //ShippingCode 還存在，不可重複產生
-                if (!string.IsNullOrEmpty(existingShipment.ShippingCode))
-                {
-                    return Result<bool>.Fail(ErrorCodes.Validation, "此訂單已經產生過寄件代碼");
-                }
-                //ShippingCode 被清掉，代表可以重新產生
-                if (existingShipment.ShipmentStatusId == ShipmentStatusIds.ReadyToShip)
-                {
-                    existingShipment.ShippingCode = shippingCode;
-                    existingShipment.ShippingCodeGeneratedAt = now;
-                    existingShipment.UpdatedAt = now;
-                    _shipmentRepository.SaveChanges();
-
-                    return Result<bool>.Success(true, shippingCode);
-                }
-                else
-                {
-                    return  Result<bool>.Fail(ErrorCodes.Validation, "目前物流狀態不可重新產生寄件代碼");
-                }
+                return Result<bool>.Fail(ErrorCodes.Validation, "請先填寫物流資料");
             }
-            //沒有 Shipment，代表第一次產生寄件代碼
-            var markReadyResult = _orderService.MarkReadyToShip(shipmentDto.OrderId);
-            if (!markReadyResult.IsSuccess)
+
+            // ShippingCode 還存在，不可重複產生
+            if (!string.IsNullOrEmpty(shipment.ShippingCode))
             {
-                return Result<bool>.Fail(markReadyResult.ErrorCode, markReadyResult.Message);
+                return Result<bool>.Fail(ErrorCodes.Validation, "此訂單已經產生過寄件代碼");
+            }
+            // 第一次產生寄件代碼：ShipmentStatus = Pending
+            if (shipment.ShipmentStatusId == ShipmentStatusIds.Pending)
+            {
+                var markReadyResult = _orderService.MarkReadyToShip(orderId);
+
+                if (!markReadyResult.IsSuccess)
+                {
+                    return Result<bool>.Fail(
+                        markReadyResult.ErrorCode,
+                        markReadyResult.Message
+                    );
+                }
+                shipment.ShipmentStatusId = ShipmentStatusIds.ReadyToShip;
+                shipment.ShippingCode = shippingCode;
+                shipment.ShippingCodeGeneratedAt = now;
+                shipment.UpdatedAt = now;
+                _shipmentRepository.SaveChanges();
+
+                return Result<bool>.Success(true, shippingCode);
             }
             
-            var shipment =ShipmentMapper.ToEntity(shipmentDto);
-            shipment.ShippingMethod = 1;           
-            shipment.ShipmentStatusId = ShipmentStatusIds.ReadyToShip;           
-            shipment.ShippingCode = shippingCode;
-            shipment.ShippingCodeGeneratedAt = now;
+            // ShippingCode 被 HANGFIRE清掉後，可以重新產生
+            if (shipment.ShipmentStatusId == ShipmentStatusIds.ReadyToShip)
+            {
+                shipment.ShippingCode = shippingCode;
+                shipment.ShippingCodeGeneratedAt = now;
+                shipment.UpdatedAt = now;
+
+                _shipmentRepository.SaveChanges();
+
+                return Result<bool>.Success(true, shippingCode);
+            }
+
+            return Result<bool>.Fail(ErrorCodes.Validation, "目前物流無法產生寄件代碼");
+
+
+        }
+        //新增一筆物流資料
+        public Result<bool> CreateShipmentInfo(ShipmentCreateDto shipmentDto)
+        {
+            if (shipmentDto == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空");
+            }
+            if (shipmentDto.OrderId == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
+            }
+            //看是否已有物流資料
+            var haveShipment =_shipmentRepository.GetByOrderId(shipmentDto.OrderId);
+            if (haveShipment != null)
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, "此訂單已經填寫過物流資料");
+            }
+            var now = DateTime.Now;
+            var shipment = ShipmentMapper.ToEntity(shipmentDto);
+            shipment.ShippingMethod = 1;
+            shipment.ShipmentStatusId = ShipmentStatusHelper.ShipmentStatusIds.Pending;
+            shipment.ShippingCode = null;
+            shipment.ShippingCodeGeneratedAt = null;
+            shipment.TrackingNo = null;
             shipment.CreatedAt = now;
             shipment.UpdatedAt = now;
-
             _shipmentRepository.Add(shipment);
+            //物流資料已填寫完成
+            var completeInfoResult = _orderService.MarkInfoCompleted(shipmentDto.OrderId);
+            if (!completeInfoResult.IsSuccess)
+            {
+                return Result<bool>.Fail(
+                    completeInfoResult.ErrorCode,
+                    completeInfoResult.Message
+                );
+            }
+            
             _shipmentRepository.SaveChanges();
-
-            return Result<bool>.Success(true,shippingCode);
-
-
+            return Result<bool>.Success(true, "建立物流資料成功");
         }
         //模擬已寄件
         public Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto)

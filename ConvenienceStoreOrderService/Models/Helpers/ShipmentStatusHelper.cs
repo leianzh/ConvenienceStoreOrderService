@@ -8,6 +8,16 @@ namespace ConvenienceStoreOrderService.Models.Helpers
 {
     public class ShipmentStatusHelper
     {
+        public class ShipmentStatusIds
+        {
+            public const int Pending = 1;
+            public const int ReadyToShip = 2;
+            public const int Shipped = 3;
+            public const int Arrived = 4;
+            public const int PickedUp = 5;
+            public const int Returned = 6;
+            public const int Cancelled = 7;
+        }
         public static string GetCode(int shipmentStatusId)
         {
             switch (shipmentStatusId)

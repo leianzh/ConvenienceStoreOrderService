@@ -32,6 +32,11 @@ namespace ConvenienceStoreOrderService.App_Start
                 job => job.ClearExpiredShippingCodes(),
                 Cron.MinuteInterval(1)
             );
+            RecurringJob.AddOrUpdate<OrderJob>(
+                "auto-cancel-expired-incomplete-orders",
+                 job => job.AutoCancelExpiredIncompleteOrders(),
+                Cron.MinuteInterval(1)
+            );
         }
     }
 }

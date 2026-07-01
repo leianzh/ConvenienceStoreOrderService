@@ -383,7 +383,10 @@ namespace ConvenienceStoreOrderService.Services
                         CreatedAt = now,
                         ShippingFee = shippingFee,
                         OrderTotal = orderTotal,
-                        PaymentDueAt = now.AddMinutes(15)
+                        //PaymentDueAt = now.AddMinutes(15)
+                        PaymentDueAt = null,
+                        InfoDueAt = now.AddMinutes(15),
+                        InfoCompletedAt = null
                     };
                     // 狀態初始化走 Order 封裝
                     order.InitProcessing(orderStatusResult.Data.OrderStatusId);
@@ -642,6 +645,22 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<bool>.Success(true);
         }
+        //信用卡填完物流資料、準備導藍新時倒數
+        public Result<bool> StartPaymentCountdown(int orderId)
+        {
+            var order = _orderRepository.GetEntityById(orderId);
+
+            if (order == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到訂單");
+            }
+
+            order.PaymentDueAt = DateTime.Now.AddMinutes(15);
+
+            _orderRepository.SaveChanges();
+
+            return Result<bool>.Success(true);
+        }
         //逾時未付款自動取消訂單
 
         public Result<int> AutoCancelUnpaidOrders()
@@ -674,8 +693,8 @@ namespace ConvenienceStoreOrderService.Services
             return Result<int>.Success(count);
             
         }
-        
-        //取消單筆逾期訂單
+
+        //取消單筆逾期未付款訂單
         public Result<bool> CancelExpiredUnpaidOrder(int orderId)
         {
             var tran = _db.Database.BeginTransaction();
@@ -747,6 +766,159 @@ namespace ConvenienceStoreOrderService.Services
 
                     return Result<bool>.Fail(ErrorCodes.Validation, paymentError);
                 }
+                // 釋放 Reserved
+                var releaseResult = ReleaseReservedStock(orderId);
+
+                if (!releaseResult.IsSuccess)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(releaseResult.ErrorCode, releaseResult.Message);
+                }
+                _orderRepository.SaveChanges();
+                tran.Commit();
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                return Result<bool>.Fail(ErrorCodes.SystemError, ex.Message);
+            }
+            finally { tran.Dispose(); }
+        }
+        //物流資料填寫完成時間
+        public Result<bool> MarkInfoCompleted(int orderId)
+        {
+            var order = _orderRepository.GetEntityById(orderId);
+
+            if (order == null)
+            {
+                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到訂單");
+            }
+
+            order.InfoCompletedAt = DateTime.Now;
+
+            _orderRepository.SaveChanges();
+
+            return Result<bool>.Success(true);
+        }
+        //逾時物流資料未填寫自動取消訂單
+        public Result<int> AutoCancelIncompleteOrders()
+        {
+            var now = DateTime.Now;
+            var expiredOrderIds = _orderRepository.GetIncompleteOrderIds(now);
+
+            int count = 0;
+            List<string> errors = new List<string>();
+            foreach (var orderId in expiredOrderIds)
+            {
+                var result = CancelExpiredIncompleteOrder(orderId);
+                if (result.IsSuccess)
+                {
+                    count++;
+                }
+                else
+                {
+                    errors.Add($"OrderId {orderId}：{result.Message}");
+                }
+            }
+            if (errors.Any())
+            {
+                return Result<int>.Fail(
+                    ErrorCodes.Validation,
+                    "有訂單取消失敗：" + string.Join("；", errors)
+                );
+            }
+            return Result<int>.Success(count);
+        }
+        //取消單筆逾期物流資料未填寫訂單
+        public Result<bool> CancelExpiredIncompleteOrder(int orderId)
+        {
+            var tran = _db.Database.BeginTransaction();
+            try
+            {
+                var order = _orderRepository.GetEntityById(orderId);
+                if (order == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
+                }
+                var payment = _paymentRepository.GetOrderId(orderId);
+                if (payment == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "找不到付款資料");
+                }
+                var orderDetails = _orderDetailRepository.GetOrderDetails(orderId);
+                if (orderDetails == null || !orderDetails.Any())
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單明細");
+                }
+                // 再檢查一次，避免排程掃到後，使用者剛好已付款
+                var paymentStatus = _paymentStatusRepository.GetById(payment.PaymentStatusId);
+                if (paymentStatus.PaymentStatusCode != "Pending")
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "付款狀態已不是 Pending，不可自動取消");
+                }
+                var orderStatus = _orderStatusService.GetById(order.OrderStatusId);
+                if (!orderStatus.IsSuccess)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "查詢訂單狀態失敗");
+                }
+                if (orderStatus.Data.OrderStatusCode != "Processing")
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "訂單狀態已不是 Processing，不可自動取消");
+                }
+                
+                //判斷物流資料填寫時間
+                var now = DateTime.Now;
+                if (order.InfoCompletedAt != null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "訂單資料已完成，不可自動取消");
+                }
+
+                if (order.InfoDueAt == null || order.InfoDueAt >= now)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, "訂單資料尚未逾時，不可自動取消");
+                }
+                
+                order.CancelReason = "訂單資料逾時未完成，系統自動取消";
+                
+                //取消訂單
+                var cancelOrderResult = _orderStatusService.GetByCode("Cancelled");
+                if (!cancelOrderResult.IsSuccess)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到 Cancelled 訂單狀態");
+                }
+                var cancelError = order.CancelOrder(cancelOrderResult.Data.OrderStatusId,
+                    orderStatus.Data.OrderStatusCode
+                   );
+                if (!string.IsNullOrEmpty(cancelError))
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.Validation, cancelError);
+                }
+                // Payment 改 Cancelled
+                var cancelledPaymentStatus = _paymentStatusRepository.GetByCode("Cancelled");
+                if (cancelledPaymentStatus == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到 Cancelled 付款狀態");
+                }
+                var paymentError = payment.CancelPending();
+                if (!string.IsNullOrEmpty(paymentError))
+                {
+                    tran.Rollback();
+
+                    return Result<bool>.Fail(ErrorCodes.Validation, paymentError);
+                }
+                
                 // 釋放 Reserved
                 var releaseResult = ReleaseReservedStock(orderId);
 

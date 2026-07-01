@@ -279,91 +279,74 @@
                         取消訂單
                     </button>
                         }
-
                     <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
 
-                        @if (string.IsNullOrEmpty(order.ShippingCode))
+                        
+                        @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+                       {
+                           
+
+                            if (order.OrderStatusCode != "Cancelled")
                             {
-                                using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post, new { @class = "shipment-form" }))
-                                {
-                        @Html.Hidden("OrderId", order.OrderId)
+                                <a href="@Url.Action("FillShipmentInfo", "Orders", new { orderId = order.OrderId })"
+                                 class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
+                                填寫物流資料
+                                </a>
+                                }
+                    }
+                    else
+                    {
+                        @* 已有 Shipment，但還沒有 ShippingCode，可以取得寄件代碼 *@
+                         if (string.IsNullOrEmpty(order.ShippingCode))
+                         {
+                            using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post, new { @class = "shipment-form" }))
+                            {
+                                @Html.Hidden("orderId", order.OrderId)
 
-                        <input type="text"
-                               name="RecipientName"
-                               placeholder="收件人姓名"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <input type="text"
-                               name="RecipientPhone"
-                               placeholder="收件人電話"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <input type="text"
-                               name="PickupStore"
-                               placeholder="取貨門市"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <input type="text"
-                               name="SenderName"
-                               placeholder="寄件人姓名"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <input type="text"
-                               name="SenderPhone"
-                               placeholder="寄件人電話"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <input type="text"
-                               name="ReturnStore"
-                               placeholder="退貨門市"
-                               class="form-control form-control-sm mb-1 shipment-input"
-                               required />
-
-                        <button type="submit" class="btn btn-primary btn-sm mb-1">
+                        <button type="submit" class="btn btn-primary btn-sm mb-1 small-action-btn">
                             取得寄件代碼
                         </button>
-                                }
-                            }
-                            else
-                            {
+                        }
+                    }
+                    else
+                    {
                         <div class="text-success mb-2">
                             已取得寄件代碼：@order.ShippingCode
                         </div>
-                            }
+                    }
 
-                        @using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
-                            {
-                        @Html.Hidden("OrderId", order.OrderId)
+                        
+                    if (!string.IsNullOrEmpty(order.ShippingCode))
+                    {
+                        using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
+                        {
+                            @Html.Hidden("OrderId", order.OrderId)
 
-                        <button type="submit" class="btn btn-warning btn-sm mb-1">
+                        <button type="submit" class="btn btn-warning btn-sm mb-1 small-action-btn">
                             模擬已寄件
                         </button>
-                            }
+                         }
+                     }
 
-                        @using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
-                            {
-                        @Html.Hidden("OrderId", order.OrderId)
+                        using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+                        {
+                            @Html.Hidden("OrderId", order.OrderId)
 
-                        <button type="submit" class="btn btn-success btn-sm mb-1">
+                        <button type="submit" class="btn btn-success btn-sm mb-1 small-action-btn">
                             模擬已到店
                         </button>
-                            }
+                        }
 
-                        @using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
-                            {
-                        @Html.Hidden("OrderId", order.OrderId)
+                        using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
+                        {
+                            @Html.Hidden("OrderId", order.OrderId)
 
-                        <button type="submit" class="btn btn-info btn-sm mb-1">
+                        <button type="submit" class="btn btn-info btn-sm mb-1 small-action-btn">
                             模擬已取貨
                         </button>
-                            }
+                        }
 
-                        <button class="btn btn-danger btn-sm mb-1"
+                        <button class="btn btn-danger btn-sm mb-1 small-action-btn"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#returnBox_@order.OrderId"
@@ -374,7 +357,7 @@
 
                         <div class="collapse mt-2" id="returnBox_@order.OrderId">
                             @using (Html.BeginForm("MarkReturned", "Orders", FormMethod.Post))
-                                {
+                          {
                             @Html.Hidden("OrderId", order.OrderId)
 
                             <input type="text"
@@ -385,12 +368,14 @@
                                    oninvalid="this.setCustomValidity('退貨原因必填')"
                                    oninput="this.setCustomValidity('')" />
 
-                            <button type="submit" class="btn btn-outline-secondary btn-sm mb-1">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
                                 確認退貨
                             </button>
-                                }
+                            }
                         </div>
+             }
                     </div>
+                   
 
                     @if (order.OrderStatusCode != "Cancelled")
                         {

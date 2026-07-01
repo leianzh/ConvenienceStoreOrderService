@@ -359,6 +359,7 @@
     <Content Include="Views\Orders\OrderDetailsPage.cshtml" />
     <Content Include="Views\RefundStatus\List.cshtml" />
     <Content Include="Views\Payments\NewebPayPost.cshtml" />
+    <Content Include="Views\Orders\FillShipmentInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

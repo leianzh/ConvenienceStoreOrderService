@@ -11,8 +11,9 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IShipmentService
     {
-        Result<bool> GetShipCode(ShipmentCreateDto shipmentDto);
-       string  CreateShippingCode(int orderId);
+        Result<bool> GetShipCode(int orderId);
+        Result<bool> CreateShipmentInfo(ShipmentCreateDto shipmentDto);
+        string  CreateShippingCode(int orderId);
         Result<bool> MarkShipmentAsShipped(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsArrived(ShipmentCreateDto shipmentDto);
         Result<bool> MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto);

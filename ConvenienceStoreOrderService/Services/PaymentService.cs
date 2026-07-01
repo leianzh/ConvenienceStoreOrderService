@@ -34,6 +34,28 @@ namespace ConvenienceStoreOrderService.Services
             _orderRepository = orderRepository;
             _db = db;
         }
+        //查訂單付款方式
+        public Result<string> GetPaymentMethodByOrderId(int orderId)
+        {
+            if (orderId <= 0)
+            {
+                return Result<string>.Fail(ErrorCodes.Validation, "訂單編號錯誤");
+            }
+
+            var payment = _paymentRepository.GetOrderId(orderId);
+
+            if (payment == null)
+            {
+                return Result<string>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+            }
+
+            if (string.IsNullOrEmpty(payment.PaymentMethod))
+            {
+                return Result<string>.Fail(ErrorCodes.Validation, "付款方式不可為空");
+            }
+
+            return Result<string>.Success(payment.PaymentMethod);
+        }
         //根據付款狀態判斷「取消未付款」或「申請退款」
         public Result<bool> HandleCancelPayment(int orderId, string cancleReson)
         {

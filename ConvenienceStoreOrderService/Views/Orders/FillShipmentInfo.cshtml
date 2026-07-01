@@ -1,0 +1,130 @@
+﻿@model ConvenienceStoreOrderService.Models.DTOs.ShipmentCreateDto
+
+@{
+    ViewBag.Title = "填寫物流資料";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-3">填寫物流資料</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+    <div class="card">
+        <div class="card-header">
+            物流資料
+        </div>
+
+        <div class="card-body">
+
+            @using (Html.BeginForm("FillShipmentInfo", "Orders", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.HiddenFor(m => m.OrderId)
+
+                <div class="mb-3">
+                    <label class="form-label">收件人姓名</label>
+                    @Html.TextBoxFor(
+                        m => m.RecipientName,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入收件人姓名",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">收件人電話</label>
+                    @Html.TextBoxFor(
+                        m => m.RecipientPhone,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入收件人電話",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">取貨門市</label>
+                    @Html.TextBoxFor(
+                        m => m.PickupStore,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入取貨門市",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">寄件人姓名</label>
+                    @Html.TextBoxFor(
+                        m => m.SenderName,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入寄件人姓名",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">寄件人電話</label>
+                    @Html.TextBoxFor(
+                        m => m.SenderPhone,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入寄件人電話",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">退貨門市</label>
+                    @Html.TextBoxFor(
+                        m => m.ReturnStore,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "請輸入退貨門市",
+                            required = "required"
+                        }
+                    )
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    確認物流資料
+                </button>
+
+                <a href="@Url.Action("List", "Orders")"
+                   class="btn btn-outline-secondary ms-2">
+                    返回訂單列表
+                </a>
+            }
+        </div>
+    </div>
+</div>
+

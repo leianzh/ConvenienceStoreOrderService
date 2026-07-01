@@ -24,6 +24,10 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> ShipmentReturned(int orderId,string returnReson);
         Result<int> AutoCancelUnpaidOrders();
         Result<bool> CancelExpiredUnpaidOrder(int orderId);
+        Result<int> AutoCancelIncompleteOrders();
+        Result<bool> CancelExpiredIncompleteOrder(int orderId);
+        Result<bool> MarkInfoCompleted(int orderId);
+        Result<bool> StartPaymentCountdown(int orderId);
 
 
     }

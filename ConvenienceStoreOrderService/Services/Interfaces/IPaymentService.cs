@@ -21,6 +21,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<NewebPayMpgRequestDto> CreateCreditCardOnceMpgRequest(int orderId);
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);
 
-
+        Result<string> GetPaymentMethodByOrderId(int orderId);
     }
 }
