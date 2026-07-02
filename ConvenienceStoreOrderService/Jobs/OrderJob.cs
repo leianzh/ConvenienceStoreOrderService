@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ConvenienceStoreOrderService.Models.Common;
 using ConvenienceStoreOrderService.Services;
 using ConvenienceStoreOrderService.Services.Interfaces;
 
@@ -23,7 +24,11 @@ namespace ConvenienceStoreOrderService.Jobs
         //物流資料逾時未填完訂單
         public void AutoCancelExpiredIncompleteOrders()
         {
-            _orderService.AutoCancelIncompleteOrders();
+           var result= _orderService.AutoCancelIncompleteOrders();
+            if (!result.IsSuccess)
+            {
+                throw new Exception(result.Message);
+            }
         }
     }
 }

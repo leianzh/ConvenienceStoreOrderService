@@ -25,17 +25,17 @@ namespace ConvenienceStoreOrderService.App_Start
             RecurringJob.AddOrUpdate<OrderJob>(
                 "auto-cancel-expired-unpaid-orders",
                 job => job.AutoCancelExpiredUnpaidOrders(),
-                Cron.MinuteInterval(1)
+                Cron.Hourly()
             );
             RecurringJob.AddOrUpdate<ShipmentJob>(
                 "clear-expired-shipping-codes",
                 job => job.ClearExpiredShippingCodes(),
-                Cron.MinuteInterval(1)
+                Cron.Hourly()
             );
             RecurringJob.AddOrUpdate<OrderJob>(
                 "auto-cancel-expired-incomplete-orders",
                  job => job.AutoCancelExpiredIncompleteOrders(),
-                Cron.MinuteInterval(1)
+                Cron.Hourly()
             );
         }
     }
