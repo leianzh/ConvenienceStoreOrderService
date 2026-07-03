@@ -253,6 +253,8 @@
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderDetailsPageViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderDetailViewModel.cs" />
+    <Compile Include="Models\ViewModels\OrderListPageViewModel.cs" />
+    <Compile Include="Models\ViewModels\OrderSearchCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderStatusViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderViewModel.cs" />

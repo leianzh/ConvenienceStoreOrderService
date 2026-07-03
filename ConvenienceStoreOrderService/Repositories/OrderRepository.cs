@@ -9,6 +9,7 @@ using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Mappings;
 using Microsoft.Ajax.Utilities;
 using static Unity.Storage.RegistrationSet;
+using ConvenienceStoreOrderService.Models.Helpers;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
@@ -26,8 +27,12 @@ namespace ConvenienceStoreOrderService.Repositories
         
         
         //查訂單列表 + 查訂單狀態名稱 + 查物流資料+付款狀態
-        public List<OrderDto> GetOrderListForDisplay() 
+        public List<OrderDto> GetOrderListForDisplay(OrderSearchCriteria criteria) 
         {
+            if (criteria == null)
+            {
+                criteria = new OrderSearchCriteria();
+            }
             var paymentResult =
                 from py in _db.Payments
                 join ps in _db.PaymentStatuses
@@ -80,8 +85,78 @@ namespace ConvenienceStoreOrderService.Repositories
             payment.RefundedAt,
             payment.RefundReason,
             payment.PaymentStatusCode,
+            
 
         };
+            // 訂單編號、物流編號搜尋
+            if(!string.IsNullOrWhiteSpace(criteria.Keyword))
+            {
+                var keyword = criteria.Keyword.Trim();
+
+                if (criteria.SearchType == "OrderNo")
+                {
+                    result = result.Where(x => x.Order.OrderNo.Contains(criteria.Keyword));
+                }
+                else if (criteria.SearchType == "TrackingNo")
+                {
+                    result = result.Where(x =>
+                        x.TrackingNo != null &&
+                        x.TrackingNo.Contains(criteria.Keyword));
+                }
+                else
+                {
+                    // SearchType 沒選時，同時查訂單編號 + 物流編號
+                    result = result.Where(x =>
+                        x.Order.OrderNo.Contains(keyword) ||
+                        (
+                            x.TrackingNo != null &&
+                            x.TrackingNo.Contains(keyword)
+                        ));
+                }
+            }
+            // 訂單狀態
+            if (!string.IsNullOrWhiteSpace(criteria.OrderStatusCode))
+            {
+                result = result.Where(x => x.OrderStatusCode == criteria.OrderStatusCode);
+            }
+
+            // 付款狀態
+            if (!string.IsNullOrWhiteSpace(criteria.PaymentStatusCode))
+            {
+                result = result.Where(x => x.PaymentStatusCode == criteria.PaymentStatusCode);
+            }
+            //退款狀態
+            if(!string.IsNullOrWhiteSpace(criteria.RefundStatusCode))
+            {
+                result = result.Where(x =>x.RefundStatusCode == criteria.RefundStatusCode);
+            }
+            //物流狀態
+            if (criteria.ShipmentStatusId.HasValue)
+            {
+                result= result.Where(x =>
+                x.ShipmentStatusId.HasValue &&
+                x.ShipmentStatusId.Value
+                == criteria.ShipmentStatusId.Value);
+            }
+
+            // 付款方式
+            if (!string.IsNullOrWhiteSpace(criteria.PaymentMethod))
+            {
+                result = result.Where(x => x.PaymentMethod == criteria.PaymentMethod);
+            }
+
+            // 開始日期
+            if (criteria.StartDate.HasValue)
+            {
+                result = result.Where(x => x.Order.CreatedAt >= criteria.StartDate.Value);
+            }
+
+            // 結束日期
+            if (criteria.EndDate.HasValue)
+            {
+                var endDateExclusive = criteria.EndDate.Value.AddDays(1);
+                result = result.Where(x => x.Order.CreatedAt < endDateExclusive);
+            }
 
             return result
                 .AsEnumerable()

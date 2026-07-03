@@ -11,7 +11,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IOrderService
     {
-        List<OrderViewModel> GetOrders();
+        //List<OrderViewModel> GetOrders();
+        OrderListPageViewModel GetOrderListPage(OrderSearchCriteria criteria);
         Result<bool> MarkReadyToShip(int orderId);
         Result<bool> MarkShipped(int orderId);
 

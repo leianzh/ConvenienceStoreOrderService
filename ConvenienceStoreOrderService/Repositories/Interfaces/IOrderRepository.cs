@@ -11,7 +11,7 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IOrderRepository
     {
-         List<OrderDto> GetOrderListForDisplay();
+         List<OrderDto> GetOrderListForDisplay(OrderSearchCriteria criteria);
         Order GetEntityById(int orderId);
         void Add(Order order);
 

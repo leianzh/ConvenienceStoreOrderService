@@ -43,10 +43,22 @@ namespace ConvenienceStoreOrderService.Services
 
 
         }
-        public List<OrderViewModel> GetOrders()
+        //public List<OrderViewModel> GetOrders()
+        //{
+        //    var dtoList= _orderRepository.GetOrderListForDisplay();
+        //    return dtoList.Select(o=> OrderMapper.ToVM(o)).ToList();
+        //}
+        //OrderSearchCriteria 
+        public OrderListPageViewModel GetOrderListPage(OrderSearchCriteria criteria)
         {
-            var dtoList= _orderRepository.GetOrderListForDisplay();
-            return dtoList.Select(o=> OrderMapper.ToVM(o)).ToList();
+            var dtoList=_orderRepository.GetOrderListForDisplay(criteria);
+            var orders=dtoList
+                .Select(o=>OrderMapper.ToVM(o)).ToList();
+            return new OrderListPageViewModel
+            {
+                Criteria = criteria,
+                Orders = orders
+            };
         }
         //Processing->ReadyToShip
         public Result<bool> MarkReadyToShip (int orderId)

@@ -29,10 +29,13 @@ namespace ConvenienceStoreOrderService.Controllers
             _paymentService = paymentService;
         }
         // GET: Order
-        public ActionResult List()
+        public ActionResult List(OrderSearchCriteria criteria)
         {
-            var orders = _orderService.GetOrders();
-            return View(orders);
+            
+            //var orders = _orderService.GetOrders();
+            var model = _orderService.GetOrderListPage(criteria);
+  
+            return View(model);
         }
         [HttpPost]
         public ActionResult MarkReadyToShip(int orderId)
