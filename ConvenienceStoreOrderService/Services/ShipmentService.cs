@@ -227,7 +227,7 @@ namespace ConvenienceStoreOrderService.Services
             {
                 return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
             }
-            return Result<bool>.Success(true, "物流已退回，訂單已退回，已建立退款申請");
+            return Result<bool>.Success(true, "物流已退回，訂單已退回，付款狀態已更新");
 
         }
         //產生寄件代碼

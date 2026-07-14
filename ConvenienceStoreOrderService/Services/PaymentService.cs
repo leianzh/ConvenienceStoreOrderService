@@ -57,25 +57,28 @@ namespace ConvenienceStoreOrderService.Services
             return Result<string>.Success(payment.PaymentMethod);
         }
         //根據付款狀態判斷「取消未付款」或「申請退款」
-        public Result<bool> HandleCancelPayment(int orderId, string cancleReson)
+        public Result<bool> ReturnOrCancelPayment(int orderId, string cancleReson)
         {
             var payment = _paymentRepository.GetOrderId(orderId);
             if (payment == null)
             {
                 return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
             }
-            //pending待付款直接取消            
+
+
+            //pending，COD 未取貨退回         
             if (payment.PaymentStatusId == PaymentStatusIds.Pending)
             {
-                var errorMessage = payment.CancelPending();
+                var errorMessage = payment.CancelUnpaidReturn(cancleReson);
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
                     return Result<bool>.Fail(ErrorCodes.Validation, errorMessage);
                 }
 
-                return Result<bool>.Success(true);
+                return Result<bool>.Success(true, "COD 未取貨退回，未收款，不需退款");
             }
+
             //Paid已付款，付款狀態維持 Paid，改成退款申請中
             if (payment.PaymentStatusId == PaymentStatusIds.Paid)
             {
@@ -83,13 +86,13 @@ namespace ConvenienceStoreOrderService.Services
             RefundStatusIds.Requested,
             payment.Amount,
             cancleReson
-        );
+            );
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
                     return Result<bool>.Fail(ErrorCodes.Validation, errorMessage);
                 }
 
-                return Result<bool>.Success(true);
+                return Result<bool>.Success(true,"已付款訂單已建立退款申請");
             }
             return Result<bool>.Fail(ErrorCodes.Validation, "此付款狀態不能取消或退款");
 
@@ -161,6 +164,7 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<bool>.Success(true, "COD 取貨付款成功");
         }
+
         //申請退款
         public Result<bool> RequestRefund(int orderId, string reason)
         {
@@ -595,5 +599,7 @@ namespace ConvenienceStoreOrderService.Services
             finally { tran.Dispose(); }
 
         }
+
+        
     }
 }

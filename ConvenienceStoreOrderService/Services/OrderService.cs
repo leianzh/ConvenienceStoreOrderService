@@ -299,7 +299,7 @@ namespace ConvenienceStoreOrderService.Services
                 }
 
                 // 處理付款、退款
-                var paymentResult =_paymentService.HandleCancelPayment(orderId,cancelReson);
+                var paymentResult =_paymentService.ReturnOrCancelPayment(orderId,cancelReson);
                 if (!paymentResult.IsSuccess) 
                 {
                     tran.Rollback();
@@ -527,15 +527,17 @@ namespace ConvenienceStoreOrderService.Services
                 // ShipmentStatus 改 Returned、UpdatedAt
                 var shipmentStatus = shipment.ShipmentStatusId = ShipmentStatusIds.Returned;
                 shipment.UpdatedAt = DateTime.Now;
-                // 物流退回：回補 OnHand，Reserved 不動
+                //物流退回，清除ShippingCode
+                shipment.ShippingCode = null;
+                // 物流退回，回補 OnHand，Reserved 不動
                 var restoreResult = AddStockOnHand(orderId);
                 if (!restoreResult.IsSuccess)
                 {
                     tran.Rollback();
                     return restoreResult;
                 }
-                // 處理付款狀態               
-                var paymentResult = _paymentService.RequestRefund(orderId,returnReson);
+                // 處理退貨後的付款、退款狀態
+                var paymentResult=_paymentService.ReturnOrCancelPayment(orderId, returnReson);                
 
                 if (!paymentResult.IsSuccess)
                 {
@@ -548,7 +550,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 tran.Commit();
 
-                return Result<bool>.Success(true, "訂單已退回，物流已退回，庫存已回補，已建立退款申請");
+                return Result<bool>.Success(true, "訂單已退回，物流已退回，庫存已回補，付款狀態已更新");
 
 
             }

@@ -288,7 +288,7 @@ namespace ConvenienceStoreOrderService.Controllers
             var result = _paymentService.MarkRefunded(
                 orderId,
                 "TEST_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmm"),
-                "模擬藍新退款成功"
+                "模擬退款成功"
             );
 
             if (!result.IsSuccess)

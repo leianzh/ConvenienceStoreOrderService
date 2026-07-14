@@ -12,7 +12,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IPaymentService
     {
-        Result<bool> HandleCancelPayment(int orderId, string cancelReason);
+        Result<bool> ReturnOrCancelPayment(int orderId, string cancelReason);
         Result<bool> CheckCanShip(int orderId);
         Result<bool> MarkPaid(int orderId);
         Result<bool> MarkCodPaidWhenPickedUp(int orderId);
@@ -22,5 +22,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);
 
         Result<string> GetPaymentMethodByOrderId(int orderId);
+   
     }
 }

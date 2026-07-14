@@ -45,7 +45,36 @@ namespace ConvenienceStoreOrderService.Models.EFModels
 
             return "";
         }
-        
+        // COD 未取貨退回，不用退款，但要記錄退貨原因
+        public string CancelUnpaidReturn(string refundReason)
+        {
+            if (PaymentStatusId != PaymentStatusIds.Pending)
+            {
+                return "只有待付款訂單可以做未付款退回";
+            }
+
+            if (string.IsNullOrWhiteSpace(refundReason))
+            {
+                return "退貨原因必填";
+            }
+
+            
+            PaymentStatusId = PaymentStatusIds.Cancelled;
+            RefundStatusId = RefundStatusIds.None;
+            RefundReason = refundReason;
+
+            // 未取貨退回，不用退款
+            RefundAmount = 0;
+            RefundRequestedAt = null;
+            RefundedAt = null;
+            RefundProviderTradeNo = null;
+            RefundRawResponse = null;
+
+            UpdatedAt = DateTime.Now;
+
+            return "";
+        }
+
         //Paid線上
         public string MarkPaid(int paidStatusId, string tradeNo, string rawCallBack)
         {
@@ -136,10 +165,12 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         //退款完成
         public string MarkRefunded(int requestedStatusId, int refundedStatusId, string refundProviderTradeNo, string rawResponse)
         {
+            // 退款狀態一定要是 Requested
             if (RefundStatusId != requestedStatusId)
             {
                 return "只有退款申請中的訂單，才能退款完成。";
             }
+            
             RefundStatusId = refundedStatusId;
             RefundedAt = DateTime.Now;
             RefundProviderTradeNo = refundProviderTradeNo;
