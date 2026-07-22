@@ -176,5 +176,48 @@ namespace ConvenienceStoreOrderService.Models.Helpers
                 throw new ArgumentException("Hex 字串轉 byte[] 失敗", ex);
             }
         }
+        /// <summary>
+        /// 單筆交易查詢的 CheckValue
+        /// </summary>
+        public static string GenerateQueryCheckValue(
+            string amt,
+            string merchantId,
+            string merchantOrderNo,
+            string hashKey,
+            string hashIV)
+        {
+            
+            // 排序是 Amt、MerchantID、MerchantOrderNo
+            var data = new SortedDictionary<string, string>(StringComparer.Ordinal)
+        {
+            { "Amt", amt },
+            { "MerchantID", merchantId },
+            { "MerchantOrderNo", merchantOrderNo }
+        };
+            string queryString = string.Join("&", data.Select(x =>
+        Uri.EscapeDataString(x.Key) + "=" + Uri.EscapeDataString(x.Value)
+    ));
+            string rawData = $"IV={hashIV}&{queryString}&Key={hashKey}";
+
+            //轉成 byte[]
+            byte[] rawbytes = Encoding.UTF8.GetBytes(rawData);
+
+            //做 SHA256
+            SHA256 sha256 = SHA256.Create();
+            byte[] hashBytes = sha256.ComputeHash(rawbytes);
+            //轉成 16 進位字串，並轉大寫
+            return BitConverter
+                .ToString(hashBytes)
+                .Replace("-", "")
+                .ToUpper();
+        }
+        /// <summary>
+        /// 產生 Unix TimeStamp
+        /// </summary>
+        public static string GetUnixTimestamp()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            return now.ToUnixTimeSeconds().ToString();
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ConvenienceStoreOrderService.Models.ViewModels;
 
 namespace ConvenienceStoreOrderService.Controllers
 {
@@ -71,6 +72,40 @@ namespace ConvenienceStoreOrderService.Controllers
             // 藍新 Notify 成功建議回 1
             return Content("1");
             //return Content("OK");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult QueryNewebPayTrade(int orderId)
+        {
+            var result = _paymentService.QueryTradeInfo(orderId);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List", "Orders");
+            }
+
+            var json = result.Data; // JObject
+
+            var tradeResult = json["Result"];
+
+            var vm = new NewebPayQueryResultViewModel
+            {
+                RawJson = json.ToString(),
+
+                Status = json["Status"]?.ToString(),
+                Message = json["Message"]?.ToString(),
+
+                MerchantOrderNo = tradeResult?["MerchantOrderNo"]?.ToString(),
+                Amt = tradeResult?["Amt"]?.ToString(),
+                TradeNo = tradeResult?["TradeNo"]?.ToString(),
+                TradeStatus = tradeResult?["TradeStatus"]?.ToString(),
+                CloseStatus = tradeResult?["CloseStatus"]?.ToString(),
+                BackStatus = tradeResult?["BackStatus"]?.ToString(),
+                BackBalance = tradeResult?["BackBalance"]?.ToString()
+            };
+
+            return View("NewebPayQueryResult", vm);
         }
     }
 }

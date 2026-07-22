@@ -230,6 +230,7 @@
     <Compile Include="Models\Constants\ShipmentStatusIds.cs" />
     <Compile Include="Models\DTOs\NewebPayMpgRequestDto.cs" />
     <Compile Include="Models\DTOs\NewebPayNotifyDto.cs" />
+    <Compile Include="Models\DTOs\NewebPayQueryRequestDto.cs" />
     <Compile Include="Models\DTOs\OrderDetailDto.cs" />
     <Compile Include="Models\DTOs\OrderDetailsPageDto.cs" />
     <Compile Include="Models\DTOs\OrderDto.cs" />
@@ -250,6 +251,7 @@
     <Compile Include="Models\EFModels\Shipment.cs" />
     <Compile Include="Models\Helpers\NewebPayCryptoHelper.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
+    <Compile Include="Models\ViewModels\NewebPayQueryResultViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />
     <Compile Include="Models\ViewModels\OrderDetailsPageViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderDetailViewModel.cs" />
@@ -362,6 +364,7 @@
     <Content Include="Views\RefundStatus\List.cshtml" />
     <Content Include="Views\Payments\NewebPayPost.cshtml" />
     <Content Include="Views\Orders\FillShipmentInfo.cshtml" />
+    <Content Include="Views\Payments\NewebPayQueryResult.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

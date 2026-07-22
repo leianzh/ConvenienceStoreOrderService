@@ -14,6 +14,8 @@ using ConvenienceStoreOrderService.Models.Constants;
 using ConvenienceStoreOrderService.Models.Helpers;
 using System.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -599,7 +601,228 @@ namespace ConvenienceStoreOrderService.Services
             finally { tran.Dispose(); }
 
         }
+        //藍新單筆交易查詢 API
+        public Result<JObject> QueryTradeInfo(int orderId)
+        {
+            try
+            {
+                var order = _orderRepository.GetEntityById(orderId);
 
-        
+                if (order == null)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.NotFound,
+                        "找不到訂單"
+                    );
+                }
+
+                var payment = _paymentRepository.GetOrderId(orderId);
+
+                if (payment == null)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.NotFound,
+                        "找不到付款資料"
+                    );
+                }
+
+                if (payment.PaymentMethod != PaymentMethodName.CreditCard)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "此訂單不是信用卡付款"
+                    );
+                }
+
+                var merchantId = ConfigurationManager.AppSettings["NewebPay.MerchantID"];
+                var hashKey = ConfigurationManager.AppSettings["NewebPay.HashKey"];
+                var hashIV = ConfigurationManager.AppSettings["NewebPay.HashIV"];
+                var queryUrl = ConfigurationManager.AppSettings["NewebPay.QueryTradeInfoUrl"];
+
+                if (string.IsNullOrWhiteSpace(queryUrl))
+                {
+                    queryUrl = "https://ccore.newebpay.com/API/QueryTradeInfo";
+                }
+
+                if (string.IsNullOrWhiteSpace(merchantId) ||
+                    string.IsNullOrWhiteSpace(hashKey) ||
+                    string.IsNullOrWhiteSpace(hashIV))
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.SystemError,
+                        "藍新金流設定不完整"
+                    );
+                }
+
+                var merchantOrderNo = order.OrderNo;
+
+                // 藍新金額要純整數
+                var amount = Convert.ToInt32(payment.Amount);
+                var amountText = amount.ToString();
+
+                var checkValue = NewebPayCryptoHelper.GenerateQueryCheckValue(
+                    amountText,
+                    merchantId,
+                    merchantOrderNo,
+                    hashKey,
+                    hashIV
+                );
+
+                if (string.IsNullOrWhiteSpace(checkValue))
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.SystemError,
+                        "產生 CheckValue 失敗"
+                    );
+                }
+
+                var requestDto = new NewebPayQueryRequestDto
+                {
+                    QueryUrl = queryUrl,
+                    MerchantID = merchantId,
+                    Version = "1.3",
+                    RespondType = "JSON",
+                    CheckValue = checkValue,
+                    TimeStamp = DateTimeOffset.Now.ToUnixTimeSeconds().ToString(),
+                    MerchantOrderNo = merchantOrderNo,
+                    Amt = amountText
+                };
+
+                
+                var formData = new Dictionary<string, string>
+            {
+                { "MerchantID", requestDto.MerchantID },
+                { "Version", requestDto.Version },
+                { "RespondType", requestDto.RespondType },
+                { "CheckValue", requestDto.CheckValue },
+                { "TimeStamp", requestDto.TimeStamp },
+                { "MerchantOrderNo", requestDto.MerchantOrderNo },
+                { "Amt", requestDto.Amt }
+            };
+
+                string responseJson;
+
+                using (var client = new HttpClient())
+                {
+                    var content = new FormUrlEncodedContent(formData);
+
+                    var httpResponse = client
+                        .PostAsync(requestDto.QueryUrl, content)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    responseJson = httpResponse.Content
+                        .ReadAsStringAsync()
+                        .GetAwaiter()
+                        .GetResult();
+
+                    if (!httpResponse.IsSuccessStatusCode)
+                    {
+                        return Result<JObject>.Fail(
+                            ErrorCodes.SystemError,
+                            "藍新單筆交易查詢 HTTP 失敗：" + responseJson
+                        );
+                    }
+                }
+
+                // 丟給接收 Service 處理 JSON
+                return HandleQueryResponse(
+                    responseJson,
+                    merchantOrderNo,
+                    amount
+                );
+            }
+            catch (Exception ex)
+            {
+                return Result<JObject>.Fail(
+                    ErrorCodes.SystemError,
+                    "呼叫藍新單筆交易查詢 API 失敗：" + ex.Message
+                );
+            }
+        }
+        /// <summary>
+        /// 處理藍新單筆交易查詢回傳 JSON
+        /// </summary>
+        public Result<JObject> HandleQueryResponse(
+            string responseJson,
+            string expectedMerchantOrderNo,
+            int expectedAmount)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(responseJson))
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新單筆交易查詢回傳內容為空"
+                    );
+                }
+
+                var json = JObject.Parse(responseJson);
+
+                var status = json["Status"]?.ToString();
+                var message = json["Message"]?.ToString();
+
+                if (status != "SUCCESS")
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新單筆交易查詢失敗：" + message
+                    );
+                }
+
+                var result = json["Result"] as JObject;
+
+                if (result == null)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新單筆交易查詢 Result 為空"
+                    );
+                }
+
+                var merchantOrderNo = result["MerchantOrderNo"]?.ToString();
+                var amtText = result["Amt"]?.ToString();
+
+                if (merchantOrderNo != expectedMerchantOrderNo)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳訂單編號不一致"
+                    );
+                }
+
+                int responseAmount;
+
+                if (!int.TryParse(amtText, out responseAmount))
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額格式錯誤"
+                    );
+                }
+
+                if (responseAmount != expectedAmount)
+                {
+                    return Result<JObject>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額不一致"
+                    );
+                }
+
+                return Result<JObject>.Success(
+                    json,
+                    "藍新單筆交易查詢成功"
+                );
+            }
+            catch (Exception ex)
+            {
+                return Result<JObject>.Fail(
+                    ErrorCodes.SystemError,
+                    "處理藍新單筆交易查詢回傳失敗：" + ex.Message
+                );
+            }
+        }
     }
+
 }

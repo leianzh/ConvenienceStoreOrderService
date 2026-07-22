@@ -1,0 +1,51 @@
+﻿@model ConvenienceStoreOrderService.Models.ViewModels.NewebPayQueryResultViewModel
+
+<h2>藍新單筆交易查詢結果</h2>
+
+<table class="table table-bordered table-sm">
+    <tr>
+        <th>查詢狀態</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>訊息</th>
+        <td>@Model.Message</td>
+    </tr>
+    <tr>
+        <th>商店訂單編號</th>
+        <td>@Model.MerchantOrderNo</td>
+    </tr>
+    <tr>
+        <th>金額</th>
+        <td>@Model.Amt</td>
+    </tr>
+    <tr>
+        <th>藍新交易序號</th>
+        <td>@Model.TradeNo</td>
+    </tr>
+    <tr>
+        <th>交易狀態 TradeStatus</th>
+        <td>@Model.TradeStatus</td>
+    </tr>
+    <tr>
+        <th>請款狀態 CloseStatus</th>
+        <td>@Model.CloseStatus</td>
+    </tr>
+    <tr>
+        <th>退款狀態 BackStatus</th>
+        <td>@Model.BackStatus</td>
+    </tr>
+    <tr>
+        <th>剩餘可退款金額 BackBalance</th>
+        <td>@Model.BackBalance</td>
+    </tr>
+</table>
+
+<h4>藍新原始 JSON</h4>
+
+<pre class="bg-light border p-3">@Model.RawJson</pre>
+
+<a href="@Url.Action("List", "Orders")" class="btn btn-outline-secondary btn-sm">
+    回訂單列表
+</a>
+

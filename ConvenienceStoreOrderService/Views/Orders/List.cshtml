@@ -472,10 +472,18 @@
                             物流
                         </button>
 
+                        @using (Html.BeginForm("QueryNewebPayTrade", "Payments", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("orderId", order.OrderId)
+
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                查詢藍新交易
+                            </button>
+                        }
 
 
 
-                       
                         @if (canCancelButton)
                         {
                             <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
@@ -595,7 +603,7 @@
                         </div>
 
 
-                       
+
                         @if (canCancelButton)
                         {
                             <div class="collapse mt-2" id="cancelBox_@order.OrderId">

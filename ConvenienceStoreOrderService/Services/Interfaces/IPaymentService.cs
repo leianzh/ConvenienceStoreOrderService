@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.EFModels;
+using Newtonsoft.Json.Linq;
 
 namespace ConvenienceStoreOrderService.Services.Interfaces
 {
@@ -22,6 +23,12 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);
 
         Result<string> GetPaymentMethodByOrderId(int orderId);
-   
+        //Result<NewebPayQueryRequestDto> QueryTradeInfo(string merchantOrderNo, int amt);
+
+        Result<JObject> QueryTradeInfo(int orderId);
+        Result<JObject> HandleQueryResponse(
+           string responseJson,
+           string expectedMerchantOrderNo,
+           int expectedAmount);
     }
 }

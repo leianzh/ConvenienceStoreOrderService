@@ -7,6 +7,8 @@ namespace ConvenienceStoreOrderService.Models.DTOs
 {
     public class NewebPayQueryRequestDto
     {
+        public string QueryUrl { get; set; }
+
         public string MerchantID { get; set; }
         public string Version { get; set; }
         public string RespondType { get; set; }
