@@ -602,7 +602,7 @@ namespace ConvenienceStoreOrderService.Services
 
         }
         //藍新單筆交易查詢 API
-        public Result<JObject> QueryTradeInfo(int orderId)
+        public Result<NewebPayQueryResultViewModel> QueryTradeInfo(int orderId)
         {
             try
             {
@@ -610,7 +610,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (order == null)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.NotFound,
                         "找不到訂單"
                     );
@@ -620,7 +620,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (payment == null)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.NotFound,
                         "找不到付款資料"
                     );
@@ -628,7 +628,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (payment.PaymentMethod != PaymentMethodName.CreditCard)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "此訂單不是信用卡付款"
                     );
@@ -648,7 +648,7 @@ namespace ConvenienceStoreOrderService.Services
                     string.IsNullOrWhiteSpace(hashKey) ||
                     string.IsNullOrWhiteSpace(hashIV))
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.SystemError,
                         "藍新金流設定不完整"
                     );
@@ -670,7 +670,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (string.IsNullOrWhiteSpace(checkValue))
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.SystemError,
                         "產生 CheckValue 失敗"
                     );
@@ -718,7 +718,7 @@ namespace ConvenienceStoreOrderService.Services
 
                     if (!httpResponse.IsSuccessStatusCode)
                     {
-                        return Result<JObject>.Fail(
+                        return Result<NewebPayQueryResultViewModel>.Fail(
                             ErrorCodes.SystemError,
                             "藍新單筆交易查詢 HTTP 失敗：" + responseJson
                         );
@@ -734,7 +734,7 @@ namespace ConvenienceStoreOrderService.Services
             }
             catch (Exception ex)
             {
-                return Result<JObject>.Fail(
+                return Result<NewebPayQueryResultViewModel>.Fail(
                     ErrorCodes.SystemError,
                     "呼叫藍新單筆交易查詢 API 失敗：" + ex.Message
                 );
@@ -743,7 +743,7 @@ namespace ConvenienceStoreOrderService.Services
         /// <summary>
         /// 處理藍新單筆交易查詢回傳 JSON
         /// </summary>
-        public Result<JObject> HandleQueryResponse(
+        public Result<NewebPayQueryResultViewModel> HandleQueryResponse(
             string responseJson,
             string expectedMerchantOrderNo,
             int expectedAmount)
@@ -752,7 +752,7 @@ namespace ConvenienceStoreOrderService.Services
             {
                 if (string.IsNullOrWhiteSpace(responseJson))
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新單筆交易查詢回傳內容為空"
                     );
@@ -765,7 +765,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (status != "SUCCESS")
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新單筆交易查詢失敗：" + message
                     );
@@ -775,7 +775,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (result == null)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新單筆交易查詢 Result 為空"
                     );
@@ -786,7 +786,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (merchantOrderNo != expectedMerchantOrderNo)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新回傳訂單編號不一致"
                     );
@@ -796,7 +796,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (!int.TryParse(amtText, out responseAmount))
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新回傳金額格式錯誤"
                     );
@@ -804,20 +804,35 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (responseAmount != expectedAmount)
                 {
-                    return Result<JObject>.Fail(
+                    return Result<NewebPayQueryResultViewModel>.Fail(
                         ErrorCodes.Validation,
                         "藍新回傳金額不一致"
                     );
                 }
+                var vm = new NewebPayQueryResultViewModel
+                {
+                    RawJson = json.ToString(),
 
-                return Result<JObject>.Success(
-                    json,
+                    Status = status,
+                    Message = message,
+
+                    MerchantOrderNo = merchantOrderNo,
+                    Amt = amtText,
+                    TradeNo = result["TradeNo"]?.ToString(),
+                    TradeStatus = result["TradeStatus"]?.ToString(),
+                    CloseStatus = result["CloseStatus"]?.ToString(),
+                    BackStatus = result["BackStatus"]?.ToString(),
+                    BackBalance = result["BackBalance"]?.ToString()
+                };
+
+                return Result<NewebPayQueryResultViewModel>.Success(
+                    vm,
                     "藍新單筆交易查詢成功"
                 );
             }
             catch (Exception ex)
             {
-                return Result<JObject>.Fail(
+                return Result<NewebPayQueryResultViewModel>.Fail(
                     ErrorCodes.SystemError,
                     "處理藍新單筆交易查詢回傳失敗：" + ex.Message
                 );

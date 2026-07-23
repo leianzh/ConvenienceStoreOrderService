@@ -85,27 +85,9 @@ namespace ConvenienceStoreOrderService.Controllers
                 return RedirectToAction("List", "Orders");
             }
 
-            var json = result.Data; // JObject
+            
 
-            var tradeResult = json["Result"];
-
-            var vm = new NewebPayQueryResultViewModel
-            {
-                RawJson = json.ToString(),
-
-                Status = json["Status"]?.ToString(),
-                Message = json["Message"]?.ToString(),
-
-                MerchantOrderNo = tradeResult?["MerchantOrderNo"]?.ToString(),
-                Amt = tradeResult?["Amt"]?.ToString(),
-                TradeNo = tradeResult?["TradeNo"]?.ToString(),
-                TradeStatus = tradeResult?["TradeStatus"]?.ToString(),
-                CloseStatus = tradeResult?["CloseStatus"]?.ToString(),
-                BackStatus = tradeResult?["BackStatus"]?.ToString(),
-                BackBalance = tradeResult?["BackBalance"]?.ToString()
-            };
-
-            return View("NewebPayQueryResult", vm);
+            return View("NewebPayQueryResult", result.Data);
         }
     }
 }

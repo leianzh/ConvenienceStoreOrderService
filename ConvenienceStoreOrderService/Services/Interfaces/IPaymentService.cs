@@ -23,10 +23,10 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);
 
         Result<string> GetPaymentMethodByOrderId(int orderId);
-        //Result<NewebPayQueryRequestDto> QueryTradeInfo(string merchantOrderNo, int amt);
+        
 
-        Result<JObject> QueryTradeInfo(int orderId);
-        Result<JObject> HandleQueryResponse(
+        Result<NewebPayQueryResultViewModel> QueryTradeInfo(int orderId);
+        Result<NewebPayQueryResultViewModel> HandleQueryResponse(
            string responseJson,
            string expectedMerchantOrderNo,
            int expectedAmount);
