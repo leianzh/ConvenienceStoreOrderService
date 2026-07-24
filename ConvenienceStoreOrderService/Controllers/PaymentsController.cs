@@ -84,9 +84,6 @@ namespace ConvenienceStoreOrderService.Controllers
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List", "Orders");
             }
-
-            
-
             return View("NewebPayQueryResult", result.Data);
         }
     }
