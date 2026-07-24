@@ -16,6 +16,7 @@ using System.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
+using Microsoft.Ajax.Utilities;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -838,6 +839,229 @@ namespace ConvenienceStoreOrderService.Services
                 );
             }
         }
+        //藍新請退款API
+        public Result<NewebPayCloseResultViewModel> CloseTrade(
+            int orderId,int closeType)
+        {
+            try
+            {
+                var order = _orderRepository.GetEntityById(orderId);
+
+                if (order == null)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.NotFound,
+                        "找不到訂單"
+                    );
+                }
+
+                var payment = _paymentRepository.GetOrderId(orderId);
+
+                if (payment == null)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.NotFound,
+                        "找不到付款資料"
+                    );
+                }
+
+                if (payment.PaymentMethod != PaymentMethodName.CreditCard)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "此訂單不是信用卡付款"
+                    );
+                }
+                //從 Web.config 讀藍新的設定 
+                var merchantId = ConfigurationManager.AppSettings["NewebPay.MerchantID"];
+                var hashKey = ConfigurationManager.AppSettings["NewebPay.HashKey"];
+                var hashIV = ConfigurationManager.AppSettings["NewebPay.HashIV"];
+                var queryUrl = ConfigurationManager.AppSettings["NewebPay.CreditCardCloseUrl"];
+
+                if (string.IsNullOrWhiteSpace(queryUrl))
+                {
+                    queryUrl = "https://ccore.newebpay.com/API/CreditCard/Close";
+                }
+
+                if (string.IsNullOrWhiteSpace(merchantId) ||
+                    string.IsNullOrWhiteSpace(hashKey) ||
+                    string.IsNullOrWhiteSpace(hashIV))
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.SystemError,
+                        "藍新金流設定不完整"
+                    );
+                }
+                //組出組PostData需要的參數
+                // 藍新金額要純整數
+                var amount = Convert.ToInt32(payment.Amount);
+                var amountText = amount.ToString();
+                var merchantOrderNo = order.OrderNo;
+                var postDataParams = new Dictionary<string, string>
+                {
+                    {"RespondType", "JSON"},
+                    { "Version", "1.1" },
+                    {"Amt",amountText },
+                    {"MerchantOrderNo",order.OrderNo },
+                    {"TimeStamp" ,NewebPayCryptoHelper.GetUnixTimestamp()},
+                    {"IndexType", "1" },
+                    { "CloseType", closeType.ToString() }
+                };
+                //變成字串
+                var postDataRaw =string.Join("&",
+                    postDataParams.Select(x => $"{HttpUtility.UrlEncode(x.Key)}={HttpUtility.UrlEncode(x.Value)}"));
+                //aes加密
+                var postData = NewebPayCryptoHelper.EncryptTradeInfo(
+                    postDataRaw, hashKey, hashIV);
+               
+                var requestDto = new NewebPayCloseRequestDto
+                {
+                    MerchantID=merchantId,
+                    PostData=postData,
+                };
+
+                //DTO轉FormData
+                var formData = new Dictionary<string, string>
+            {
+                { "MerchantID_", requestDto.MerchantID },
+                { "PostData_", requestDto.PostData },
+                
+            };
+
+                string responseJson;
+
+                using (var client = new HttpClient())
+                {
+                    var content = new FormUrlEncodedContent(formData);
+
+                    var httpResponse = client
+                        .PostAsync(queryUrl, content)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    responseJson = httpResponse.Content
+                        .ReadAsStringAsync()
+                        .GetAwaiter()
+                        .GetResult();
+
+                    if (!httpResponse.IsSuccessStatusCode)
+                    {
+                        return Result<NewebPayCloseResultViewModel>.Fail(
+                            ErrorCodes.SystemError,
+                            "藍新單筆交易查詢 HTTP 失敗：" + responseJson
+                        );
+                    }
+                    
+                }
+                // 丟給接收 Service 處理 JSON
+                return HandleCloseResponse(
+                    responseJson, merchantOrderNo,
+                    amount);
+            }
+            catch (Exception ex) 
+            {
+                return Result<NewebPayCloseResultViewModel>.Fail(
+                    ErrorCodes.SystemError,
+                    "呼叫藍新請退款 API 失敗：" + ex.Message
+                );
+            }
+
+        }
+        //處理藍新請退款回傳的 JSON
+        public Result<NewebPayCloseResultViewModel> HandleCloseResponse( string responseJson,string expectedMerchantOrderNo,
+            int expectedAmount)
+        {
+            try 
+            {
+                if (string.IsNullOrWhiteSpace(responseJson))
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新單筆交易查詢回傳內容為空"
+                    );
+                }
+
+                var json = JObject.Parse(responseJson);
+
+                var status = json["Status"]?.ToString();
+                var message = json["Message"]?.ToString();
+
+                if (status != "SUCCESS")
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新請退款失敗：" + message
+                    );
+                }
+
+                var result = json["Result"] as JObject;
+
+                if (result == null)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新請退款 Result 為空"
+                    );
+                }
+
+                var merchantOrderNo = result["MerchantOrderNo"]?.ToString();
+                var amtText = result["Amt"]?.ToString();
+
+                if (merchantOrderNo != expectedMerchantOrderNo)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳訂單編號不一致"
+                    );
+                }
+
+                int responseAmount;
+
+                if (!int.TryParse(amtText, out responseAmount))
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額格式錯誤"
+                    );
+                }
+
+                if (responseAmount != expectedAmount)
+                {
+                    return Result<NewebPayCloseResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額不一致"
+                    );
+                }
+       
+        
+            var vm = new NewebPayCloseResultViewModel
+            {
+                    RawJson = json.ToString(),
+                    Status = status,
+                    Message = message,
+                    MerchantOrderNo = merchantOrderNo,                   
+                    TradeNo = result["TradeNo"]?.ToString(),
+                    Amt= responseAmount,
+                MerchantID = result["MerchantID"]?.ToString()
+
+
+            };
+
+                return Result<NewebPayCloseResultViewModel>.Success(
+                    vm,
+                    "藍新請退款成功"
+                );
+            }
+            catch (Exception ex) 
+            {
+                return Result<NewebPayCloseResultViewModel>.Fail(
+                    ErrorCodes.SystemError,
+                    "處理藍新請退款回傳失敗：" + ex.Message
+                );
+            }
+        }
+
+
     }
 
 }

@@ -40,7 +40,7 @@ namespace ConvenienceStoreOrderService.Controllers
         [HttpPost]
         public ActionResult NewebPayReturn(string Status, string MerchantID, string Version, string TradeInfo, string TradeSha)
         {
-            
+
 
             if (string.IsNullOrWhiteSpace(TradeInfo))
             {
@@ -64,7 +64,7 @@ namespace ConvenienceStoreOrderService.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("藍新 Notify 處理失敗：" + result.Message);
 
-                
+
                 return Content("0：" + result.Message);
                 //return Content("FAIL："+result.Message);
             }
@@ -85,6 +85,62 @@ namespace ConvenienceStoreOrderService.Controllers
                 return RedirectToAction("List", "Orders");
             }
             return View("NewebPayQueryResult", result.Data);
+        }
+        //  顯示「藍新請款 / 退款測試」頁面
+        [HttpGet]
+        public ActionResult CloseTrade()
+        {
+            return View();
+        }
+        //發動藍新 Close API       
+        // closeType：
+        // 1 = 請款 
+        // 2 = 退款        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CloseTrade(int orderId, int closeType)
+        {
+
+            if (orderId <= 0)
+            {
+                ModelState.AddModelError("", "OrderId 不正確。");
+
+                ViewBag.OrderId = orderId;
+                ViewBag.CloseType = closeType;
+
+                return View();
+            }
+
+            if (closeType != 1 && closeType != 2)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "CloseType 只能是 1（請款）或 2（退款）。"
+                );
+
+                ViewBag.OrderId = orderId;
+                ViewBag.CloseType = closeType;
+
+                return View();
+            }
+            // 呼叫 PaymentService
+            var result = _paymentService.CloseTrade(
+                orderId,
+                closeType
+            );
+
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError("", result.Message);
+
+                ViewBag.OrderId = orderId;
+                ViewBag.CloseType = closeType;
+
+                return View();
+            }
+            ViewBag.OrderId = orderId;
+            ViewBag.CloseType = closeType;
+            return View(result.Data);
         }
     }
 }

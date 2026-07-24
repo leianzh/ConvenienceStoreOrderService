@@ -8,6 +8,7 @@ using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.EFModels;
 using Newtonsoft.Json.Linq;
+using Microsoft.Ajax.Utilities;
 
 namespace ConvenienceStoreOrderService.Services.Interfaces
 {
@@ -30,5 +31,8 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
            string responseJson,
            string expectedMerchantOrderNo,
            int expectedAmount);
+        Result<NewebPayCloseResultViewModel> CloseTrade(int orderId, int closeType);
+        Result<NewebPayCloseResultViewModel> HandleCloseResponse(string responseJson, string expectedMerchantOrderNo,
+            int expectedAmount);
     }
 }

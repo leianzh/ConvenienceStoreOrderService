@@ -1,0 +1,212 @@
+﻿@model ConvenienceStoreOrderService.Models.ViewModels.NewebPayCloseResultViewModel
+
+@{
+    ViewBag.Title = "藍新信用卡請款 / 退款";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">
+        藍新信用卡請款 / 退款
+    </h2>
+
+
+    @* =========================================
+        錯誤訊息
+        ========================================= *@
+
+    @Html.ValidationSummary(
+        false,
+        "",
+        new { @class = "alert alert-danger" }
+    )
+
+
+    @* =========================================
+        發動 Close API
+        ========================================= *@
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+            發動 Close API
+        </div>
+
+        <div class="card-body">
+
+            @using (Html.BeginForm(
+                "CloseTrade",
+                "Payments",
+                FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+
+                @* OrderId *@
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        OrderId
+                    </label>
+
+                    <input type="number"
+                           name="orderId"
+                           class="form-control"
+                           style="max-width: 250px;"
+                           value="@ViewBag.OrderId"
+                           min="1"
+                           required />
+
+                </div>
+
+
+                @* CloseType *@
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        操作
+                    </label>
+
+                    <select name="closeType"
+                            class="form-select"
+                            style="max-width: 250px;"
+                            required>
+
+                        <option value="">
+                            請選擇
+                        </option>
+
+                        <option value="1"
+                                @(Convert.ToString(ViewBag.CloseType) == "1" ? "selected" : "")>
+                            請款（CloseType = 1）
+                        </option>
+
+                        <option value="2"
+                                @(Convert.ToString(ViewBag.CloseType) == "2" ? "selected" : "")>
+                            退款（CloseType = 2）
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    發動藍新 API
+
+                </button>
+            }
+
+        </div>
+    </div>
+
+
+    @* =========================================
+        藍新 Response
+        ========================================= *@
+
+    @if (Model != null)
+    {
+        <div class="card">
+
+            <div class="card-header">
+                藍新 Response
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered">
+
+                    <tbody>
+
+                        <tr>
+                            <th style="width:200px;">
+                                Status
+                            </th>
+
+                            <td>
+                                @Model.Status
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <th>
+                                Message
+                            </th>
+
+                            <td>
+                                @Model.Message
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                MerchantID
+                            </th>
+
+                            <td>
+                                @Model.MerchantID
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <th>
+                                MerchantOrderNo
+                            </th>
+
+                            <td>
+                                @Model.MerchantOrderNo
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <th>
+                                TradeNo
+                            </th>
+
+                            <td>
+                                @Model.TradeNo
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <th>
+                                Amt
+                            </th>
+
+                            <td>
+                                @Model.Amt
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                @* 原始 JSON *@
+
+                <h5 class="mt-4">
+                    Raw JSON
+                </h5>
+
+                <pre class="border rounded p-3 bg-light"
+                     style="white-space: pre-wrap; word-break: break-all;">@Model.RawJson</pre>
+
+            </div>
+
+        </div>
+    }
+    <a href="@Url.Action("List", "Orders")" class="btn btn-outline-secondary btn-sm">
+        回訂單列表
+    </a>
+</div>
+
