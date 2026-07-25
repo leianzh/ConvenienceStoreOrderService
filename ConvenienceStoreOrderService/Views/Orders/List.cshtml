@@ -490,7 +490,7 @@
                             {
                                 <span class="text-muted">-</span>
                             }
-
+                            @* 有退款資料才顯示退款資訊 *@
                             @if (order.RefundStatusCode != "None")
                             {
                                 <button class="btn btn-outline-secondary btn-sm  small-action-btn"
@@ -732,6 +732,7 @@
                         <td colspan="13" class="collapse-detail">
                             <div class="card card-body bg-light">
                                 <div class="row g-3">
+                                    @* 退款申請時間 *@
                                     <div class="col-md-4">
                                         <div class="text-muted small">退款申請時間</div>
 
@@ -748,7 +749,7 @@
                                             }
                                         </div>
                                     </div>
-
+                                    @* 退款完成時間 *@
                                     <div class="col-md-4">
                                         <div class="text-muted small">退款完成時間</div>
 
@@ -765,7 +766,7 @@
                                             }
                                         </div>
                                     </div>
-
+                                    @* 退款原因 *@
                                     <div class="col-md-4">
                                         <div class="text-muted small">退貨退款原因</div>
 
@@ -782,8 +783,9 @@
                                             }
                                         </div>
                                     </div>
-                                    @* 模擬退款完成 *@
-                                    @if (order.PaymentStatusCode == "Paid" && order.RefundStatusCode == "Requested")
+                                    @*  COD 人工退款完成，只有COD、已付款、Requested才顯示 *@
+                                    @if (order.PaymentMethod == "COD" &&
+                                        order.PaymentStatusCode == "Paid" && order.RefundStatusCode == "Requested")
                                     {
                                         <div class="col-md-12">
                                             @using (Html.BeginForm("MarkRefunded", "Orders", FormMethod.Post))
@@ -792,13 +794,21 @@
                                                 @Html.Hidden("orderId", order.OrderId)
                                                 <button type="submit"
                                                         class="btn btn-outline-success btn-sm mb-1 small-action-btn">
-                                                    模擬退款完成
+                                                    模擬人工退款完成
                                                 </button>
                                             }
                                         </div>
-
                                     }
-                                </div>
+                                    @*信用卡退款申請中，不提供人工退款完成按鈕*@
+                                    @if (order.PaymentMethod == "CreditCard" && order.RefundStatusCode == "Requested")
+                                    {
+                                        <div class="col-md-12">
+                                            <span class="text-primary small">
+                                                信用卡退款已送交藍新處理
+                                            </span>
+                                        </div>
+                                     }
+                                 </div>
                             </div>
                         </td>
                     </tr>

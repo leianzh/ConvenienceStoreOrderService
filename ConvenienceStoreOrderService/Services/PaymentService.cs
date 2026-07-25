@@ -207,6 +207,112 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<bool>.Success(true);
         }
+        //根據付款方式決定怎麼退款
+        public Result<bool> ProcessRefund(int orderId)
+        {
+            var payment =_paymentRepository.GetOrderId(orderId);
+            if(payment == null)
+            {
+                return Result<bool>.Fail(
+                    ErrorCodes.NotFound, "找不到付款資料");
+            }
+            //必須已經是Requested才可以走退款
+            if(payment.RefundStatusId != RefundStatusIds.Requested)
+            {
+                return Result<bool>.Fail(
+                    ErrorCodes.Validation,
+                    "退款狀態必須是 Requested");
+            }
+            // COD不呼叫藍新
+            if (payment.PaymentMethod == PaymentMethodName.COD)
+            {
+                return Result<bool>.Success(
+                    true,
+                    "COD 等待人工退款");
+            }
+            // 信用卡：呼叫藍新退款api
+            if (payment.PaymentMethod == PaymentMethodName.CreditCard)
+            {
+                var closeResult = CloseTrade(orderId, 2);
+
+                if (!closeResult.IsSuccess)
+                {
+                    return Result<bool>.Fail(
+                        closeResult.ErrorCode,
+                        closeResult.Message);
+                }
+                //退款申請成功後，立即查一次藍新交易狀態
+                var queryResult =QueryTradeInfo(orderId);
+                if (!queryResult.IsSuccess)
+                {
+                    
+                    return Result<bool>.Success(
+                        true,
+                        "藍新退款申請已送出，目前尚未確認退款結果"
+                    );
+                }
+                //藍新確認退款完成
+                if (queryResult.Data.BackStatus == "3")
+                {
+                    var refundedResult = MarkRefunded(
+                        orderId,
+                        queryResult.Data.TradeNo,
+                        queryResult.Data.RawJson
+                    );
+
+                    if (!refundedResult.IsSuccess)
+                    {
+                        return refundedResult;
+                    }
+
+                    return Result<bool>.Success(
+                        true,
+                        "藍新退款已完成"
+                    );
+                }
+                return Result<bool>.Success(
+                    true,
+                    "藍新退款申請已送出，退款尚在處理中");
+            }
+
+            return Result<bool>.Fail(
+                ErrorCodes.Validation,
+                "不支援的付款方式");
+        }
+        //COD 人工退款完成
+        public Result<bool> CompleteCODRefund(int orderId)
+        {
+            var payment = _paymentRepository.GetOrderId(orderId);
+
+            if (payment == null)
+            {
+                return Result<bool>.Fail(
+                    ErrorCodes.NotFound,
+                    "找不到付款資料");
+            }
+
+            // 只允許 COD 人工退款
+            if (payment.PaymentMethod != PaymentMethodName.COD)
+            {
+                return Result<bool>.Fail(
+                    ErrorCodes.Validation,
+                    "信用卡退款不可人工標記完成，必須以藍新退款結果為準");
+            }
+
+            // 必須已經申請退款
+            if (payment.RefundStatusId != RefundStatusIds.Requested)
+            {
+                return Result<bool>.Fail(
+                    ErrorCodes.Validation,
+                    "只有退款申請中的 COD 訂單才能完成退款");
+            }
+
+            return MarkRefunded(
+                orderId,
+                "MANUAL_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                "COD 人工退款完成"
+            );
+        }
         //退款完成
         public Result<bool> MarkRefunded(int orderId, string refundProviderTradeNo, string rawResponse)
         {

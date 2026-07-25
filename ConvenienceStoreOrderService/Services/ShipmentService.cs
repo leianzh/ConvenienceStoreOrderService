@@ -19,13 +19,15 @@ namespace ConvenienceStoreOrderService.Services
     {
         private IShipmentRepository _shipmentRepository;      
         private IOrderService _orderService;
+        private IPaymentService _paymentService;
         private AppDbContext _db;
        
-        public ShipmentService(IShipmentRepository shipmentRepository,IOrderService orderService,AppDbContext db)
+        public ShipmentService(IShipmentRepository shipmentRepository,IOrderService orderService,AppDbContext db,IPaymentService paymentService)
         {
             _shipmentRepository = shipmentRepository;           
             _orderService = orderService;
             _db = db;
+            _paymentService = paymentService;
             
         }
         public Result<bool> GetShipCode(int orderId)
@@ -222,12 +224,23 @@ namespace ConvenienceStoreOrderService.Services
 
 
             //更新 Orders.OrderStatusId = Return、Payment.RefundReason、Shipment=Return
+            //先完成退貨
             var shippedResult = _orderService.ShipmentReturned(shipmentDto.OrderId,shipmentDto.RefundReason);
             if (!shippedResult.IsSuccess)
             {
                 return Result<bool>.Fail(shippedResult.ErrorCode, shippedResult.Message);
             }
-            return Result<bool>.Success(true, "物流已退回，訂單已退回，付款狀態已更新");
+            //根據付款方式決定怎麼退款
+            var refundResult = _paymentService.ProcessRefund(shipmentDto.OrderId);
+            if (!refundResult.IsSuccess)
+            {
+                return Result<bool>.Fail(
+                    refundResult.ErrorCode,
+                    "退貨已完成，等待退款處理：" + refundResult.Message
+                );
+            }
+
+            return Result<bool>.Success(true, refundResult.Message);
 
         }
         //產生寄件代碼

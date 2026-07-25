@@ -34,5 +34,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<NewebPayCloseResultViewModel> CloseTrade(int orderId, int closeType);
         Result<NewebPayCloseResultViewModel> HandleCloseResponse(string responseJson, string expectedMerchantOrderNo,
             int expectedAmount);
+        Result<bool> ProcessRefund(int orderId);
+        Result<bool> CompleteCODRefund(int orderId);
     }
 }

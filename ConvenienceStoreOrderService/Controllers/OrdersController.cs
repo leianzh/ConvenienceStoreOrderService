@@ -266,16 +266,12 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
-        //模擬退款完成
+        //模擬cod人工退款完成
         [HttpPost]
         
         public ActionResult MarkRefunded(int orderId)
         {
-            var result = _paymentService.MarkRefunded(
-                orderId,
-                "TEST_REFUND_" + DateTime.Now.ToString("yyyyMMddHHmm"),
-                "模擬退款成功"
-            );
+            var result = _paymentService.CompleteCODRefund(orderId);
 
             if (!result.IsSuccess)
             {
@@ -283,7 +279,7 @@ namespace ConvenienceStoreOrderService.Controllers
                 return RedirectToAction("List");
             }
 
-            TempData["SuccessMessage"] = "退款已完成。";
+            TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
         }
         
