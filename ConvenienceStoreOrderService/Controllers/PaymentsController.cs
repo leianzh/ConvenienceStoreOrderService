@@ -103,25 +103,14 @@ namespace ConvenienceStoreOrderService.Controllers
 
             if (orderId <= 0)
             {
-                ModelState.AddModelError("", "OrderId 不正確。");
-
-                ViewBag.OrderId = orderId;
-                ViewBag.CloseType = closeType;
-
-                return View();
+                TempData["ErrorMessage"] = "OrderId 不正確。";
+                return RedirectToAction("CloseTrade");
             }
 
             if (closeType != 1 && closeType != 2)
             {
-                ModelState.AddModelError(
-                    "",
-                    "CloseType 只能是 1（請款）或 2（退款）。"
-                );
-
-                ViewBag.OrderId = orderId;
-                ViewBag.CloseType = closeType;
-
-                return View();
+                TempData["ErrorMessage"] = "CloseType 只能是 1（請款）或 2（退款）。";
+                return RedirectToAction("CloseTrade");
             }
             // 呼叫 PaymentService
             var result = _paymentService.CloseTrade(
@@ -131,15 +120,10 @@ namespace ConvenienceStoreOrderService.Controllers
 
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError("", result.Message);
-
-                ViewBag.OrderId = orderId;
-                ViewBag.CloseType = closeType;
-
-                return View();
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("CloseTrade");
             }
-            ViewBag.OrderId = orderId;
-            ViewBag.CloseType = closeType;
+            
             return View(result.Data);
         }
     }

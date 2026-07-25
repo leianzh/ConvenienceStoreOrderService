@@ -11,15 +11,13 @@
     </h2>
 
 
-    @* =========================================
-        錯誤訊息
-        ========================================= *@
-
-    @Html.ValidationSummary(
-        false,
-        "",
-        new { @class = "alert alert-danger" }
-    )
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
 
     @* =========================================
@@ -54,7 +52,6 @@
                            name="orderId"
                            class="form-control"
                            style="max-width: 250px;"
-                           value="@ViewBag.OrderId"
                            min="1"
                            required />
 
@@ -78,13 +75,11 @@
                             請選擇
                         </option>
 
-                        <option value="1"
-                                @(Convert.ToString(ViewBag.CloseType) == "1" ? "selected" : "")>
+                        <option value="1">
                             請款（CloseType = 1）
                         </option>
 
-                        <option value="2"
-                                @(Convert.ToString(ViewBag.CloseType) == "2" ? "selected" : "")>
+                        <option value="2">
                             退款（CloseType = 2）
                         </option>
 
@@ -111,7 +106,7 @@
 
     @if (Model != null)
     {
-        <div class="card">
+        <div class="card mb-3">
 
             <div class="card-header">
                 藍新 Response
@@ -133,7 +128,6 @@
                             </td>
                         </tr>
 
-
                         <tr>
                             <th>
                                 Message
@@ -154,7 +148,6 @@
                             </td>
                         </tr>
 
-
                         <tr>
                             <th>
                                 MerchantOrderNo
@@ -165,7 +158,6 @@
                             </td>
                         </tr>
 
-
                         <tr>
                             <th>
                                 TradeNo
@@ -175,7 +167,6 @@
                                 @Model.TradeNo
                             </td>
                         </tr>
-
 
                         <tr>
                             <th>
@@ -192,8 +183,6 @@
                 </table>
 
 
-                @* 原始 JSON *@
-
                 <h5 class="mt-4">
                     Raw JSON
                 </h5>
@@ -205,8 +194,14 @@
 
         </div>
     }
-    <a href="@Url.Action("List", "Orders")" class="btn btn-outline-secondary btn-sm">
+
+
+    <a href="@Url.Action("List", "Orders")"
+       class="btn btn-outline-secondary btn-sm">
+
         回訂單列表
+
     </a>
+
 </div>
 
