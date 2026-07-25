@@ -7,6 +7,24 @@
     </div>
     <div class="card-body">
         <div class="row mb-2">
+            <div class="col-md-3 text-muted">買家姓名</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.RecipientName) ? "-" : Model.RecipientName)
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">買家電話</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.RecipientPhone) ? "-" : Model.RecipientPhone)
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3 text-muted">取貨門市</div>
+            <div class="col-md-9">
+                @(string.IsNullOrEmpty(Model.PickupStore) ? "-" : Model.PickupStore)
+            </div>
+        </div>
+        <div class="row mb-2">
             <div class="col-md-3 text-muted">訂單編號</div>
             <div class="col-md-9">@Model.OrderNo</div>
         </div>
@@ -43,6 +61,7 @@
                 @(string.IsNullOrEmpty(Model.TrackingNo) ? "-" : Model.TrackingNo)
             </div>
         </div>
+
     </div>
 </div>
 
@@ -85,8 +104,7 @@
     <div class="card-header">
         付款資訊
     </div>
-    <div class="card-body">
-        @*<p>付款方式：@Model.PaymentMethodName</p>*@
+    <div class="card-body">      
         <p>付款狀態：@Model.PaymentStatusName</p>
     </div>
 </div>

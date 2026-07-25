@@ -20,49 +20,122 @@
 
 <style>
     .order-table {
-        font-size: 0.85rem;
-        white-space: nowrap;
+        width: 100%;
+        table-layout: fixed;
+        font-size: 0.75rem;
     }
 
-        .order-table th,
-        .order-table td {
+   .order-table th,
+   .order-table td {
             vertical-align: middle;
+            padding: 4px;
+            /* 預設允許換行 */
+            white-space: normal;
+            word-break: normal;
+        }
+
+        /* badge 本身不要把文字拆開 */
+        .order-table .badge {
+            white-space: nowrap;
+        }
+        /* 訂單編號 */
+        .order-table th:nth-child(3),
+        .order-table td:nth-child(3) {
+            width: 8%;
+            white-space: nowrap;
+        }
+
+        /* 寄件代碼 */
+        .order-table th:nth-child(10),
+        .order-table td:nth-child(10) {
+            width: 11%;
+            white-space: nowrap;
+        }
+
+        /* 物流追蹤碼 */
+        .order-table th:nth-child(12),
+        .order-table td:nth-child(12) {
+            width: 12%;
+            white-space: nowrap;
+        }
+
+        /* 訂購人姓名 */
+        .order-table th:nth-child(1),
+        .order-table td:nth-child(1) {
+            width: 6%;
+        }
+
+        /* 訂購日期 */
+        .order-table th:nth-child(2),
+        .order-table td:nth-child(2),
+        .order-date {
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+    
+        /* 付款方式 */
+        .order-table th:nth-child(4),
+        .order-table td:nth-child(4) {
+            width: 6%;
+        }
+
+        /* 運費 */
+        .order-table th:nth-child(5),
+        .order-table td:nth-child(5) {
+            width: 5%;
+        }
+
+        /* 訂單總金額 */
+        .order-table th:nth-child(6),
+        .order-table td:nth-child(6) {
+            width: 7%;
+        }
+
+        /* 訂單狀態 */
+        .order-table th:nth-child(7),
+        .order-table td:nth-child(7) {
+            width: 6%;
+        }
+
+        /* 付款狀態 */
+        .order-table th:nth-child(8),
+        .order-table td:nth-child(8) {
+            width: 9%;
+            white-space: nowrap;
+        }        
+        /* 退款狀態 */
+        .order-table th:nth-child(9),
+        .order-table td:nth-child(9) {
+            width: 8%;
+        }
+        
+        /* 物流狀態 */
+        .order-table th:nth-child(11),
+        .order-table td:nth-child(11) {
+            width: 6%;
+        }
+
+        /* 操作 */
+        .order-table th:nth-child(13),
+        .order-table td:nth-child(13) {
+            width: 8%;
+            white-space: normal;
         }
 
         .order-table .action-cell {
-            min-width: 220px;
+            min-width: 0;
+            white-space: normal;
         }
 
-    .collapse-detail {
-        white-space: normal;
-    }
-
-    .status-btn {
-        padding: 2px 8px;
-        font-size: 12px;
-    }
-
     .small-action-btn {
-        padding: 2px 6px;
-        font-size: 12px;
+        padding: 2px 5px;
+        font-size: 11px;
+        line-height: 1.3;
     }
 
-    .shipment-input {
-        width: 130px;
-        height: 28px;
-        padding: 2px 6px;
-        font-size: 12px;
-    }
-
-    .cancel-input {
-        width: 130px;
-        height: 28px;
-        padding: 2px 6px;
-        font-size: 12px;
-    }
-
-    .shipment-form {
-        width: 140px;
+    .action-cell form {
+        display: inline-block;
+        margin: 0;
     }
 </style>
 @using (Html.BeginForm(
@@ -111,7 +184,7 @@
                             new { Value = "", Text = "全部" },
                             new { Value = "COD", Text = "取貨付款" },
                             new { Value = "CreditCard", Text = "信用卡" },
-                            new { Value = "LinePay", Text = "LinePay" }
+                            //new { Value = "LinePay", Text = "LinePay" }
                         }, "Value", "Text", Model.Criteria.PaymentMethod),
                         new { @class = "form-select form-select-sm" }
                     )
@@ -247,6 +320,7 @@
     <table class="table table-bordered table-hover table-sm align-middle order-table">
         <thead class="table-light">
             <tr>
+                <th>買家姓名</th>
                 <th>訂購日期</th>
                 <th>訂單編號</th>
                 <th>付款方式</th>
@@ -272,10 +346,17 @@
                 && order.RefundStatusCode != "Refunded";
 
                 <tr>
-                    <td>@order.CreatedAt.ToString("yyyy/M/d tt hh:mm")</td>
-
+                    @*買家姓名*@
+                    <td>@order.RecipientName</td>
+                    @*訂購日期*@
+                    <td class="order-date">
+                        <div>@order.CreatedAt.ToString("yyyy/M/d")</div>
+                        <div>@order.CreatedAt.ToString("tt hh:mm")</div>
+                    </td>
+                    @*訂單編號*@
                     <td>@order.OrderNo</td>
 
+                    @*付款方式*@
                     <td>
                         @if (order.PaymentMethod == "COD")
                         {
@@ -294,13 +375,13 @@
                             <span class="text-muted">-</span>
                         }
                     </td>
-
+                    @*運費*@
                     <td>NT$@order.ShippingFee</td>
-
+                    @*訂單總金額*@
                     <td>NT$@order.OrderTotal</td>
-
+                    @*訂單狀態*@
                     <td>
-                       
+
                         @if (order.OrderStatusCode == "Cancelled")
                         {
                             if (!string.IsNullOrEmpty(order.CancelReason))
@@ -328,10 +409,9 @@
                             </span>
                         }
                     </td>
-
-                   
-                    
+                    @*付款狀態*@
                     <td>
+
                         @if (order.PaymentStatusCode == "Cancelled")
                         {
                             if (!string.IsNullOrEmpty(order.RefundReason))
@@ -376,7 +456,7 @@
                                     已退款
                                 </span>
                             }
-                            
+
                         }
                         else
                         {
@@ -384,44 +464,47 @@
                                 @order.PaymentStatusName
                             </span>
                         }
-                    </td>
 
+                    </td>
+                    @*退款狀態*@
                     <td>
-                        @if (order.RefundStatusCode == "None")
-                        {
-                            <span class="badge bg-warning text-dark ms-1">無退款</span>
-                        }
-                        else if (order.RefundStatusCode == "Requested")
-                        {
-                            <span class="badge bg-warning text-dark ms-1">退款申請中</span>
-                        }
-                        else if (order.RefundStatusCode == "Refunded")
-                        {
-                            <span class="badge border border-danger text-danger bg-white ms-1">已退款</span>
-                            
-                        }
-                        else if (order.RefundStatusCode == "Failed")
-                        {
-                            <span class="badge bg-danger ms-1">退款失敗</span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
+                        <div class="d-flex flex-column align-items-start gap-2">
+                            @if (order.RefundStatusCode == "None")
+                            {
+                                <span class="badge bg-warning text-dark ">無退款</span>
+                            }
+                            else if (order.RefundStatusCode == "Requested")
+                            {
+                                <span class="badge bg-warning text-dark">退款申請中</span>
+                            }
+                            else if (order.RefundStatusCode == "Refunded")
+                            {
+                                <span class="badge border border-danger text-danger bg-white">已退款</span>
 
-                        @if (order.RefundStatusCode != "None")
-                        {
-                            <button class="btn btn-outline-secondary btn-sm ms-1 small-action-btn"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#refundInfo_@order.OrderId"
-                                    aria-expanded="false"
-                                    aria-controls="refundInfo_@order.OrderId">
-                                退款資訊
-                            </button>
-                        }
+                            }
+                            else if (order.RefundStatusCode == "Failed")
+                            {
+                                <span class="badge bg-danger">退款失敗</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+
+                            @if (order.RefundStatusCode != "None")
+                            {
+                                <button class="btn btn-outline-secondary btn-sm  small-action-btn"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#refundInfo_@order.OrderId"
+                                        aria-expanded="false"
+                                        aria-controls="refundInfo_@order.OrderId">
+                                    退款資訊
+                                </button>
+                            }
+                        </div>
                     </td>
-
+                    @*寄件代碼*@
                     <td>
                         @if (string.IsNullOrEmpty(order.ShippingCode))
                         {
@@ -432,7 +515,7 @@
                             <span>@order.ShippingCode</span>
                         }
                     </td>
-
+                    @*物流狀態*@
                     <td>
                         @if (string.IsNullOrEmpty(order.ShipmentStatusName))
                         {
@@ -445,7 +528,7 @@
                             </span>
                         }
                     </td>
-
+                    @*物流追蹤碼*@
                     <td>
                         @if (string.IsNullOrEmpty(order.TrackingNo))
                         {
@@ -456,8 +539,8 @@
                             <span>@order.TrackingNo</span>
                         }
                     </td>
-
-                    <td>
+                    @*操作*@
+                    <td class="action-cell">
                         <a href="@Url.Action("OrderDetailsPage", "Orders", new { orderId = order.OrderId })"
                            class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
                             明細
@@ -635,7 +718,7 @@
                 if (order.PaymentStatusCode == "Cancelled" && !string.IsNullOrEmpty(order.RefundReason))
                 {
                     <tr class="collapse" id="paymentCancelReason_@order.OrderId">
-                        <td colspan="12" class="collapse-detail">
+                        <td colspan="13" class="collapse-detail">
                             <div class="alert alert-warning mb-0 py-2">
                                 <strong>未付款退回原因：</strong>
                                 @order.RefundReason
@@ -646,7 +729,7 @@
                 if (order.RefundStatusCode != "None")
                 {
                     <tr class="collapse" id="refundInfo_@order.OrderId">
-                        <td colspan="12" class="collapse-detail">
+                        <td colspan="13" class="collapse-detail">
                             <div class="card card-body bg-light">
                                 <div class="row g-3">
                                     <div class="col-md-4">
@@ -724,7 +807,7 @@
                 if (order.OrderStatusCode == "Cancelled" && !string.IsNullOrEmpty(order.CancelReason))
                 {
                     <tr class="collapse" id="cancelReason_@order.OrderId">
-                        <td colspan="12" class="collapse-detail">
+                        <td colspan="13" class="collapse-detail">
                             <div class="alert alert-danger mb-0 py-2">
                                 <strong>訂單取消原因：</strong>
                                 @order.CancelReason

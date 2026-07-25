@@ -23,9 +23,12 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string ShipmentStatusName { get; set; }
         public string TrackingNo { get; set; }
         public List<OrderDetailDto> Items { get; set; }
-       
+        public string RecipientName { get; set; }
+        public string RecipientPhone { get; set; }
+        public string PickupStore { get; set; }
 
-        
+
+
 
     }
 }

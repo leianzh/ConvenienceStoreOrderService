@@ -85,7 +85,8 @@ namespace ConvenienceStoreOrderService.Repositories
             payment.RefundedAt,
             payment.RefundReason,
             payment.PaymentStatusCode,
-            
+            RecipientName=shipment.RecipientName
+
 
         };
             // 訂單編號、物流編號搜尋
@@ -138,7 +139,11 @@ namespace ConvenienceStoreOrderService.Repositories
                 x.ShipmentStatusId.Value
                 == criteria.ShipmentStatusId.Value);
             }
-
+            //訂購人姓名
+            if(!string.IsNullOrWhiteSpace(criteria.RecipientName))
+            {
+                result = result.Where(x =>x.RecipientName == criteria.RecipientName);
+            }
             // 付款方式
             if (!string.IsNullOrWhiteSpace(criteria.PaymentMethod))
             {
@@ -175,7 +180,8 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.RefundedAt,
                     o.RefundReason,
                     o.OrderStatusCode,
-                    o.PaymentStatusCode
+                    o.PaymentStatusCode,
+                    o.RecipientName
                     ))
                 .ToList();
 

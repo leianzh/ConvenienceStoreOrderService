@@ -73,6 +73,9 @@ namespace ConvenienceStoreOrderService.Repositories
              ShippingCode = shipment == null ? "" : shipment.ShippingCode ,
              TrackingNo = shipment == null ? "" :shipment.TrackingNo,
              ShipmentStatusId = shipment != null ? (int?)shipment.ShipmentStatusId : null,
+             RecipientName =shipment == null ? "" : shipment.RecipientName,
+             RecipientPhone =shipment == null ? "" : shipment.RecipientPhone,
+             PickupStore =shipment == null? null:shipment.PickupStore,
 
          })
         .FirstOrDefault();
@@ -87,16 +90,21 @@ namespace ConvenienceStoreOrderService.Repositories
                 .Select(od => OrderDetailMapper.ToDto(od))
                 .ToList();
 
-            return  OrderDetailsPageMapper.ToDto(
+            return OrderDetailsPageMapper.ToDto(
                 orderData.Order,
                 orderData.OrderStatusName,
                 orderData.PaymentStatusName,
                 orderData.ShippingCode,
                 orderData.TrackingNo,
+                orderData.RecipientName,
+                orderData.RecipientPhone,
+                orderData.PickupStore,
                 items,
                 orderData.ShipmentStatusId
-                               
-            );
+
+
+
+            ) ;
         }
     }
 }

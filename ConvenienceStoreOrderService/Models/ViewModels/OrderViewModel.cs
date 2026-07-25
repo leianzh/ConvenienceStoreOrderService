@@ -36,7 +36,8 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
         public DateTime? RefundRequestedAt { get; set; }
         public DateTime? RefundedAt { get; set; }
         public string RefundReason { get; set; }
-        
+        public string RecipientName { get; set; }
+
 
 
     }

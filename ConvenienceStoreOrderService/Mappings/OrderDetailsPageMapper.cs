@@ -19,6 +19,9 @@ namespace ConvenienceStoreOrderService.Mappings
     string paymentStatusName,
     string shippingCode,
     string trackingNo,
+    string recipientName,
+    string recipientPhone,
+    string pickupStore,
     List<OrderDetailDto> items,   
     int? shipmentStatusId)
         {
@@ -43,7 +46,10 @@ namespace ConvenienceStoreOrderService.Mappings
             ? ShipmentStatusHelper.GetName(shipmentStatusId.Value)
             : "",
 
-                Items = items
+                Items = items,
+                RecipientName =recipientName,
+                RecipientPhone=recipientPhone,
+                PickupStore=pickupStore,
             };
         }
         public static OrderDetailsPageViewModel ToVm(OrderDetailsPageDto dto)
@@ -73,8 +79,11 @@ namespace ConvenienceStoreOrderService.Mappings
                 ShipmentStatusName = dto.ShipmentStatusName,
                 Items = dto.Items == null
                     ? new List<OrderDetailViewModel>()
-                    : dto.Items.Select(x => OrderDetailMapper.ToVM(x)).ToList()
-
+                    : dto.Items.Select(x => OrderDetailMapper.ToVM(x)).ToList(),
+                
+                RecipientName=dto.RecipientName,
+                RecipientPhone=dto.RecipientPhone,
+                PickupStore = dto.PickupStore,
             };
         }
 
