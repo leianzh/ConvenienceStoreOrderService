@@ -476,10 +476,14 @@
                         {
                             @Html.AntiForgeryToken()
                             @Html.Hidden("orderId", order.OrderId)
+                            if (order.PaymentMethod == "CreditCard")
+                            {
+                                <button type="submit"
+                                        class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
+                                    查詢藍新交易
+                                </button>
+                            }
 
-                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                查詢藍新交易
-                            </button>
                         }
 
 

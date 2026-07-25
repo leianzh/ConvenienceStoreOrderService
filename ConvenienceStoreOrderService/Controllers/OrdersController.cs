@@ -163,21 +163,7 @@ namespace ConvenienceStoreOrderService.Controllers
                 // 失敗先回商品列表
                 return RedirectToAction("List", "Products");
             }
-            var orderId = result.Data;
-            // 如果是信用卡一次付清，下單成功後導去藍新付款流程
-            //if (dto.PaymentMethod == PaymentMethodName.CreditCard)
-            //{
-           
-            //    return RedirectToAction(
-            //        "PayByCreditCard",
-            //        "Payments",
-            //        new { orderId = orderId }
-            //    );
-            //}
-            // COD 下單成功就回訂單列表
-            //TempData["SuccessMessage"] = "下單成功";
-            //return RedirectToAction("List", "Orders");
-            // 下單成功後，先去填物流資料
+            var orderId = result.Data;          
             return RedirectToAction(
                 "FillShipmentInfo",
                 "Orders",
