@@ -37,6 +37,7 @@ namespace ConvenienceStoreOrderService.Controllers
   
             return View(model);
         }
+        //模擬待出貨
         [HttpPost]
         public ActionResult MarkReadyToShip(int orderId)
         {
@@ -49,6 +50,7 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
         }
+        //模擬已出貨
         [HttpPost]
         public ActionResult MarkShipped(int orderId)
         {
@@ -61,6 +63,7 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("List");
         }
+        //取消訂單
         [HttpPost]
         public ActionResult Cancel(int orderId, string cancelReason)
         {
@@ -74,6 +77,7 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = "訂單已取消，付款狀態已同步處理";
             return RedirectToAction("List");
         }
+        //取得寄件代碼
         [HttpPost]
         public ActionResult GetShipCode(ShipmentCreateDto dto)
         {
@@ -89,6 +93,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        //物流更新為已寄出
         [HttpPost]
         public ActionResult UpdateShipmentAsShipped(ShipmentCreateDto dto)
         {
@@ -104,6 +109,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        //模擬已到店
         [HttpPost]
         public ActionResult MarkShipmentAsArrived(ShipmentCreateDto shipmentDto)
         {
@@ -119,6 +125,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        //模擬已取貨
         [HttpPost]
         public ActionResult MarkShipmentAsPickedUp(ShipmentCreateDto shipmentDto)
         {
@@ -150,6 +157,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return RedirectToAction("List");
         }
+        //下單
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult PlaceOrder(PlaceOrderDto dto)
@@ -170,6 +178,7 @@ namespace ConvenienceStoreOrderService.Controllers
                 new { orderId = orderId }
             );
         }
+        //物流資料頁
         [HttpGet]
         public ActionResult FillShipmentInfo(int orderId)
         {
@@ -180,6 +189,7 @@ namespace ConvenienceStoreOrderService.Controllers
 
             return View(dto);
         }
+        //物流資料頁
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult FillShipmentInfo(ShipmentCreateDto dto)
@@ -238,6 +248,7 @@ namespace ConvenienceStoreOrderService.Controllers
             return View(result.Data);
 
         }
+        //訂單明細頁
         public ActionResult OrderDetailsPage(int orderId)
         {
             var result = _orderDetailService.GetOrderDetailsPage(orderId);
