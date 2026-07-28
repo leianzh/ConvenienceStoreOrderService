@@ -11,6 +11,8 @@ using ConvenienceStoreOrderService.Models.Common;
 using Unity;
 using ConvenienceStoreOrderService.Models.Constants;
 using ConvenienceStoreOrderService.Models.EFModels;
+using Hangfire.Server;
+using ConvenienceStoreOrderService.Repositories.Interfaces;
 
 namespace ConvenienceStoreOrderService.Controllers
 {
@@ -20,13 +22,15 @@ namespace ConvenienceStoreOrderService.Controllers
         private IShipmentService _shipmentService;
         private IOrderDetailService _orderDetailService;
         private IPaymentService _paymentService;
+        private IOrderRepository _orderRepository;
 
-        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService, IPaymentService paymentService)
+        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService, IPaymentService paymentService, IOrderRepository orderRepository)
         {
             _orderService = orderService;
             _shipmentService = shipmentService;
             _orderDetailService = orderDetailService;
             _paymentService = paymentService;
+            _orderRepository = orderRepository;
         }
         // GET: Order
         public ActionResult List(OrderSearchCriteria criteria)
@@ -182,9 +186,12 @@ namespace ConvenienceStoreOrderService.Controllers
         [HttpGet]
         public ActionResult FillShipmentInfo(int orderId)
         {
+            
+            var order =_orderRepository.GetEntityById(orderId);         
             var dto = new ShipmentCreateDto
             {
-                OrderId = orderId
+                OrderId = orderId,
+                 InfoDueAt = order.InfoDueAt
             };
 
             return View(dto);

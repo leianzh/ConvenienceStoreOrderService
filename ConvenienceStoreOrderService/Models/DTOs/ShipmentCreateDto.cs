@@ -25,5 +25,6 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string ShipmentStatusCode { get; set; }
         public string ShipmentStatusName { get; set; }
         public string RefundReason { get; set; }
+        public DateTime? InfoDueAt { get; set; }
     }
 }
