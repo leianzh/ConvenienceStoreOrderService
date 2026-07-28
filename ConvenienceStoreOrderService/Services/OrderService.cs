@@ -297,7 +297,24 @@ namespace ConvenienceStoreOrderService.Services
                     tran.Rollback();
                     return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
                 }
+                //檢查物流狀態
+                var shipment = _shipmentRepository.GetByOrderId(orderId);
 
+                if (shipment == null)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(ErrorCodes.NotFound, "找不到物流資料");
+                }
+
+                if (shipment.ShipmentStatusId != ShipmentStatusIds.Pending &&
+                    shipment.ShipmentStatusId != ShipmentStatusIds.ReadyToShip)
+                {
+                    tran.Rollback();
+                    return Result<bool>.Fail(
+                        ErrorCodes.Conflict,
+                        "商品已寄出，不能取消訂單"
+                    );
+                }
                 // 處理付款、退款
                 var paymentResult =_paymentService.ReturnOrCancelPayment(orderId,cancelReson);
                 if (!paymentResult.IsSuccess) 
