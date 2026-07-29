@@ -7,6 +7,7 @@ using ConvenienceStoreOrderService.Models.EFModels;
 using ConvenienceStoreOrderService.Models.ViewModels;
 using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Mappings;
+using ConvenienceStoreOrderService.Jobs;
 
 namespace ConvenienceStoreOrderService.Repositories
 {
@@ -35,7 +36,13 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db.OrderDetails.Add(orderDetail);
         }
-
+        public int? GetOrderIdByOrderNo(string orderNo)
+        {
+            return _db.Orders
+                .Where(o => o.OrderNo == orderNo)
+                .Select(o => (int?)o.OrderId)
+                .FirstOrDefault();
+        }
         public OrderDetailsPageDto GetOrderDetailsPage(int orderId)
         {
             var paymentResult =

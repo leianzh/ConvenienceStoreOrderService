@@ -13,5 +13,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
     {
         Result<List<OrderDetailViewModel>> GetOrderDetails(int orderId);
         Result<OrderDetailsPageViewModel> GetOrderDetailsPage(int orderId);
+        Result<OrderDetailsPageViewModel> GetOrderDetailsPageByOrderNo(
+    string orderNo);
     }
 }

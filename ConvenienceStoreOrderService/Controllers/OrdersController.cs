@@ -175,22 +175,28 @@ namespace ConvenienceStoreOrderService.Controllers
                 // 失敗先回商品列表
                 return RedirectToAction("List", "Products");
             }
-            var orderId = result.Data;          
+            var orderId = result.Data;
+            // 將 orderId 暫存在伺服器端 Session
+            Session["ShipmentOrderId"] = orderId;
             return RedirectToAction(
                 "FillShipmentInfo",
-                "Orders",
-                new { orderId = orderId }
+                "Orders"
             );
         }
         //物流資料頁
         [HttpGet]
-        public ActionResult FillShipmentInfo(int orderId)
+        public ActionResult FillShipmentInfo()
         {
-            
-            var order =_orderRepository.GetEntityById(orderId);         
+            var orderId = Session["ShipmentOrderId"] as int?;
+            if (!orderId.HasValue)
+            {
+                TempData["ErrorMessage"] = "找不到要填寫物流資料的訂單。";
+                return RedirectToAction("List", "Orders");
+            }
+            var order =_orderRepository.GetEntityById(orderId.Value);         
             var dto = new ShipmentCreateDto
             {
-                OrderId = orderId,
+                OrderId = orderId.Value,
                  InfoDueAt = order.InfoDueAt
             };
 
@@ -201,6 +207,14 @@ namespace ConvenienceStoreOrderService.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult FillShipmentInfo(ShipmentCreateDto dto)
         {
+            var orderId = Session["ShipmentOrderId"] as int?;
+            if (!orderId.HasValue)
+            {
+                TempData["ErrorMessage"] = "訂單資料已失效，請重新操作。";
+                return RedirectToAction("List", "Orders");
+            }
+            // 以伺服器 Session 中的 orderId 為準
+            dto.OrderId = orderId.Value;
             // 物流資料
             var saveResult = _shipmentService.CreateShipmentInfo(dto);
 
@@ -234,11 +248,11 @@ namespace ConvenienceStoreOrderService.Controllers
 
                 return RedirectToAction(
                     "PayByCreditCard",
-                    "Payments",
-                    new { orderId = dto.OrderId }
+                    "Payments"                  
                 );
             }
-
+            // 完成後清除，避免下一筆訂單誤用
+            Session.Remove("ShipmentOrderId");
             //COD 填完物流資料後，回訂單列表
             TempData["SuccessMessage"] = "物流資料已完成，下單成功。";
             return RedirectToAction("List", "Orders");
@@ -256,16 +270,22 @@ namespace ConvenienceStoreOrderService.Controllers
 
         }
         //訂單明細頁
-        public ActionResult OrderDetailsPage(int orderId)
+        public ActionResult OrderDetailsPage(string orderNo)
         {
-            var result = _orderDetailService.GetOrderDetailsPage(orderId);
+            var orderNoResult = _orderDetailService.GetOrderDetailsPageByOrderNo(orderNo);
 
+            if (!orderNoResult.IsSuccess)
+            {
+                TempData["ErrorMessage"] = orderNoResult.Message;
+                return RedirectToAction("List", "Orders");
+            }
+            int orderId = orderNoResult.Data.OrderId;
+            var result = _orderDetailService.GetOrderDetailsPage(orderId);
             if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
-                return RedirectToAction("List", "Orders");
+                return RedirectToAction("List");
             }
-
             return View(result.Data);
         }
 

@@ -38,7 +38,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.HiddenFor(m => m.OrderId)
+                @*@Html.HiddenFor(m => m.OrderId)*@
 
                 <div class="mb-3">
                     <label class="form-label">買家姓名</label>
@@ -172,7 +172,7 @@
         const countdownElement = document.getElementById("countdown");
         const countdownAlert = document.getElementById("countdownAlert");
         const submitButton = document.querySelector('button[type="submit"]');
-
+        let timer = null;
         function updateCountdown() {
             const now = new Date().getTime();
             const remainingMilliseconds = dueAt - now;
@@ -185,7 +185,9 @@
                 submitButton.disabled = true;
                 submitButton.textContent = "填寫時間已結束";
 
-                clearInterval(timer);
+                if (timer !== null) {
+                    clearInterval(timer);
+                }
                 return;
             }
 
@@ -201,6 +203,6 @@
 
         updateCountdown();
 
-        const timer = setInterval(updateCountdown, 1000);
+        timer = setInterval(updateCountdown, 1000);
     </script>
 }

@@ -37,5 +37,31 @@ namespace ConvenienceStoreOrderService.Services
             return Result<OrderDetailsPageViewModel>.Success(vm);
 
         }
+        public Result<OrderDetailsPageViewModel> GetOrderDetailsPageByOrderNo(
+    string orderNo)
+        {
+            if (string.IsNullOrWhiteSpace(orderNo))
+            {
+                return Result<OrderDetailsPageViewModel>.Fail(
+                    ErrorCodes.NotFound,
+                    "訂單編號不能為空。"
+                );
+            }
+
+            //從orderNo找到orderId
+            var orderId =
+                _orderDetailRepository.GetOrderIdByOrderNo(orderNo);
+
+            if (!orderId.HasValue)
+            {
+                return Result<OrderDetailsPageViewModel>.Fail(
+                    ErrorCodes.NotFound,
+                    "找不到這筆訂單。"
+                );
+            }
+
+            
+            return GetOrderDetailsPage(orderId.Value);
+        }
     }
 }
