@@ -24,16 +24,17 @@ namespace ConvenienceStoreOrderService.Controllers
         }
         [HttpGet]
         //前往信用卡付款
-        public ActionResult PayByCreditCard(int orderId)
+        public ActionResult PayByCreditCard()
         {
-            var result = _paymentService.CreateCreditCardOnceMpgRequest(orderId);
-
+            var orderId = Session["PaymentOrderId"] as int?;
+            var result = _paymentService.CreateCreditCardOnceMpgRequest(orderId.Value);
+            Session.Remove("PaymentOrderId");
             if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List", "Orders");
             }
-
+            
             return View("NewebPayPost", result.Data);
         }
         //接 ReturnURL

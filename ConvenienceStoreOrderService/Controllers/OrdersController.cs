@@ -245,15 +245,20 @@ namespace ConvenienceStoreOrderService.Controllers
                     TempData["ErrorMessage"] = countdownResult.Message;
                     return RedirectToAction("List", "Orders");
                 }
+                // 使用 Session 把 OrderId 傳給 PaymentsController
+                Session["PaymentOrderId"] = dto.OrderId;
+                // 物流資料已完成，清除物流流程使用的 Session
+                Session.Remove("ShipmentOrderId");
 
                 return RedirectToAction(
                     "PayByCreditCard",
                     "Payments"                  
                 );
             }
-            // 完成後清除，避免下一筆訂單誤用
-            Session.Remove("ShipmentOrderId");
+
             //COD 填完物流資料後，回訂單列表
+            Session.Remove("ShipmentOrderId");
+            
             TempData["SuccessMessage"] = "物流資料已完成，下單成功。";
             return RedirectToAction("List", "Orders");
         }
