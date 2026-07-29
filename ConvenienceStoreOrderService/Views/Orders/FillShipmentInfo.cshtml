@@ -162,7 +162,7 @@
 </div>
 @section scripts {
     <script>
-        // 使用後端資料庫的 InfoDueAt，不重新計算 15 分鐘
+        // 使用後端資料庫的 InfoDueAt，去計算 15 分鐘倒數
         const dueAtText = '@(Model.InfoDueAt.HasValue
     ? Model.InfoDueAt.Value.ToString("yyyy-MM-ddTHH:mm:ss")
     : "")';
