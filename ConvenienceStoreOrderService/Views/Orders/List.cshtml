@@ -540,12 +540,21 @@
                         }
                     </td>
                     @*操作*@
-                    <td class="action-cell">
-                        <a href="@Url.Action("OrderDetailsPage", "Orders", new { orderNo  = order.OrderNo })"
-                           class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
-                            明細
-                        </a>
-
+                <td class="action-cell">
+                    <a href="@Url.Action("OrderDetailsPage", "Orders", new { orderNo  = order.OrderNo })"
+                       class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
+                        明細
+                    </a>
+                    @{
+                        var canShowShipmentButton =
+                            (order.OrderStatusCode == "Processing" &&
+                             order.PaymentStatusCode == "Pending" &&
+                             order.PaymentMethod != "CreditCard")
+                            ||
+                            (order.OrderStatusCode == "Cancelled");
+                    }
+                    @if (!canShowShipmentButton)
+                    {
                         <button class="btn btn-outline-primary btn-sm mb-1 small-action-btn"
                                 type="button"
                                 data-bs-toggle="collapse"
@@ -554,37 +563,40 @@
                                 aria-controls="shipmentActions_@order.OrderId">
                             物流
                         </button>
+                    }
 
-                        @using (Html.BeginForm("QueryNewebPayTrade", "Payments", FormMethod.Post))
+
+                    @using (Html.BeginForm("QueryNewebPayTrade", "Payments", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("orderId", order.OrderId)
+                        if (order.PaymentMethod == "CreditCard")
                         {
-                            @Html.AntiForgeryToken()
-                            @Html.Hidden("orderId", order.OrderId)
-                            if (order.PaymentMethod == "CreditCard")
-                            {
-                                <button type="submit"
-                                        class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
-                                    查詢藍新交易
-                                </button>
-                            }
-
-                        }
-
-
-
-                        @if (canCancelButton)
-                        {
-                            <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#cancelBox_@order.OrderId"
-                                    aria-expanded="false"
-                                    aria-controls="cancelBox_@order.OrderId">
-                                取消訂單
+                            <button type="submit"
+                                    class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
+                                查詢藍新交易
                             </button>
                         }
-                        <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
+
+                    }
 
 
+
+
+                    @if (canCancelButton)
+                    {
+                        <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#cancelBox_@order.OrderId"
+                                aria-expanded="false"
+                                aria-controls="cancelBox_@order.OrderId">
+                            取消訂單
+                        </button>
+                    }
+                    <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
+                       
+                            @* 還沒有建立物流資料 *@
                             @if (string.IsNullOrEmpty(order.ShipmentStatusName))
                             {
 
@@ -685,34 +697,34 @@
                                         }
                                     </div>
                                 }
+                            }
+                        
+                    </div>
 
+
+
+                    @if (canCancelButton)
+                    {
+                        <div class="collapse mt-2" id="cancelBox_@order.OrderId">
+                            @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
+                            {
+                                @Html.Hidden("orderId", order.OrderId)
+
+                                <input type="text"
+                                       name="cancelReason"
+                                       placeholder="請輸入取消原因"
+                                       class="form-control form-control-sm mb-2 cancel-input"
+                                       required
+                                       oninvalid="this.setCustomValidity('取消原因必填')"
+                                       oninput="this.setCustomValidity('')" />
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    送出取消
+                                </button>
                             }
                         </div>
-
-
-
-                        @if (canCancelButton)
-                        {
-                            <div class="collapse mt-2" id="cancelBox_@order.OrderId">
-                                @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
-                                {
-                                    @Html.Hidden("orderId", order.OrderId)
-
-                                    <input type="text"
-                                           name="cancelReason"
-                                           placeholder="請輸入取消原因"
-                                           class="form-control form-control-sm mb-2 cancel-input"
-                                           required
-                                           oninvalid="this.setCustomValidity('取消原因必填')"
-                                           oninput="this.setCustomValidity('')" />
-
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        送出取消
-                                    </button>
-                                }
-                            </div>
-                        }
-                    </td>
+                    }
+                </td>
                 </tr>
                 
                 if (order.PaymentStatusCode == "Cancelled" && !string.IsNullOrEmpty(order.RefundReason))
