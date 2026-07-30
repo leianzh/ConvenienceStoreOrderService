@@ -516,18 +516,22 @@
                         }
                     </td>
                     @*物流狀態*@
-                    <td>
-                        @if (string.IsNullOrEmpty(order.ShipmentStatusName))
-                        {
-                            <span class="text-muted">尚未建立物流</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-info text-dark">
-                                @order.ShipmentStatusName
-                            </span>
-                        }
-                    </td>
+                <td>
+                    @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                    else if (order.OrderStatusCode == "Cancelled")
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-info text-dark">
+                            @order.ShipmentStatusName
+                        </span>
+                    }
+                </td>
                     @*物流追蹤碼*@
                     <td>
                         @if (string.IsNullOrEmpty(order.TrackingNo))
