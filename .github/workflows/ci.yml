@@ -38,8 +38,7 @@ jobs:
       - name: Create Web.config for CI
         shell: pwsh
         run: |
-          Copy-Item `
-            "ConvenienceStoreOrderService/Web.config.example" `
+          Copy-Item `           
             "ConvenienceStoreOrderService/Web.config" `
             -Force
 
