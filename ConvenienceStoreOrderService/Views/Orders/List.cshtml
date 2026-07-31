@@ -553,7 +553,7 @@
                         var canShowShipmentButton =
                             (order.OrderStatusCode == "Processing" &&
                              order.PaymentStatusCode == "Pending" &&
-                             order.PaymentMethod != "CreditCard")
+                             order.PaymentMethod == "CreditCard")
                             ||
                             (order.OrderStatusCode == "Cancelled");
                     }
