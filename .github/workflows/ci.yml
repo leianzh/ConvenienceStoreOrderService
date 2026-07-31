@@ -37,3 +37,22 @@ jobs:
 
       - name: Build solution
         run: msbuild ConvenienceStoreOrderService.sln /p:Configuration=Release /p:Platform="Any CPU" /m
+
+      - name: Create publish package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\artifact"
+
+          msbuild ConvenienceStoreOrderService\ConvenienceStoreOrderService.csproj `
+            /p:Configuration=Release `
+            /p:Platform="AnyCPU" `
+            /p:DeployOnBuild=true `
+            /p:WebPublishMethod=Package `
+            /p:PackageAsSingleFile=true `
+            /p:PackageLocation="${{ github.workspace }}\artifact\ConvenienceStoreOrderService.zip"
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConvenienceStoreOrderService-PublishPackage
+          path: artifact/ConvenienceStoreOrderService.zip
