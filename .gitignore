@@ -4,6 +4,4 @@ packages/
 **/obj/
 status/
 *.csproj.user
-# 忽略真正有密碼的 Web.config
-/ConvenienceStoreOrderService/Web.config
 
