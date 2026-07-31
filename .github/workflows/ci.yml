@@ -35,12 +35,5 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore ConvenienceStoreOrderService.sln
 
-      - name: Create Web.config for CI
-        shell: pwsh
-        run: |
-          Copy-Item `           
-            "ConvenienceStoreOrderService/Web.config" `
-            -Force
-
       - name: Build solution
         run: msbuild ConvenienceStoreOrderService.sln /p:Configuration=Release /p:Platform="Any CPU" /m
