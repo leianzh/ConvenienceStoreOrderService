@@ -1,0 +1,47 @@
+name: CI - Build ASP.NET MVC5
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build .NET Framework MVC5 Project
+    runs-on: windows-latest
+
+    env:
+      COS_NEWEBPAY_MERCHANT_ID: CI_DUMMY_MERCHANT_ID
+      COS_NEWEBPAY_HASH_KEY: CI_DUMMY_HASH_KEY
+      COS_NEWEBPAY_HASH_IV: CI_DUMMY_HASH_IV
+      COS_DB_CONNECTION_STRING: "data source=(localdb)\\MSSQLLocalDB;initial catalog=ConvenienceStoreOrderService_CI;Integrated Security=True;MultipleActiveResultSets=True;App=EntityFramework"
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore ConvenienceStoreOrderService.sln
+
+      - name: Create Web.config for CI
+        shell: pwsh
+        run: |
+          Copy-Item `
+            "ConvenienceStoreOrderService/Web.config.example" `
+            "ConvenienceStoreOrderService/Web.config" `
+            -Force
+
+      - name: Build solution
+        run: msbuild ConvenienceStoreOrderService.sln /p:Configuration=Release /p:Platform="Any CPU" /m
