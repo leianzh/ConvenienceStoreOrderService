@@ -25,7 +25,7 @@ jobs:
         run: nuget restore ConvenienceStoreOrderService.sln
 
       - name: Publish website to folder
-        shell: pwsh
+        shell: powershell
         run: |
           msbuild ConvenienceStoreOrderService\ConvenienceStoreOrderService.csproj `
             /p:Configuration=Release `
@@ -36,13 +36,13 @@ jobs:
             /p:publishUrl="${{ github.workspace }}\publish"
 
       - name: Stop IIS app pool
-        shell: pwsh
+        shell: powershell
         run: |
           Import-Module WebAdministration
           Stop-WebAppPool -Name "ConvenienceStoreOrderService"
 
       - name: Copy files to IIS folder
-        shell: pwsh
+        shell: powershell
         run: |
           robocopy "${{ github.workspace }}\publish" "C:\inetpub\wwwroot\ConvenienceStoreOrderService" /MIR
 
@@ -53,7 +53,7 @@ jobs:
           exit $LASTEXITCODE
 
       - name: Start IIS app pool
-        shell: pwsh
+        shell: powershell
         run: |
           Import-Module WebAdministration
           Start-WebAppPool -Name "ConvenienceStoreOrderService"
