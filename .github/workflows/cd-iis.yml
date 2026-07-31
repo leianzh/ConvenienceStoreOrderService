@@ -1,0 +1,59 @@
+name: CD - Deploy to Local IIS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy MVC5 to Local IIS
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore ConvenienceStoreOrderService.sln
+
+      - name: Publish website to folder
+        shell: pwsh
+        run: |
+          msbuild ConvenienceStoreOrderService\ConvenienceStoreOrderService.csproj `
+            /p:Configuration=Release `
+            /p:Platform="AnyCPU" `
+            /p:DeployOnBuild=true `
+            /p:WebPublishMethod=FileSystem `
+            /p:DeleteExistingFiles=True `
+            /p:publishUrl="${{ github.workspace }}\publish"
+
+      - name: Stop IIS app pool
+        shell: pwsh
+        run: |
+          Import-Module WebAdministration
+          Stop-WebAppPool -Name "ConvenienceStoreOrderService"
+
+      - name: Copy files to IIS folder
+        shell: pwsh
+        run: |
+          robocopy "${{ github.workspace }}\publish" "C:\inetpub\wwwroot\ConvenienceStoreOrderService" /MIR
+
+          if ($LASTEXITCODE -le 7) {
+            exit 0
+          }
+
+          exit $LASTEXITCODE
+
+      - name: Start IIS app pool
+        shell: pwsh
+        run: |
+          Import-Module WebAdministration
+          Start-WebAppPool -Name "ConvenienceStoreOrderService"
