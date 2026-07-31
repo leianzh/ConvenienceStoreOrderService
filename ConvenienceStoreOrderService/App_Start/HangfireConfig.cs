@@ -6,6 +6,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using ConvenienceStoreOrderService.Jobs;
 using ConvenienceStoreOrderService.App_Start;
+using ConvenienceStoreOrderService.Models.Helpers;
 
 
 namespace ConvenienceStoreOrderService.App_Start
@@ -14,8 +15,9 @@ namespace ConvenienceStoreOrderService.App_Start
     {
         public static void Register(IAppBuilder app)
         {
+            var connectionString = AppConfigHelper.GetDbConnectionString();
             GlobalConfiguration.Configuration
-                .UseSqlServerStorage("AppDbContext")
+                .UseSqlServerStorage(connectionString)
                 .UseActivator(new UnityJobActivator(UnityConfig.Container));
 
             app.UseHangfireDashboard();

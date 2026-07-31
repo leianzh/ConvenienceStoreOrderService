@@ -250,6 +250,7 @@
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\EFModels\RefundStatus.cs" />
     <Compile Include="Models\EFModels\Shipment.cs" />
+    <Compile Include="Models\Helpers\AppConfigHelper.cs" />
     <Compile Include="Models\Helpers\NewebPayCryptoHelper.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
     <Compile Include="Models\ViewModels\NewebPayCloseResultViewModel.cs" />
