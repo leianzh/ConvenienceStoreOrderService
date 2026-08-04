@@ -11,6 +11,11 @@ jobs:
     name: Deploy MVC5 to Local IIS
     runs-on: self-hosted
 
+    env:
+      APP_POOL_NAME: ConvenienceStoreOrderService
+      IIS_SITE_PATH: C:\inetpub\wwwroot\ConvenienceStoreOrderService
+      PUBLISH_PATH: C:\Users\User\actions-runner\_work\ConvenienceStoreOrderService\publish
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -22,29 +27,75 @@ jobs:
         uses: NuGet/setup-nuget@v2
 
       - name: Restore NuGet packages
-        run: nuget restore ConvenienceStoreOrderService.sln
+        shell: powershell
+        run: |
+          nuget restore ConvenienceStoreOrderService.sln
 
-      - name: Publish website to folder
+      - name: Clean publish folder
+        shell: powershell
+        run: |
+          if (Test-Path "$env:PUBLISH_PATH") {
+            Remove-Item "$env:PUBLISH_PATH" -Recurse -Force
+          }
+
+          New-Item -ItemType Directory -Force -Path "$env:PUBLISH_PATH"
+
+      - name: Build and prepare deploy files
         shell: powershell
         run: |
           msbuild ConvenienceStoreOrderService\ConvenienceStoreOrderService.csproj `
+            /t:Clean,Build,PipelinePreDeployCopyAllFilesToOneFolder `
             /p:Configuration=Release `
             /p:Platform="AnyCPU" `
-            /p:DeployOnBuild=true `
-            /p:WebPublishMethod=FileSystem `
-            /p:DeleteExistingFiles=True `
-            /p:publishUrl="${{ github.workspace }}\publish"
+            /p:VisualStudioVersion=17.0 `
+            /p:_PackageTempDir="$env:PUBLISH_PATH"
+
+      - name: Check publish folder
+        shell: powershell
+        run: |
+          if (!(Test-Path "$env:PUBLISH_PATH")) {
+            throw "找不到 publish 資料夾：$env:PUBLISH_PATH"
+          }
+
+          $files = Get-ChildItem "$env:PUBLISH_PATH" -Recurse
+
+          if ($files.Count -eq 0) {
+            throw "publish 資料夾是空的：$env:PUBLISH_PATH"
+          }
+
+          Write-Host "Publish folder:"
+          Write-Host "$env:PUBLISH_PATH"
+
+          Write-Host "Publish files count:"
+          Write-Host $files.Count
+
+          Write-Host "Top level files:"
+          Get-ChildItem "$env:PUBLISH_PATH" | Select-Object Name, FullName
 
       - name: Stop IIS app pool
         shell: powershell
         run: |
           Import-Module WebAdministration
-          Stop-WebAppPool -Name "ConvenienceStoreOrderService"
+
+          if (Test-Path "IIS:\AppPools\$env:APP_POOL_NAME") {
+            $state = (Get-WebAppPoolState -Name "$env:APP_POOL_NAME").Value
+
+            if ($state -ne "Stopped") {
+              Stop-WebAppPool -Name "$env:APP_POOL_NAME"
+            }
+          }
+          else {
+            throw "找不到 IIS App Pool：$env:APP_POOL_NAME"
+          }
 
       - name: Copy files to IIS folder
         shell: powershell
         run: |
-          robocopy "${{ github.workspace }}\publish" "C:\inetpub\wwwroot\ConvenienceStoreOrderService" /MIR
+          if (!(Test-Path "$env:IIS_SITE_PATH")) {
+            New-Item -ItemType Directory -Force -Path "$env:IIS_SITE_PATH"
+          }
+
+          robocopy "$env:PUBLISH_PATH" "$env:IIS_SITE_PATH" /MIR /XD App_Data
 
           if ($LASTEXITCODE -le 7) {
             exit 0
@@ -56,4 +107,4 @@ jobs:
         shell: powershell
         run: |
           Import-Module WebAdministration
-          Start-WebAppPool -Name "ConvenienceStoreOrderService"
+          Start-WebAppPool -Name "$env:APP_POOL_NAME"
