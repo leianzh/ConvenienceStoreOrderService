@@ -9,9 +9,9 @@ namespace ConvenienceStoreOrderService.Models.Helpers
     public class AppConfigHelper
     {
         /// <summary>
-        /// 優先讀環境變數，讀不到才讀 Web.config 的 appSettings。
+        /// 改讀環境變數
         /// </summary>
-        public static string GetRequiredSetting(string environmentVariableName, string appSettingsKey)
+        public static string GetRequiredSetting(string environmentVariableName)
         {
             var value = GetEnvironmentValue(environmentVariableName);
 
@@ -20,17 +20,10 @@ namespace ConvenienceStoreOrderService.Models.Helpers
                 return value;
             }
 
-            value = ConfigurationManager.AppSettings[appSettingsKey];
-
-            if (!string.IsNullOrWhiteSpace(value) &&
-                !value.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase))
-            {
-                return value;
-            }
+                    
 
             throw new InvalidOperationException(
-                $"缺少必要設定：請設定 Windows 環境變數 {environmentVariableName}，或 Web.config appSettings[{appSettingsKey}]。"
-            );
+                $"缺少必要設定：請設定 Windows 環境變數 {environmentVariableName}" );
         }
 
         /// <summary>
@@ -45,18 +38,9 @@ namespace ConvenienceStoreOrderService.Models.Helpers
                 return value;
             }
 
-            var connectionString =
-                ConfigurationManager.ConnectionStrings["AppDbContext"]?.ConnectionString;
-
-            if (!string.IsNullOrWhiteSpace(connectionString) &&
-                !connectionString.Contains("YOUR_PASSWORD"))
-            {
-                return connectionString;
-            }
-
+          
             throw new InvalidOperationException(
-                "缺少資料庫連線字串：請設定 Windows 環境變數 COS_DB_CONNECTION_STRING，或 Web.config connectionStrings[AppDbContext]。"
-            );
+                "缺少資料庫連線字串：請設定 Windows 環境變數 COS_DB_CONNECTION_STRING" );
         }
 
         /// <summary>

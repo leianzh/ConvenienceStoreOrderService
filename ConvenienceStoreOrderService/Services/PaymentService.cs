@@ -400,14 +400,13 @@ namespace ConvenienceStoreOrderService.Services
 
                 // 讀 Web.config 設定                
                 var merchantId = AppConfigHelper.GetRequiredSetting(
-                                "COS_NEWEBPAY_MERCHANT_ID",
-                                "NewebPay.MerchantID");
+                                "COS_NEWEBPAY_MERCHANT_ID");
+
                 var hashKey = AppConfigHelper.GetRequiredSetting(
-                              "COS_NEWEBPAY_HASH_KEY",
-                              "NewebPay.HashKey");
+                              "COS_NEWEBPAY_HASH_KEY");
+
                 var hashIV = AppConfigHelper.GetRequiredSetting(
-                            "COS_NEWEBPAY_HASH_IV",
-                            "NewebPay.HashIV");
+                            "COS_NEWEBPAY_HASH_IV");
                 var version = ConfigurationManager.AppSettings["NewebPay.Version"];
                 var mpgUrl = ConfigurationManager.AppSettings["NewebPay.MpgUrl"];
                 var returnUrl = ConfigurationManager.AppSettings["NewebPay.ReturnUrl"];
@@ -549,11 +548,9 @@ namespace ConvenienceStoreOrderService.Services
 
                 // 讀取 HashKey、HashIV                             
                 var hashKey = AppConfigHelper.GetRequiredSetting(
-                              "COS_NEWEBPAY_HASH_KEY",
-                              "NewebPay.HashKey");
+                              "COS_NEWEBPAY_HASH_KEY");
                 var hashIV = AppConfigHelper.GetRequiredSetting(
-                            "COS_NEWEBPAY_HASH_IV",
-                            "NewebPay.HashIV");
+                            "COS_NEWEBPAY_HASH_IV");
 
                 if (string.IsNullOrWhiteSpace(hashKey) ||
                     string.IsNullOrWhiteSpace(hashIV))
@@ -750,14 +747,11 @@ namespace ConvenienceStoreOrderService.Services
 
                 
                 var merchantId = AppConfigHelper.GetRequiredSetting(
-                               "COS_NEWEBPAY_MERCHANT_ID",
-                               "NewebPay.MerchantID");
+                               "COS_NEWEBPAY_MERCHANT_ID");
                 var hashKey = AppConfigHelper.GetRequiredSetting(
-                              "COS_NEWEBPAY_HASH_KEY",
-                              "NewebPay.HashKey");
+                              "COS_NEWEBPAY_HASH_KEY");
                 var hashIV = AppConfigHelper.GetRequiredSetting(
-                            "COS_NEWEBPAY_HASH_IV",
-                            "NewebPay.HashIV");
+                            "COS_NEWEBPAY_HASH_IV");
                 var queryUrl = ConfigurationManager.AppSettings["NewebPay.QueryTradeInfoUrl"];
 
                 if (string.IsNullOrWhiteSpace(queryUrl))
@@ -994,14 +988,11 @@ namespace ConvenienceStoreOrderService.Services
                 }
                 //從 Web.config 讀藍新的設定                
                 var merchantId = AppConfigHelper.GetRequiredSetting(
-                               "COS_NEWEBPAY_MERCHANT_ID",
-                               "NewebPay.MerchantID");
+                               "COS_NEWEBPAY_MERCHANT_ID");
                 var hashKey = AppConfigHelper.GetRequiredSetting(
-                              "COS_NEWEBPAY_HASH_KEY",
-                              "NewebPay.HashKey");
+                              "COS_NEWEBPAY_HASH_KEY");
                 var hashIV = AppConfigHelper.GetRequiredSetting(
-                            "COS_NEWEBPAY_HASH_IV",
-                            "NewebPay.HashIV");
+                            "COS_NEWEBPAY_HASH_IV");
                 var queryUrl = ConfigurationManager.AppSettings["NewebPay.CreditCardCloseUrl"];
 
                 if (string.IsNullOrWhiteSpace(queryUrl))
