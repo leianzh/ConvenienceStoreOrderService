@@ -42,6 +42,12 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string RefundReason { get; set; }
         public string RecipientName { get; set; }
 
+        public string BuyerUserName { get; set; }
+
+        public string UserPhone { get; set; }
+
+        public string UserEmail { get; set; }
+
 
 
     }

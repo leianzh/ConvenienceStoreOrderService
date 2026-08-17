@@ -63,10 +63,15 @@ namespace ConvenienceStoreOrderService.Repositories
             on o.OrderId equals sh.OrderId into shipmentGroup
             from shipment in shipmentGroup.DefaultIfEmpty()
 
-            join ps in paymentResult
+            join u in _db.Users
+            on o.BuyerUserId equals u.UserId into usersGroup
+            from users in usersGroup.DefaultIfEmpty()
+
+        join ps in paymentResult
             on o.OrderId equals ps.Payment.OrderId into paymentGroup
             from payment in paymentGroup.DefaultIfEmpty()
 
+        orderby o.CreatedAt descending
 
         select new 
         {
@@ -85,7 +90,10 @@ namespace ConvenienceStoreOrderService.Repositories
             payment.RefundedAt,
             payment.RefundReason,
             payment.PaymentStatusCode,
-            RecipientName=shipment.RecipientName
+            RecipientName=shipment.RecipientName,
+            BuyerUserName=users.UserName,
+            users.UserPhone,
+            users.UserEmail,
 
 
         };
@@ -181,7 +189,10 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.RefundReason,
                     o.OrderStatusCode,
                     o.PaymentStatusCode,
-                    o.RecipientName
+                    o.RecipientName,
+                    o.BuyerUserName,
+                    o.UserPhone,
+                    o.UserEmail
                     ))
                 .ToList();
 

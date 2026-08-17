@@ -23,6 +23,7 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public DbSet<Shipment> Shipments { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<RefundStatus> RefundStatuses { get; set; }
+        public DbSet<Users> Users { get; set; }
 
     }
 }

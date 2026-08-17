@@ -200,6 +200,7 @@
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\RefundStatusController.cs" />
     <Compile Include="Controllers\ShipmentController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -250,6 +251,7 @@
     <Compile Include="Models\EFModels\Product.cs" />
     <Compile Include="Models\EFModels\RefundStatus.cs" />
     <Compile Include="Models\EFModels\Shipment.cs" />
+    <Compile Include="Models\EFModels\Users.cs" />
     <Compile Include="Models\Helpers\AppConfigHelper.cs" />
     <Compile Include="Models\Helpers\NewebPayCryptoHelper.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
@@ -277,6 +279,7 @@
     <Compile Include="Repositories\Interfaces\IProductRepository.cs" />
     <Compile Include="Repositories\Interfaces\IRefundStatusRepository.cs" />
     <Compile Include="Repositories\Interfaces\IShipmentRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IUsersRepository.cs" />
     <Compile Include="Repositories\OrderDetailRepository.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Repositories\OrderStatusRepository.cs" />
@@ -285,6 +288,7 @@
     <Compile Include="Repositories\ProductRepository.cs" />
     <Compile Include="Repositories\RefundStatusRepository.cs" />
     <Compile Include="Repositories\ShipmentRepository.cs" />
+    <Compile Include="Repositories\UsersRepository.cs" />
     <Compile Include="Services\Interfaces\IOrderDetailService.cs" />
     <Compile Include="Services\Interfaces\IOrderService.cs" />
     <Compile Include="Services\Interfaces\IOrderStatusService.cs" />
@@ -293,6 +297,7 @@
     <Compile Include="Services\Interfaces\IProductService.cs" />
     <Compile Include="Services\Interfaces\IRefundStatusService.cs" />
     <Compile Include="Services\Interfaces\IShipmentService.cs" />
+    <Compile Include="Services\Interfaces\IUsersService.cs" />
     <Compile Include="Services\OrderDetailService.cs" />
     <Compile Include="Services\OrderService.cs" />
     <Compile Include="Services\OrderStatusService.cs" />
@@ -301,6 +306,7 @@
     <Compile Include="Services\ProductService.cs" />
     <Compile Include="Services\RefundStatusService.cs" />
     <Compile Include="Services\ShipmentService.cs" />
+    <Compile Include="Services\UsersService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -369,6 +375,7 @@
     <Content Include="Views\Orders\FillShipmentInfo.cshtml" />
     <Content Include="Views\Payments\NewebPayQueryResult.cshtml" />
     <Content Include="Views\Payments\CloseTrade.cshtml" />
+    <Content Include="Views\Users\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
