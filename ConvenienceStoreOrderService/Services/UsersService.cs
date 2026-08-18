@@ -10,6 +10,8 @@ using ConvenienceStoreOrderService.Models.DTOs;
 using ConvenienceStoreOrderService.Models.Constants;
 using System.Data.Entity.Infrastructure;
 using ConvenienceStoreOrderService.Repositories.Interfaces;
+using ConvenienceStoreOrderService.Models.ViewModels;
+using System.Web.Http.Results;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -21,6 +23,21 @@ namespace ConvenienceStoreOrderService.Services
         {
             _usersRepository = usersRepository;
             _db = db;
+        }
+        public Result< UserViewModel> GetUsers(int userId)
+        {
+            var dto = _usersRepository.GetByUserId(userId);
+            if (dto == null)
+            {
+                return Result<UserViewModel>.Fail(
+                    ErrorCodes.NotFound,
+                    "找不到使用者資料"
+                );
+            }
+            var vm = UserMapper.ToVM(dto);
+                
+            return Result<UserViewModel>.Success(vm);
+
         }
     }
 }

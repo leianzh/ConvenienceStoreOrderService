@@ -23,14 +23,16 @@ namespace ConvenienceStoreOrderService.Controllers
         private IOrderDetailService _orderDetailService;
         private IPaymentService _paymentService;
         private IOrderRepository _orderRepository;
+        private IUsersService _usersService;
 
-        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService, IPaymentService paymentService, IOrderRepository orderRepository)
+        public OrdersController(IOrderService orderService, IShipmentService shipmentService, IOrderDetailService orderDetailService, IPaymentService paymentService, IOrderRepository orderRepository, IUsersService usersService)
         {
             _orderService = orderService;
             _shipmentService = shipmentService;
             _orderDetailService = orderDetailService;
             _paymentService = paymentService;
             _orderRepository = orderRepository;
+            _usersService = usersService;
         }
         // GET: Order
         public ActionResult List(OrderSearchCriteria criteria)
@@ -193,13 +195,28 @@ namespace ConvenienceStoreOrderService.Controllers
                 TempData["ErrorMessage"] = "找不到要填寫物流資料的訂單。";
                 return RedirectToAction("List", "Orders");
             }
-            var order =_orderRepository.GetEntityById(orderId.Value);         
+            var order =_orderRepository.GetEntityById(orderId.Value);
+            var buyerResult = _usersService.GetUsers(order.BuyerUserId);
+            var sellerResult = _usersService.GetUsers(order.SellerUserId);
             var dto = new ShipmentCreateDto
             {
                 OrderId = orderId.Value,
                  InfoDueAt = order.InfoDueAt
             };
+            if (buyerResult.IsSuccess && buyerResult.Data != null)
+            {
+                dto.RecipientName = buyerResult.Data.UserName;
+                dto.RecipientPhone = buyerResult.Data.UserPhone;
+            }
 
+            if (sellerResult.IsSuccess && sellerResult.Data != null)
+            {
+                dto.SenderName = sellerResult.Data.UserName;
+                dto.SenderPhone = sellerResult.Data.UserPhone;
+            }
+
+          
+            dto.ReturnStore = "板橋三民門市";
             return View(dto);
         }
         //物流資料頁

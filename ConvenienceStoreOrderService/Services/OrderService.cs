@@ -407,7 +407,7 @@ namespace ConvenienceStoreOrderService.Services
                     {
                         OrderNo = CreateOrderNo(),
                         BuyerUserId = dto.BuyerUserId,
-                        SellerUserId = dto.SellerUserId,
+                        SellerUserId=product.SellerUserId,
                         OrderSource = 1,
                         CreatedAt = now,
                         ShippingFee = shippingFee,

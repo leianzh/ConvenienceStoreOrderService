@@ -7,6 +7,7 @@
     請在15分鐘內填寫物流資料，逾時系統將自動取消訂單：
     <strong id="countdown">計算中...</strong>
 </div>
+
 <div class="container mt-4">
 
     <h2 class="mb-3">填寫物流資料</h2>
@@ -41,26 +42,26 @@
                 @Html.HiddenFor(m => m.OrderId)
 
                 <div class="mb-3">
-                    <label class="form-label">買家姓名</label>
+                    <label class="form-label">收件人姓名</label>
                     @Html.TextBoxFor(
                         m => m.RecipientName,
                         new
                         {
                             @class = "form-control",
-                            placeholder = "請輸入買家姓名",
+                            placeholder = "請輸入收件人姓名",
                             required = "required"
                         }
                     )
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">買家電話</label>
+                    <label class="form-label">收件人電話</label>
                     @Html.TextBoxFor(
                         m => m.RecipientPhone,
                         new
                         {
                             @class = "form-control",
-                            placeholder = "請輸入買家電話",
+                            placeholder = "請輸入收件人電話",
                             required = "required"
                         }
                     )
@@ -81,46 +82,31 @@
 
                 <div class="mb-3">
                     <label class="form-label">賣家姓名</label>
-                    @Html.TextBox(
-                    "SenderNameDisplay",
-                    "金太妍",
-                    new
-                    {
-                        @class = "form-control",
-                        disabled = "disabled"
-                    })
-                    @Html.Hidden("SenderName", "金太妍")
-                    @*@Html.TextBoxFor(
-                m => m.SenderName,
-                new
-                {
-                    @class = "form-control",
-                    placeholder = "請輸入寄件人姓名",
-                    required = "required"
-                })*@
+                    @Html.TextBoxFor(
+                        m => m.SenderName,
+                        new
+                        {
+                            @class = "form-control bg-light text-muted",
+                            @readonly = "readonly",
 
+                        }
+                    )
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">賣家電話</label>
-                    @Html.TextBox(
-                    "SenderPhoneDisplay",
-                    "0912345678",
-                    new
-                    {
-                        @class = "form-control",
-                        disabled = "disabled"
-                    })
-                    @Html.Hidden("SenderPhone", "0912345678")
-                    @*@Html.TextBoxFor(
-                m => m.SenderPhone,
-                new
-                {
-                    @class = "form-control",
-                    placeholder = "請輸入寄件人電話",
-                    required = "required"
-                })*@
+                    @Html.TextBoxFor(
+                        m => m.SenderPhone,
+                        new
+                        {
+                            @class = "form-control bg-light text-muted",
+                            @readonly = "readonly",
+                            
+                        }
+                        
+                    )
                 </div>
+
 
                 <div class="mb-3">
                     <label class="form-label">賣家退貨門市</label>
@@ -131,26 +117,20 @@
                     {
                         @class = "form-control",
                         disabled = "disabled"
+
                     })
                     @Html.Hidden("ReturnStore", "板橋門市")
-                    @*@Html.TextBoxFor(
-                    m => m.ReturnStore,
-                new
-                {
-                    @class = "form-control",
-                    placeholder = "請輸入退貨門市",
-                    required = "required"
-                })*@
+                   
                 </div>
 
                 <button type="submit" class="btn btn-primary">
                     確認物流資料
                 </button>
 
-                <a href="@Url.Action("List", "Orders")"
+                @*<a href="@Url.Action("List", "Orders")"
                    class="btn btn-outline-secondary ms-2">
                     返回訂單列表
-                </a>
+                </a>*@
                 <a href="@Url.Action("List", "Products")"
                    class="btn btn-outline-secondary ms-2">
                     返回商品頁

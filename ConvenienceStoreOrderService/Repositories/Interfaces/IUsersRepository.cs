@@ -11,5 +11,6 @@ namespace ConvenienceStoreOrderService.Repositories.Interfaces
 {
     public interface IUsersRepository
     {
+        UserDto GetByUserId(int userId);
     }
 }

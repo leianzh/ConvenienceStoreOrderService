@@ -7,13 +7,13 @@
     </div>
     <div class="card-body">
         <div class="row mb-2">
-            <div class="col-md-3 text-muted">買家姓名</div>
+            <div class="col-md-3 text-muted">收件人姓名</div>
             <div class="col-md-9">
                 @(string.IsNullOrEmpty(Model.RecipientName) ? "-" : Model.RecipientName)
             </div>
         </div>
         <div class="row mb-2">
-            <div class="col-md-3 text-muted">買家電話</div>
+            <div class="col-md-3 text-muted">收件人電話</div>
             <div class="col-md-9">
                 @(string.IsNullOrEmpty(Model.RecipientPhone) ? "-" : Model.RecipientPhone)
             </div>

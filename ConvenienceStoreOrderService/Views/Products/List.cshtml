@@ -110,10 +110,21 @@
                                 @Html.Hidden("ProductId", item.ProductId)
 
                                 @* 先寫死測試用 *@
-                                @Html.Hidden("BuyerUserId", 1)
-                                @Html.Hidden("SellerUserId", 2)
+                                @*@Html.Hidden("BuyerUserId", 1)
+                                @Html.Hidden("SellerUserId", 2)*@
                                 @*@Html.Hidden("PaymentMethod", 1)*@
-
+                                <div class="mb-3">
+                                    <label class="form-label">Demo 買家</label>
+                                    <select name="BuyerUserId" class="form-select" required>
+                                        <option value="">請選擇買家</option>
+                                        <option value="1">王小明</option>
+                                        <option value="3">陳怡君</option>
+                                        <option value="4">林建宏</option>
+                                        <option value="5">張雅婷</option>
+                                        <option value="6">黃柏翰</option>
+                                        <option value="7">劉佳蓉</option>
+                                    </select>                       
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label">購買數量</label>
                                     <input type="number"
@@ -123,19 +134,19 @@
                                            class="form-control" />
                                 </div>
                                 <div class="mb-3">
-    <label for="PaymentMethod" class="form-label">付款方式</label>
+                                    <label for="PaymentMethod" class="form-label">付款方式</label>
 
-    <select name="PaymentMethod" id="PaymentMethod" class="form-select" required>
-        <option value="">請選擇付款方式</option>
-        <option value="COD">取貨付款</option>
-        <option value="CreditCard">信用卡</option>
-        @*<option value="LinePay">LinePay</option>*@
-    </select>
+                                    <select name="PaymentMethod" id="PaymentMethod" class="form-select" required>
+                                        <option value="">請選擇付款方式</option>
+                                        <option value="COD">取貨付款</option>
+                                        <option value="CreditCard">信用卡</option>
+                                        @*<option value="LinePay">LinePay</option>*@
+                                    </select>
 
-    <div class="form-text">
-        請選擇本次訂單的付款方式
-    </div>
-</div>
+                                    <div class="form-text">
+                                        請選擇本次訂單的付款方式
+                                    </div>
+                                </div>
 
                                 <button type="submit" class="btn btn-success w-100 mt-auto">
                                     立即下單

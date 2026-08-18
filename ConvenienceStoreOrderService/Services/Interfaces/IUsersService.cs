@@ -11,5 +11,6 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
 {
     public interface IUsersService
     {
+        Result<UserViewModel> GetUsers(int userId);
     }
 }

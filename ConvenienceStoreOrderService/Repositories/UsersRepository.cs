@@ -17,5 +17,15 @@ namespace ConvenienceStoreOrderService.Repositories
         {
             _db = db;
         }
+        public UserDto GetByUserId(int userId) 
+        {
+           var entity=_db.Users
+                .FirstOrDefault( u => u.UserId == userId);
+            if (entity == null)
+            {
+                return null;
+            }
+            return UserMapper.ToDto(entity);
+        }
     }
 }
