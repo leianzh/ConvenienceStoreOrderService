@@ -27,6 +27,24 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public string RefundReason { get; set; }
         public string RefundProviderTradeNo { get; set; }
         public string RefundRawResponse { get; set; }
+        // 是否已請款成功
+        public bool IsCaptured { get; set; }
+
+        // 請款紀錄
+        public DateTime? CaptureRequestedAt { get; set; }
+        public DateTime? CapturedAt { get; set; }
+        public string CaptureStatusCode { get; set; }
+        public string CaptureMessage { get; set; }
+        public string CaptureRawResponse { get; set; }
+
+        // 取消授權紀錄
+        public DateTime? AuthCancelRequestedAt { get; set; }
+        public DateTime? AuthCancelledAt { get; set; }
+        public string AuthCancelStatusCode { get; set; }
+        public int? AuthCancelAmount { get; set; }
+        public string AuthCancelProviderTradeNo { get; set; }
+        public string AuthCancelMessage { get; set; }
+        public string AuthCancelRawResponse { get; set; }
         //建立訂單一開始就是Pending
         public void InitPending(int pendingStatusId)
         {
@@ -135,7 +153,10 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             {
                 return "只有已付款訂單可以申請退款";
             }
-
+            if (PaymentMethod == PaymentMethodName.CreditCard && IsCaptured == false)
+            {
+                return "信用卡尚未請款，不能申請退款，請改走取消授權";
+            }
             if (RefundStatusId == RefundStatusIds.Requested)
             {
                 return "此付款已申請退款，不能重複申請";
@@ -177,6 +198,66 @@ namespace ConvenienceStoreOrderService.Models.EFModels
             RefundRawResponse = rawResponse;
             UpdatedAt = DateTime.Now;
             return null;
+        }
+        // 請款成功
+        public string MarkCaptured(string rawResponse, string message)
+        {
+            if (PaymentMethod != PaymentMethodName.CreditCard)
+            {
+                return "只有信用卡付款需要請款";
+            }
+            if (PaymentStatusId != PaymentStatusIds.Paid)
+            {
+                return "只有信用卡授權成功的訂單可以請款";
+            }
+
+            if (IsCaptured)
+            {
+                return "此訂單已請款，不能重複請款";
+            }
+
+            IsCaptured = true;
+            CaptureRequestedAt = DateTime.Now;
+            CapturedAt = DateTime.Now;
+            CaptureStatusCode = "SUCCESS";
+            CaptureMessage = message;
+            CaptureRawResponse = rawResponse;
+            UpdatedAt = DateTime.Now;
+
+            return "";
+        }
+
+        // 取消授權成功
+        public string MarkAuthorizationCancelled(
+            int amount,
+            string providerTradeNo,
+            string rawResponse,
+            string message)
+        {
+            if (PaymentStatusId != PaymentStatusIds.Paid)
+            {
+                return "只有已授權的信用卡付款可以取消授權";
+            }
+
+            if (IsCaptured)
+            {
+                return "此訂單已請款，不能取消授權，請改走退款";
+            }
+
+            PaymentStatusId = PaymentStatusIds.Cancelled;
+            RefundStatusId = RefundStatusIds.None;
+
+            AuthCancelRequestedAt = DateTime.Now;
+            AuthCancelledAt = DateTime.Now;
+            AuthCancelStatusCode = "SUCCESS";
+            AuthCancelAmount = amount;
+            AuthCancelProviderTradeNo = providerTradeNo;
+            AuthCancelMessage = message;
+            AuthCancelRawResponse = rawResponse;
+
+            UpdatedAt = DateTime.Now;
+
+            return "";
         }
     }
 }

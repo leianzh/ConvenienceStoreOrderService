@@ -134,8 +134,15 @@ namespace ConvenienceStoreOrderService.Services
             { return Result<bool>.Fail(ErrorCodes.Validation, "物流資料不可為空"); }
             if (shipmentDto.OrderId == null)
             { { return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單"); } }
-            
-
+            //出貨時，信用卡呼叫請款，COD 會直接通過
+            var captureResult = _paymentService.CaptureCreditCardPayment(shipmentDto.OrderId);
+            if (!captureResult.IsSuccess)
+            {
+                return Result<bool>.Fail(
+                    captureResult.ErrorCode,
+                    captureResult.Message
+                );
+            }
             //更新 Orders.OrderStatusId = Shipped
             var shippedResult = _orderService.MarkShipped(shipmentDto.OrderId);
             if (!shippedResult.IsSuccess)

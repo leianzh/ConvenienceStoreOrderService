@@ -447,7 +447,20 @@ namespace ConvenienceStoreOrderService.Services
                         CreatedAt = now,
                         PaymentProvider = "測試",
                         PaymentMethod = dto.PaymentMethod,
-                        RefundStatusId = RefundStatusIds.None
+                        RefundStatusId = RefundStatusIds.None,
+                        IsCaptured = false,
+                        CaptureRequestedAt=null,
+                        CapturedAt=null,
+                        CaptureStatusCode ="None",
+                        CaptureMessage=null,
+                        CaptureRawResponse=null,
+                        AuthCancelRequestedAt=null,
+                        AuthCancelledAt=null,
+                        AuthCancelStatusCode ="None",
+                        AuthCancelAmount=null,
+                        AuthCancelProviderTradeNo = "None",
+                        AuthCancelMessage=null,
+                        AuthCancelRawResponse=null,
 
 
                     };

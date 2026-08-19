@@ -59,7 +59,7 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<string>.Success(payment.PaymentMethod);
         }
-        //根據付款狀態判斷「取消未付款」或「申請退款」
+        //根據付款狀態判斷「取消未付款 / 取消授權 / 申請退款」
         public Result<bool> ReturnOrCancelPayment(int orderId, string cancleReson)
         {
             var payment = _paymentRepository.GetOrderId(orderId);
@@ -81,8 +81,24 @@ namespace ConvenienceStoreOrderService.Services
 
                 return Result<bool>.Success(true, "COD 未取貨退回，未收款，不需退款");
             }
+            // Paid：信用卡授權成功，但尚未請款
+            if (payment.PaymentStatusId == PaymentStatusIds.Paid &&
+                payment.PaymentMethod == PaymentMethodName.CreditCard &&
+                 payment.IsCaptured == false)
+            {
+                var cancelAuthResult = CancelCreditCardAuthorization(orderId);
 
-            //Paid已付款，付款狀態維持 Paid，改成退款申請中
+                if (!cancelAuthResult.IsSuccess)
+                {
+                    return Result<bool>.Fail(
+                        cancelAuthResult.ErrorCode,
+                        cancelAuthResult.Message
+                    );
+                }
+
+                return Result<bool>.Success(true, "信用卡取消授權成功");
+            }
+            //Paid已付款，付款狀態維持 Paid，改成退款申請中，信用卡需已請款
             if (payment.PaymentStatusId == PaymentStatusIds.Paid)
             {
                 var errorMessage = payment.RequestRefund(
@@ -113,9 +129,23 @@ namespace ConvenienceStoreOrderService.Services
             {
                 return Result<bool>.Success(true);
             }
-            //線上付款必須 Paid 才能出貨
-            if (payment.PaymentStatusId == 2)
+            //線上付款必須 Paid +授權成功才能出貨
+            if (payment.PaymentMethod == PaymentMethodName.CreditCard)
             {
+                if (payment.PaymentStatusId != PaymentStatusIds.Paid)
+                {
+                    return Result<bool>.Fail(
+                        ErrorCodes.Validation,
+                        "信用卡尚未付款成功，不能出貨"
+                    );
+                }
+                if (!payment.IsCaptured)
+                {
+                    return Result<bool>.Fail(
+                        ErrorCodes.Validation,
+                        "信用卡尚未請款成功，不能出貨"
+                    );
+                }
                 return Result<bool>.Success(true);
             }
             else
@@ -167,7 +197,62 @@ namespace ConvenienceStoreOrderService.Services
 
             return Result<bool>.Success(true, "COD 取貨付款成功");
         }
+        //信用卡請款(出貨時呼叫)
+        public Result<bool> CaptureCreditCardPayment(int orderId)
+        {
+            try
+            {
+                var payment = _paymentRepository.GetOrderId(orderId);
+                if (payment == null)
+                {
+                    return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
+                }
+                // COD 不需要請款
+                if (payment.PaymentMethod == PaymentMethodName.COD)
+                {
+                    return Result<bool>.Success(true, "COD 不需要信用卡請款");
+                }
+                if (payment.PaymentStatusId != PaymentStatusIds.Paid)
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, "信用卡尚未授權成功，不能出貨");
+                }
+                // 已請款就不要重複呼叫藍新
+                if (payment.IsCaptured)
+                {
+                    return Result<bool>.Success(true, "信用卡已請款，不需重複請款");
+                }
+                //請款closeType = 1
+                var closeResult = CloseTrade(orderId, 1);
+                if (!closeResult.IsSuccess)
+                {
+                    payment.CaptureRequestedAt = DateTime.Now;
+                    payment.CaptureStatusCode = "Failed";
+                    payment.CaptureMessage = closeResult.Message;
+                    payment.CaptureRawResponse = null;
+                    payment.UpdatedAt = DateTime.Now;
 
+                    _paymentRepository.SaveChanges();
+
+                    return Result<bool>.Fail(
+                        closeResult.ErrorCode,
+                        "信用卡請款失敗：" + closeResult.Message
+                    );
+                }
+                var errorMessage = payment.MarkCaptured(
+                                                    closeResult.Data.RawJson,
+                                                    closeResult.Data.Message);
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    return Result<bool>.Fail(ErrorCodes.Validation, errorMessage);
+                }
+                _paymentRepository.SaveChanges();
+                return Result<bool>.Success(true, "信用卡請款成功");
+            }
+            catch(Exception ex) 
+            {
+                return Result<bool>.Fail(ErrorCodes.Validation, ex.Message);
+            }
+        }
         //申請退款
         public Result<bool> RequestRefund(int orderId, string reason)
         {
@@ -233,6 +318,13 @@ namespace ConvenienceStoreOrderService.Services
             // 信用卡：呼叫藍新退款api
             if (payment.PaymentMethod == PaymentMethodName.CreditCard)
             {
+                if (!payment.IsCaptured)
+                {
+                    return Result<bool>.Fail(
+                        ErrorCodes.Validation,
+                        "信用卡尚未請款，不能退款，請改走取消授權"
+                    );
+                }
                 var closeResult = CloseTrade(orderId, 2);
 
                 if (!closeResult.IsSuccess)
@@ -1174,6 +1266,231 @@ namespace ConvenienceStoreOrderService.Services
                 return Result<NewebPayCloseResultViewModel>.Fail(
                     ErrorCodes.SystemError,
                     "處理藍新請退款回傳失敗：" + ex.Message
+                );
+            }
+        }
+        //取消授權api
+        public Result<NewebPayCancelAuthorizationResultViewModel>CancelCreditCardAuthorization(int orderId)
+        {
+            try 
+            {
+                var order =_orderRepository.GetEntityById(orderId);
+                if (order == null)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                     ErrorCodes.NotFound,
+                     "找不到訂單"
+                        );
+                }
+                var payment =_paymentRepository.GetOrderId(orderId);
+                if (payment == null) 
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                ErrorCodes.NotFound,
+                "找不到付款資料"
+                        );
+                }
+                if (payment.PaymentMethod != PaymentMethodName.CreditCard)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "此訂單不是信用卡付款"
+                    );
+                }
+
+                if (payment.PaymentStatusId != PaymentStatusIds.Paid)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "只有已授權成功的信用卡付款可以取消授權"
+                    );
+                }
+
+                if (payment.IsCaptured)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "此訂單已請款，不能取消授權，請改走退款"
+                    );
+                }
+                var merchantId =AppConfigHelper.GetRequiredSetting("COS_NEWEBPAY_MERCHANT_ID");
+                var hashKey = AppConfigHelper.GetRequiredSetting("COS_NEWEBPAY_HASH_KEY");
+                var hashIV = AppConfigHelper.GetRequiredSetting
+                    ("COS_NEWEBPAY_HASH_IV");
+                var cancelUrl = ConfigurationManager.AppSettings["NewebPay.CreditCardCancelUrl"];
+                var amount = Convert.ToInt32(payment.Amount);
+                var amountText = amount.ToString();
+                var postDataParams = new Dictionary<string, string>
+                 {
+                          { "RespondType", "JSON" },
+                         { "Version", "1.0" },
+                         { "Amt", amountText },
+                         { "MerchantOrderNo", order.OrderNo },
+                          { "IndexType", "1" },
+                          { "TimeStamp", NewebPayCryptoHelper.GetUnixTimestamp() }
+                };
+                var postDataRaw = BuildQueryString(postDataParams);
+                var postData = NewebPayCryptoHelper.EncryptTradeInfo(
+                                         postDataRaw,
+                                         hashKey,
+                                        hashIV);
+                var formData = new Dictionary<string, string>
+                 {
+                          { "MerchantID_", merchantId },
+                             { "PostData_", postData }
+                  };
+                string responseText;
+                using (var client = new HttpClient())
+                {
+                    var content = new FormUrlEncodedContent(formData);
+
+                    var httpResponse = client
+                        .PostAsync(cancelUrl, content)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    responseText = httpResponse.Content
+                        .ReadAsStringAsync()
+                        .GetAwaiter()
+                        .GetResult();
+
+                    if (!httpResponse.IsSuccessStatusCode)
+                    {
+                        return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                            ErrorCodes.SystemError,
+                            "藍新取消授權 HTTP 失敗：" + responseText
+                        );
+                    }
+                }
+                var handleResult = HandleCancelAuthorizationResponse(
+                responseText,
+                order.OrderNo,
+                amount);
+                if (!handleResult.IsSuccess)
+                {
+                    return handleResult;
+                }
+
+                var vm = handleResult.Data;
+
+                if (vm.Status == "SUCCESS")
+                {
+                    var errorMessage = payment.MarkAuthorizationCancelled(
+                        vm.Amt,
+                        vm.TradeNo,
+                        vm.RawResponse,
+                        vm.Message
+                    );
+
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                            ErrorCodes.Validation,
+                            errorMessage
+                        );
+                    }
+
+                    _paymentRepository.SaveChanges();
+
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Success(
+                        vm,
+                        "藍新取消授權成功"
+                    );
+                }
+                return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+            ErrorCodes.Validation,
+            "藍新取消授權失敗：" + vm.Message);
+            }
+            catch (Exception ex) 
+            {
+                return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+            ErrorCodes.SystemError,
+            "呼叫藍新取消授權 API 失敗：" + ex.Message
+                );
+            }
+        }
+        // 處理藍新取消授權回傳的 JSON
+        public Result<NewebPayCancelAuthorizationResultViewModel> HandleCancelAuthorizationResponse(
+    string responseText,
+    string expectedMerchantOrderNo,
+    int expectedAmount)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(responseText))
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新取消授權回傳內容為空"
+                    );
+                }
+
+                var json = JObject.Parse(responseText);
+
+                var status = json["Status"]?.ToString();
+                var message = json["Message"]?.ToString();
+
+                var result = json["Result"] as JObject;
+
+                if (result == null)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新取消授權 Result 為空"
+                    );
+                }
+
+                var merchantOrderNo = result["MerchantOrderNo"]?.ToString();
+                var amtText = result["Amt"]?.ToString();
+
+                if (merchantOrderNo != expectedMerchantOrderNo)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳訂單編號不一致"
+                    );
+                }
+
+                int responseAmount;
+
+                if (!int.TryParse(amtText, out responseAmount))
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額格式錯誤"
+                    );
+                }
+
+                if (responseAmount != expectedAmount)
+                {
+                    return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                        ErrorCodes.Validation,
+                        "藍新回傳金額不一致"
+                    );
+                }
+
+                var vm = new NewebPayCancelAuthorizationResultViewModel
+                {
+                    RawResponse = responseText,
+                    Status = status,
+                    Message = message,
+                    MerchantID = result["MerchantID"]?.ToString(),
+                    MerchantOrderNo = merchantOrderNo,
+                    TradeNo = result["TradeNo"]?.ToString(),
+                    Amt = responseAmount,
+                    CheckCode = result["CheckCode"]?.ToString()
+                };
+
+                return Result<NewebPayCancelAuthorizationResultViewModel>.Success(
+                    vm,
+                    "藍新取消授權回應處理成功"
+                );
+            }
+            catch (Exception ex)
+            {
+                return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
+                    ErrorCodes.SystemError,
+                    "處理藍新取消授權回傳失敗：" + ex.Message
                 );
             }
         }

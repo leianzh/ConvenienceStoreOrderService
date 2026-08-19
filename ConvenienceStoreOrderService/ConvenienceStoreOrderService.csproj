@@ -257,6 +257,7 @@
     <Compile Include="Models\Helpers\AppConfigHelper.cs" />
     <Compile Include="Models\Helpers\NewebPayCryptoHelper.cs" />
     <Compile Include="Models\Helpers\ShipmentStatusHelper.cs" />
+    <Compile Include="Models\ViewModels\NewebPayCancelAuthorizationResultViewModel.cs" />
     <Compile Include="Models\ViewModels\NewebPayCloseResultViewModel.cs" />
     <Compile Include="Models\ViewModels\NewebPayQueryResultViewModel.cs" />
     <Compile Include="Models\ViewModels\OrderCriteria.cs" />

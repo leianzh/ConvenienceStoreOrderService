@@ -36,5 +36,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
             int expectedAmount);
         Result<bool> ProcessRefund(int orderId);
         Result<bool> CompleteCODRefund(int orderId);
+        Result<NewebPayCancelAuthorizationResultViewModel> CancelCreditCardAuthorization(int orderId);
+        Result<bool> CaptureCreditCardPayment(int orderId);
     }
 }
