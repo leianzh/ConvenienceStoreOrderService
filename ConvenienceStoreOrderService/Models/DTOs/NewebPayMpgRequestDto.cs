@@ -13,5 +13,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string TradeSha { get; set; }
         public string Version { get; set; }
         public string EncryptType { get; set; }
+
+        public int TradeLimit { get; set; }
     }
 }

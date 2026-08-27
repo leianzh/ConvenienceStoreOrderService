@@ -94,6 +94,7 @@ namespace ConvenienceStoreOrderService.Repositories
             BuyerUserName=users.UserName,
             users.UserPhone,
             users.UserEmail,
+            o.PaymentDueAt,
 
 
         };

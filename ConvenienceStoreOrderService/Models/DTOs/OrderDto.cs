@@ -48,7 +48,7 @@ namespace ConvenienceStoreOrderService.Models.DTOs
 
         public string UserEmail { get; set; }
 
-
+        public DateTime? PaymentDueAt { get; set; }
 
     }
 }

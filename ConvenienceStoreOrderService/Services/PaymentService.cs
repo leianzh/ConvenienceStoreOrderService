@@ -489,7 +489,30 @@ namespace ConvenienceStoreOrderService.Services
                         "此訂單不是信用卡付款"
                     );
                 }
-
+                //付款期限PaymentDueAt
+                if(order.PaymentDueAt.HasValue == false)
+                {
+                    return Result<NewebPayMpgRequestDto>.Fail(
+                        ErrorCodes.Validation,
+                        "付款期限尚未建立"
+                    );
+                }
+                //付款期限PaymentDueAt=填完物流資料+15分鐘
+                var remainingSeconds =(int)Math.Floor(
+                   ( order.PaymentDueAt.Value -  DateTime.Now).TotalSeconds);
+                //藍新秒數下限為60秒，小於60秒以60秒計算
+                if (remainingSeconds < 60)
+                {
+                    return Result<NewebPayMpgRequestDto>.Fail(
+                        ErrorCodes.Validation,
+                        "付款期限已過或即將到期，請重新下單"
+                    );
+                }
+                //藍新秒數上限為900秒，大於900秒以900秒計算
+                if (remainingSeconds > 900)
+                {
+                    remainingSeconds = 900;
+                }
                 // 讀 Web.config 設定                
                 var merchantId = AppConfigHelper.GetRequiredSetting(
                                 "COS_NEWEBPAY_MERCHANT_ID");
@@ -529,6 +552,7 @@ namespace ConvenienceStoreOrderService.Services
                     { "ItemDesc", "ConvenienceStoreOrder" },
                     { "ReturnURL", returnUrl },
                     { "NotifyURL", notifyUrl },
+                    { "TradeLimit", remainingSeconds.ToString() },
 
                     // 只開信用卡一次付清
                     { "CREDIT", "1" },

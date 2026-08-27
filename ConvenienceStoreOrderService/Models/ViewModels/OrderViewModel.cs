@@ -43,7 +43,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
 
         public string UserEmail { get; set; }
 
-
+        public DateTime? PaymentDueAt { get; set; }
 
     }
 }

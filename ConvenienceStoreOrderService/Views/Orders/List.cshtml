@@ -338,13 +338,20 @@
 
         <tbody>
             @foreach (var order in Model.Orders)
-            {
+            {   /*取消訂單*/
                 var canCancelButton =
                 (order.OrderStatusCode == "Processing" ||
                 order.OrderStatusCode == "ReadyToShip")
                 && order.PaymentStatusCode != "Cancelled"
                 && order.RefundStatusCode != "Refunded";
 
+                /*信用卡重新付款*/
+                var canRetryCreditCardPayment =
+                order.PaymentMethod == "CreditCard"
+                && order.OrderStatusCode == "Processing"
+                && order.PaymentStatusCode == "Pending"
+                && order.PaymentDueAt.HasValue
+                && order.PaymentDueAt.Value > DateTime.Now;
                 <tr>
                     @*買家姓名*@
                     <td>@order.BuyerUserName</td>
@@ -516,22 +523,22 @@
                         }
                     </td>
                     @*物流狀態*@
-                <td>
-                    @if (string.IsNullOrEmpty(order.ShipmentStatusName))
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                    else if (order.OrderStatusCode == "Cancelled")
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-info text-dark">
-                            @order.ShipmentStatusName
-                        </span>
-                    }
-                </td>
+                    <td>
+                        @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                        else if (order.OrderStatusCode == "Cancelled")
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info text-dark">
+                                @order.ShipmentStatusName
+                            </span>
+                        }
+                    </td>
                     @*物流追蹤碼*@
                     <td>
                         @if (string.IsNullOrEmpty(order.TrackingNo))
@@ -574,7 +581,7 @@
                     {
                         @Html.AntiForgeryToken()
                         @Html.Hidden("orderId", order.OrderId)
-                        if (order.PaymentMethod == "CreditCard")
+                        if (order.PaymentMethod == "CreditCard" && order.OrderStatusCode != "Cancelled")
                         {
                             <button type="submit"
                                     class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
@@ -584,128 +591,149 @@
 
                     }
 
-
-
-
-                    @if (canCancelButton)
+                    @*信用卡重試交易button*@
+                    @if (canRetryCreditCardPayment)
                     {
-                        <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#cancelBox_@order.OrderId"
-                                aria-expanded="false"
-                                aria-controls="cancelBox_@order.OrderId">
-                            取消訂單
-                        </button>
+                        using (Html.BeginForm("RetryCreditCardPayment", "Orders", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
+                                重新付款
+                            </button>
+                        }
+
+
                     }
+                    else if (order.PaymentMethod == "CreditCard" && order.OrderStatusCode == "Processing"
+                        && order.PaymentStatusCode == "Pending" && order.PaymentDueAt.HasValue
+                        && order.PaymentDueAt <= DateTime.Now)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            付款已逾時，系統將自動取消
+                        </span>
+                    }
+
+
+
                     <div class="collapse mt-2" id="shipmentActions_@order.OrderId">
-                       
-                            @* 還沒有建立物流資料 *@
-                            @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+
+                        @* 還沒有建立物流資料 *@
+                        @if (string.IsNullOrEmpty(order.ShipmentStatusName))
+                        {
+
+
+                            if (order.OrderStatusCode != "Cancelled")
                             {
-
-
-                                if (order.OrderStatusCode != "Cancelled")
+                                <a href="@Url.Action("FillShipmentInfo", "Orders", new { orderId = order.OrderId })"
+                                   class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
+                                    填寫物流資料
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            @* 已有 Shipment，但還沒有 ShippingCode，可以取得寄件代碼 *@
+                            if (string.IsNullOrEmpty(order.ShippingCode))
+                            {
+                                using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post, new { @class = "shipment-form" }))
                                 {
-                                    <a href="@Url.Action("FillShipmentInfo", "Orders", new { orderId = order.OrderId })"
-                                       class="btn btn-outline-primary btn-sm mb-1 small-action-btn">
-                                        填寫物流資料
-                                    </a>
+                                    @Html.Hidden("orderId", order.OrderId)
+
+                                    <button type="submit" class="btn btn-primary btn-sm mb-1 small-action-btn">
+                                        取得寄件代碼
+                                    </button>
                                 }
                             }
                             else
                             {
-                                @* 已有 Shipment，但還沒有 ShippingCode，可以取得寄件代碼 *@
-                                if (string.IsNullOrEmpty(order.ShippingCode))
-                                {
-                                    using (Html.BeginForm("GetShipCode", "Orders", FormMethod.Post, new { @class = "shipment-form" }))
-                                    {
-                                        @Html.Hidden("orderId", order.OrderId)
-
-                                        <button type="submit" class="btn btn-primary btn-sm mb-1 small-action-btn">
-                                            取得寄件代碼
-                                        </button>
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="text-success mb-2">
-                                        已取得寄件代碼：@order.ShippingCode
-                                    </div>
-                                }
+                                <div class="text-success mb-2">
+                                    已取得寄件代碼：@order.ShippingCode
+                                </div>
+                            }
 
 
-                                if (!string.IsNullOrEmpty(order.ShippingCode))
-                                {
-                                    using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
-                                    {
-                                        @Html.Hidden("OrderId", order.OrderId)
-
-                                        <button type="submit" class="btn btn-warning btn-sm mb-1 small-action-btn">
-                                            模擬已寄件
-                                        </button>
-                                    }
-                                }
-
-                                using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+                            if (!string.IsNullOrEmpty(order.ShippingCode))
+                            {
+                                using (Html.BeginForm("UpdateShipmentAsShipped", "Orders", FormMethod.Post))
                                 {
                                     @Html.Hidden("OrderId", order.OrderId)
 
-                                    <button type="submit" class="btn btn-success btn-sm mb-1 small-action-btn">
-                                        模擬已到店
+                                    <button type="submit" class="btn btn-warning btn-sm mb-1 small-action-btn">
+                                        模擬已寄件
                                     </button>
-                                }
-
-                                using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
-                                {
-                                    @Html.Hidden("OrderId", order.OrderId)
-
-                                    <button type="submit" class="btn btn-info btn-sm mb-1 small-action-btn">
-                                        模擬已取貨
-                                    </button>
-                                }
-                                @* 模擬退貨 *@
-
-                                @* 只有已寄件、已到店、已取貨，才能模擬退貨 *@
-                                if (order.OrderStatusCode == "Shipped" ||
-                                    order.OrderStatusCode == "Arrived" ||
-                                    order.OrderStatusCode == "PickedUp")
-                                {
-                                    <button class="btn btn-danger btn-sm mb-1 small-action-btn"
-                                            type="button"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target="#returnBox_@order.OrderId"
-                                            aria-expanded="false"
-                                            aria-controls="returnBox_@order.OrderId">
-                                        模擬已退貨
-                                    </button>
-
-                                    <div class="collapse mt-2" id="returnBox_@order.OrderId">
-                                        @using (Html.BeginForm("MarkReturned", "Orders", FormMethod.Post))
-                                        {
-
-                                            @Html.Hidden("OrderId", order.OrderId)
-
-                                            <input type="text"
-                                                   name="RefundReason"
-                                                   placeholder="請輸入退貨原因"
-                                                   class="form-control form-control-sm mb-1 shipment-input"
-                                                   required
-                                                   oninvalid="this.setCustomValidity('退貨原因必填')"
-                                                   oninput="this.setCustomValidity('')" />
-
-                                            <button type="submit"
-                                                    class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
-                                                確認退貨
-                                            </button>
-                                        }
-                                    </div>
                                 }
                             }
-                        
+
+                            using (Html.BeginForm("MarkShipmentAsArrived", "Orders", FormMethod.Post))
+                            {
+                                @Html.Hidden("OrderId", order.OrderId)
+
+                                <button type="submit" class="btn btn-success btn-sm mb-1 small-action-btn">
+                                    模擬已到店
+                                </button>
+                            }
+
+                            using (Html.BeginForm("MarkShipmentAsPickedUp", "Orders", FormMethod.Post))
+                            {
+                                @Html.Hidden("OrderId", order.OrderId)
+
+                                <button type="submit" class="btn btn-info btn-sm mb-1 small-action-btn">
+                                    模擬已取貨
+                                </button>
+                            }
+                            @* 模擬退貨 *@
+
+                            @* 只有已寄件、已到店、已取貨，才能模擬退貨 *@
+                            if (order.OrderStatusCode == "Shipped" ||
+                                order.OrderStatusCode == "Arrived" ||
+                                order.OrderStatusCode == "PickedUp")
+                            {
+                                <button class="btn btn-danger btn-sm mb-1 small-action-btn"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#returnBox_@order.OrderId"
+                                        aria-expanded="false"
+                                        aria-controls="returnBox_@order.OrderId">
+                                    模擬已退貨
+                                </button>
+
+                                <div class="collapse mt-2" id="returnBox_@order.OrderId">
+                                    @using (Html.BeginForm("MarkReturned", "Orders", FormMethod.Post))
+                                    {
+
+                                        @Html.Hidden("OrderId", order.OrderId)
+
+                                        <input type="text"
+                                               name="RefundReason"
+                                               placeholder="請輸入退貨原因"
+                                               class="form-control form-control-sm mb-1 shipment-input"
+                                               required
+                                               oninvalid="this.setCustomValidity('退貨原因必填')"
+                                               oninput="this.setCustomValidity('')" />
+
+                                        <button type="submit"
+                                                class="btn btn-outline-secondary btn-sm mb-1 small-action-btn">
+                                            確認退貨
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        }
+
                     </div>
 
-
+                    @if (canCancelButton)
+                    {
+                    <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#cancelBox_@order.OrderId"
+                            aria-expanded="false"
+                            aria-controls="cancelBox_@order.OrderId">
+                        取消訂單
+                    </button>
+                    }
 
                     @if (canCancelButton)
                     {
@@ -730,7 +758,7 @@
                     }
                 </td>
                 </tr>
-                
+
                 if (order.PaymentStatusCode == "Cancelled" && !string.IsNullOrEmpty(order.RefundReason))
                 {
                     <tr class="collapse" id="paymentCancelReason_@order.OrderId">
@@ -823,8 +851,8 @@
                                                 信用卡退款已送交藍新處理
                                             </span>
                                         </div>
-                                     }
-                                 </div>
+                                    }
+                                </div>
                             </div>
                         </td>
                     </tr>

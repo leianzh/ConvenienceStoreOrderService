@@ -51,6 +51,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 BuyerUserName=buyerUserName,
                 UserEmail=userEmail,
                 UserPhone=userPhone,
+                PaymentDueAt=entity.PaymentDueAt,
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)
@@ -84,6 +85,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 BuyerUserName=dto.BuyerUserName,
                 UserPhone=dto.UserPhone,
                 UserEmail=dto.UserEmail,
+                PaymentDueAt=dto.PaymentDueAt,
             };
         }
     }

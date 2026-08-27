@@ -279,17 +279,22 @@ namespace ConvenienceStoreOrderService.Controllers
             TempData["SuccessMessage"] = "物流資料已完成，下單成功。";
             return RedirectToAction("List", "Orders");
         }
-        public ActionResult Details(int orderId)
+        //信用卡重試交易
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RetryCreditCardPayment(int orderId)
         {
-            var result = _orderDetailService.GetOrderDetails(orderId);
+            var result = _paymentService.CreateCreditCardOnceMpgRequest(orderId);
+
             if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.Message;
                 return RedirectToAction("List", "Orders");
             }
 
-            return View(result.Data);
+            Session["PaymentOrderId"] = orderId;
 
+            return RedirectToAction("PayByCreditCard", "Payments");
         }
         //訂單明細頁
         public ActionResult OrderDetailsPage(string orderNo)
@@ -311,21 +316,7 @@ namespace ConvenienceStoreOrderService.Controllers
             return View(result.Data);
         }
 
-        public ActionResult TestAutoCancelExpiredUnpaidOrders()
-        {
-            var result = _orderService.AutoCancelUnpaidOrders();
-
-            if (!result.IsSuccess)
-            {
-                TempData["ErrorMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["SuccessMessage"] = $"自動取消完成，本次取消 {result.Data} 筆訂單";
-            }
-
-            return RedirectToAction("List");
-        }
+        
         //模擬cod人工退款完成
         [HttpPost]
         
