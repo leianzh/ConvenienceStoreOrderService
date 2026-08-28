@@ -1296,6 +1296,8 @@ namespace ConvenienceStoreOrderService.Services
         //取消授權api
         public Result<NewebPayCancelAuthorizationResultViewModel>CancelCreditCardAuthorization(int orderId)
         {
+            Payment payment = null;
+            string responseText = null;
             try 
             {
                 var order =_orderRepository.GetEntityById(orderId);
@@ -1306,7 +1308,7 @@ namespace ConvenienceStoreOrderService.Services
                      "找不到訂單"
                         );
                 }
-                var payment =_paymentRepository.GetOrderId(orderId);
+                payment =_paymentRepository.GetOrderId(orderId);
                 if (payment == null) 
                 {
                     return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
@@ -1342,7 +1344,7 @@ namespace ConvenienceStoreOrderService.Services
                 var hashIV = AppConfigHelper.GetRequiredSetting
                     ("COS_NEWEBPAY_HASH_IV");
                 var cancelUrl = ConfigurationManager.AppSettings["NewebPay.CreditCardCancelUrl"];
-                var amount = Convert.ToInt32(payment.Amount);
+                var amount = Convert.ToInt32(payment.Amount) ;
                 var amountText = amount.ToString();
                 var postDataParams = new Dictionary<string, string>
                  {
@@ -1363,7 +1365,7 @@ namespace ConvenienceStoreOrderService.Services
                           { "MerchantID_", merchantId },
                              { "PostData_", postData }
                   };
-                string responseText;
+                //string responseText;
                 using (var client = new HttpClient())
                 {
                     var content = new FormUrlEncodedContent(formData);
@@ -1380,9 +1382,19 @@ namespace ConvenienceStoreOrderService.Services
 
                     if (!httpResponse.IsSuccessStatusCode)
                     {
+                        var message = "藍新取消授權 HTTP 失敗：" + responseText;
+                        var errorMessage = payment.MarkAuthorizationCancelFailed(
+                                                             amount,
+                                                             null,
+                                                            responseText,
+                                                             message );
+                        if (string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            _paymentRepository.SaveChanges();
+                        }
                         return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
                             ErrorCodes.SystemError,
-                            "藍新取消授權 HTTP 失敗：" + responseText
+                            message
                         );
                     }
                 }
@@ -1392,6 +1404,15 @@ namespace ConvenienceStoreOrderService.Services
                 amount);
                 if (!handleResult.IsSuccess)
                 {
+                    var errorMessage = payment.MarkAuthorizationCancelFailed(
+                                                          amount,
+                                                            null,
+                                                         responseText,
+                                                        handleResult.Message);
+                    if (string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        _paymentRepository.SaveChanges();
+                    }
                     return handleResult;
                 }
 
@@ -1421,12 +1442,33 @@ namespace ConvenienceStoreOrderService.Services
                         "藍新取消授權成功"
                     );
                 }
+                // Status 不是 SUCCESS
+                var failMsg = "藍新取消授權失敗：" + vm.Message;
+                var failErrorMessage = payment.MarkAuthorizationCancelFailed(
+                                                           vm.Amt,
+                                                           vm.TradeNo,
+                                                           vm.RawResponse,
+                                                           failMsg);
+                if (string.IsNullOrWhiteSpace(failErrorMessage))
+                {
+                    _paymentRepository.SaveChanges();
+                }
+
                 return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
-            ErrorCodes.Validation,
-            "藍新取消授權失敗：" + vm.Message);
+            ErrorCodes.Validation, "取消訂單失敗，請聯絡管理者確認付款狀態。");
+            
             }
             catch (Exception ex) 
             {
+                if(payment != null) 
+                {
+                    payment.MarkAuthorizationCancelFailed(
+                        null,
+                        null,
+                         responseText ?? ex.ToString(),
+                         "呼叫藍新取消授權 API 失敗：" + ex.Message);
+                    _paymentRepository.SaveChanges();
+                }
                 return Result<NewebPayCancelAuthorizationResultViewModel>.Fail(
             ErrorCodes.SystemError,
             "呼叫藍新取消授權 API 失敗：" + ex.Message

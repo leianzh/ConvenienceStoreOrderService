@@ -258,13 +258,13 @@ namespace ConvenienceStoreOrderService.Services
         //取消訂單
         public Result<bool> CancelOrder (int orderId,string cancelReson) 
         {
-            var tran =_db.Database.BeginTransaction();
-            try 
-            {
+          
+            
+            
                 //取消原因必填
                 if (string.IsNullOrWhiteSpace(cancelReson))
                 {
-                    tran.Rollback();
+                    
                     return Result<bool>.Fail(ErrorCodes.Validation, "取消原因必填");
                     
                 }
@@ -272,78 +272,118 @@ namespace ConvenienceStoreOrderService.Services
                 var order = _orderRepository.GetEntityById(orderId);
                 if (order == null)
                 {
-                    tran.Rollback();
+                  
                     return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
                 }
                 //找order.statusId的code、name
                 var currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
                 if (!currentStatusResult.IsSuccess)
                 {
-                    tran.Rollback();
-                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到物流狀態");
+                   
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "找不到訂單狀態");
                 }
                 //找Cancelled對應的id、name
                 var targetStatusResult = _orderStatusService.GetByCode("Cancelled");
                 if (!targetStatusResult.IsSuccess)
                 {
-                    tran.Rollback();
+                    
                     return Result<bool>.Fail(ErrorCodes.SystemError, "找不到取消訂單");
                 }
-                //把code、id丟給ORDER.CS判斷，不是就回錯誤訊息
-                var errorMessage = order.CancelOrder(
-                    targetStatusResult.Data.OrderStatusId, currentStatusResult.Data.OrderStatusCode);
-                if (!string.IsNullOrEmpty(errorMessage))
+                // 先檢查訂單狀態是否可取消
+                if (currentStatusResult.Data.OrderStatusCode != "Processing" &&
+                    currentStatusResult.Data.OrderStatusCode != "ReadyToShip")
                 {
-                    tran.Rollback();
-                    return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
+                   
+                    return Result<bool>.Fail(
+                        ErrorCodes.Conflict,
+                        "此訂單狀態不可取消"
+                    );
                 }
+               
                 //檢查物流狀態
                 var shipment = _shipmentRepository.GetByOrderId(orderId);
 
                 if (shipment == null)
                 {
-                    tran.Rollback();
+                    
                     return Result<bool>.Fail(ErrorCodes.NotFound, "找不到物流資料");
                 }
 
                 if (shipment.ShipmentStatusId != ShipmentStatusIds.Pending &&
                     shipment.ShipmentStatusId != ShipmentStatusIds.ReadyToShip)
                 {
-                    tran.Rollback();
+                    
                     return Result<bool>.Fail(
                         ErrorCodes.Conflict,
                         "商品已寄出，不能取消訂單"
                     );
                 }
-                // 處理付款、退款
+                // 處理付款、退款、取消授權
                 var paymentResult =_paymentService.ReturnOrCancelPayment(orderId,cancelReson);
                 if (!paymentResult.IsSuccess) 
                 {
-                    tran.Rollback();
+                  
                     return paymentResult;
                 }
-                //釋放預留庫存
-                var releaseReault = ReleaseReservedStock(orderId);
-                if (!releaseReault.IsSuccess)
+                var tran = _db.Database.BeginTransaction();
+                try
+                {
+                    // 重新抓一次訂單，避免前面流程後資料狀態有變
+                    order = _orderRepository.GetEntityById(orderId);
+
+                    if (order == null)
+                    {
+                        tran.Rollback();
+                        return Result<bool>.Fail(ErrorCodes.Validation, "找不到訂單");
+                    }
+
+                    currentStatusResult = _orderStatusService.GetById(order.OrderStatusId);
+
+                    if (!currentStatusResult.IsSuccess)
+                    {
+                        tran.Rollback();
+                        return Result<bool>.Fail(ErrorCodes.SystemError, "找不到訂單狀態");
+                    }
+
+                    // 真正改成取消
+                    var errorMessage = order.CancelOrder(
+                        targetStatusResult.Data.OrderStatusId,
+                        currentStatusResult.Data.OrderStatusCode
+                    );
+
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        tran.Rollback();
+                        return Result<bool>.Fail(ErrorCodes.Conflict, errorMessage);
+                    }
+
+                    // 釋放預留庫存
+                    var releaseReault = ReleaseReservedStock(orderId);
+
+                    if (!releaseReault.IsSuccess)
+                    {
+                        tran.Rollback();
+                        return releaseReault;
+                    }
+
+                    order.CancelReason = cancelReson;
+
+                    _orderRepository.SaveChanges();
+
+                    tran.Commit();
+
+                    return Result<bool>.Success(true, "訂單已取消，已釋放預留庫存");
+                }
+                catch (Exception ex)
                 {
                     tran.Rollback();
-                    return releaseReault;
+                    return Result<bool>.Fail(ErrorCodes.SystemError, "取消訂單失敗，請稍後再試");
                 }
-                
-                order.CancelReason = cancelReson;
-                _orderRepository.SaveChanges();
-                tran.Commit();
-                return Result<bool>.Success(true, "訂單已取消，已釋放預留庫存");
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                return Result<bool>.Fail(ErrorCodes.SystemError, "取消訂單失敗，請稍後再試");
-            }
-            finally
-            {
-                tran.Dispose();
-            }  
+                finally
+                {
+                    tran.Dispose();
+                }
+               
         }
         //建立訂單
         public Result<int> PlaceOrder(PlaceOrderDto dto)

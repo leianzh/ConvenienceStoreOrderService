@@ -722,17 +722,30 @@
                         }
 
                     </div>
-
+                    @* 取消授權失敗提示 *@
+                    @if (order.PaymentMethod == "CreditCard"
+                        && order.PaymentStatusCode == "Paid"
+                        && order.IsCaptured == false
+                        && order.AuthCancelStatusCode == "Failed")
+                    {
+                        <div class="text-danger small mb-1">
+                            取消訂單失敗，付款授權尚未取消，請稍後再試。
+                        </div>
+                    }
                     @if (canCancelButton)
                     {
-                    <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#cancelBox_@order.OrderId"
-                            aria-expanded="false"
-                            aria-controls="cancelBox_@order.OrderId">
-                        取消訂單
-                    </button>
+                        <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#cancelBox_@order.OrderId"
+                                aria-expanded="false"
+                                aria-controls="cancelBox_@order.OrderId">
+                            @(order.PaymentMethod == "CreditCard"
+                                 && order.PaymentStatusCode == "Paid"
+                                && order.IsCaptured == false
+                                && order.AuthCancelStatusCode == "Failed"
+                            ? "重新取消訂單" : "取消訂單")
+                        </button>
                     }
 
                     @if (canCancelButton)

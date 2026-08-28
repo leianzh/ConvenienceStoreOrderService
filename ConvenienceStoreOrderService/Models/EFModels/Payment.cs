@@ -259,5 +259,39 @@ namespace ConvenienceStoreOrderService.Models.EFModels
 
             return "";
         }
+        // 取消授權失敗
+        public string MarkAuthorizationCancelFailed(
+            int? amount,
+            string providerTradeNo,
+            string rawResponse,
+            string message)
+        {
+            if (PaymentMethod != PaymentMethodName.CreditCard)
+            {
+                return "只有信用卡付款可以記錄取消授權失敗";
+            }
+
+            if (PaymentStatusId != PaymentStatusIds.Paid)
+            {
+                return "只有已授權成功的信用卡付款可以取消授權";
+            }
+
+            if (IsCaptured)
+            {
+                return "此訂單已請款，不能取消授權，請改走退款";
+            }
+
+            AuthCancelRequestedAt = DateTime.Now;
+            AuthCancelledAt = null;
+            AuthCancelStatusCode = "Failed";
+            AuthCancelAmount = amount;
+            AuthCancelProviderTradeNo = providerTradeNo;
+            AuthCancelMessage = message;
+            AuthCancelRawResponse = rawResponse;
+
+            UpdatedAt = DateTime.Now;
+
+            return "";
+        }
     }
 }

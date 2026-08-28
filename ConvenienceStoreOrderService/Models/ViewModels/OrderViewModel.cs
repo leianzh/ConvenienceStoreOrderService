@@ -45,5 +45,9 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
 
         public DateTime? PaymentDueAt { get; set; }
 
+        public bool? IsCaptured { get; set; }
+
+        public string AuthCancelStatusCode { get; set; }
+
     }
 }

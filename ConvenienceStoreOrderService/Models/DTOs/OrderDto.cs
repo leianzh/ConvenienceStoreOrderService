@@ -50,5 +50,8 @@ namespace ConvenienceStoreOrderService.Models.DTOs
 
         public DateTime? PaymentDueAt { get; set; }
 
+        public bool? IsCaptured { get; set; }
+        public string AuthCancelStatusCode { get; set; }
+
     }
 }
