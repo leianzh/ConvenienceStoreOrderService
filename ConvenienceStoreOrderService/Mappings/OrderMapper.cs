@@ -13,7 +13,7 @@ namespace ConvenienceStoreOrderService.Mappings
     {
         public static  OrderDto ToDto(Order entity, string orderStatusName, string shippingCode,
     int? shipmentStatusId,string trackingNo, int? paymentStatusId,
-    string paymentStatusName,string paymentMethod,string refundStatusName,string refundStatusCode, DateTime? refundRequestedAt, DateTime? refundedAt,string refundReason,string orderStatusCode,string paymentStatusCode,string recipientName,string buyerUserName, string userPhone,string userEmail,bool isCaptured,string authCancelStatusCode)
+    string paymentStatusName,string paymentMethod,string refundStatusName,string refundStatusCode, DateTime? refundRequestedAt, DateTime? refundedAt,string refundReason,string orderStatusCode,string paymentStatusCode,string recipientName,string buyerUserName, string userPhone,string userEmail,bool isCaptured,string authCancelStatusCode,string authCancelMessage)
         {
             return new OrderDto
             {
@@ -54,6 +54,7 @@ namespace ConvenienceStoreOrderService.Mappings
                 PaymentDueAt=entity.PaymentDueAt,
                 IsCaptured=isCaptured,
                 AuthCancelStatusCode =authCancelStatusCode,
+                AuthCancelMessage = authCancelMessage,
             };
         }
         public static OrderViewModel ToVM(OrderDto dto)
@@ -89,7 +90,8 @@ namespace ConvenienceStoreOrderService.Mappings
                 UserEmail=dto.UserEmail,
                 PaymentDueAt=dto.PaymentDueAt,
                 IsCaptured= dto.IsCaptured,
-                AuthCancelStatusCode=dto.AuthCancelStatusCode
+                AuthCancelStatusCode=dto.AuthCancelStatusCode,
+                AuthCancelMessage=dto.AuthCancelMessage,
             };
         }
     }

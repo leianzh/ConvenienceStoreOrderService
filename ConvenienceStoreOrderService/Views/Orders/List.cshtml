@@ -345,6 +345,22 @@
                 && order.PaymentStatusCode != "Cancelled"
                 && order.RefundStatusCode != "Refunded";
 
+                /*取消授權失敗*/
+                var isAuthCancelFailed =
+                order.PaymentMethod == "CreditCard"
+                 && order.PaymentStatusCode == "Paid"
+                && order.IsCaptured == false
+                && order.AuthCancelStatusCode == "Failed";
+                /*重新取消訂單按鈕隱藏*/
+                var isAuthCancelCannotRetry =
+                isAuthCancelFailed
+                 && !string.IsNullOrWhiteSpace(order.AuthCancelMessage)
+                 && (
+                  order.AuthCancelMessage.Contains("TRA10048")
+                     || order.AuthCancelMessage.Contains("請款狀態")
+                  || order.AuthCancelMessage.Contains("不可放棄授權"));
+                var canShowCancelButton =
+                canCancelButton && !isAuthCancelCannotRetry;
                 /*信用卡重新付款*/
                 var canRetryCreditCardPayment =
                 order.PaymentMethod == "CreditCard"
@@ -723,16 +739,20 @@
 
                     </div>
                     @* 取消授權失敗提示 *@
-                    @if (order.PaymentMethod == "CreditCard"
-                        && order.PaymentStatusCode == "Paid"
-                        && order.IsCaptured == false
-                        && order.AuthCancelStatusCode == "Failed")
+                    @if (isAuthCancelCannotRetry)
+                    {
+                        <div class="text-danger small mb-1">
+                            取消訂單失敗，付款交易狀態已不允許取消授權，請管理者查詢藍新交易狀態。
+                        </div>
+                    }
+                    else if (isAuthCancelFailed)
                     {
                         <div class="text-danger small mb-1">
                             取消訂單失敗，付款授權尚未取消，請稍後再試。
                         </div>
                     }
-                    @if (canCancelButton)
+                    
+                    @if (canShowCancelButton)
                     {
                         <button class="btn btn-outline-danger btn-sm mb-1 small-action-btn"
                                 type="button"
@@ -740,15 +760,11 @@
                                 data-bs-target="#cancelBox_@order.OrderId"
                                 aria-expanded="false"
                                 aria-controls="cancelBox_@order.OrderId">
-                            @(order.PaymentMethod == "CreditCard"
-                                 && order.PaymentStatusCode == "Paid"
-                                && order.IsCaptured == false
-                                && order.AuthCancelStatusCode == "Failed"
-                            ? "重新取消訂單" : "取消訂單")
+                            @(isAuthCancelFailed ? "重新取消訂單" : "取消訂單")
                         </button>
                     }
 
-                    @if (canCancelButton)
+                    @if (canShowCancelButton)
                     {
                         <div class="collapse mt-2" id="cancelBox_@order.OrderId">
                             @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))

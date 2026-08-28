@@ -259,8 +259,6 @@ namespace ConvenienceStoreOrderService.Services
         public Result<bool> CancelOrder (int orderId,string cancelReson) 
         {
           
-            
-            
                 //取消原因必填
                 if (string.IsNullOrWhiteSpace(cancelReson))
                 {

@@ -49,5 +49,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
 
         public string AuthCancelStatusCode { get; set; }
 
+        public string AuthCancelMessage { get; set; }
+
     }
 }
