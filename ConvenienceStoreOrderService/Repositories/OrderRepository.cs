@@ -54,7 +54,8 @@ namespace ConvenienceStoreOrderService.Repositories
                     py.IsCaptured,
                     py.AuthCancelStatusCode,
                     py.AuthCancelMessage,
-                    
+                    py.CaptureStatusCode,
+
                 };
 
             var result =
@@ -100,7 +101,8 @@ namespace ConvenienceStoreOrderService.Repositories
             o.PaymentDueAt,
             payment.IsCaptured,
             payment.AuthCancelStatusCode,
-            payment.AuthCancelMessage
+            payment.AuthCancelMessage,
+            payment.CaptureStatusCode
 
 
         };
@@ -202,7 +204,8 @@ namespace ConvenienceStoreOrderService.Repositories
                     o.UserEmail,
                     o.IsCaptured,
                     o.AuthCancelStatusCode,
-                    o.AuthCancelMessage
+                    o.AuthCancelMessage,
+                    o.CaptureStatusCode
                     ))
                 .ToList();
 

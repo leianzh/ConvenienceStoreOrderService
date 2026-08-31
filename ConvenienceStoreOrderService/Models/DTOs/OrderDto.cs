@@ -54,6 +54,6 @@ namespace ConvenienceStoreOrderService.Models.DTOs
         public string AuthCancelStatusCode { get; set; }
 
         public string AuthCancelMessage { get; set; }
-
+        public string CaptureStatusCode { get; set; }
     }
 }

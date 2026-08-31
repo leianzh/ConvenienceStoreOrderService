@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using Microsoft.Ajax.Utilities;
+using System.Web.Services.Description;
 
 namespace ConvenienceStoreOrderService.Services
 {
@@ -228,14 +229,14 @@ namespace ConvenienceStoreOrderService.Services
                     payment.CaptureRequestedAt = DateTime.Now;
                     payment.CaptureStatusCode = "Failed";
                     payment.CaptureMessage = closeResult.Message;
-                    payment.CaptureRawResponse = null;
+                    payment.CaptureRawResponse = closeResult.Data != null ? closeResult.Data.RawJson : closeResult.Message;
                     payment.UpdatedAt = DateTime.Now;
 
                     _paymentRepository.SaveChanges();
 
                     return Result<bool>.Fail(
                         closeResult.ErrorCode,
-                        "信用卡請款失敗：" + closeResult.Message
+                        "信用卡請款失敗：請重新操作或聯絡管理員"
                     );
                 }
                 var errorMessage = payment.MarkCaptured(
@@ -1179,10 +1180,22 @@ namespace ConvenienceStoreOrderService.Services
 
                     if (!httpResponse.IsSuccessStatusCode)
                     {
-                        return Result<NewebPayCloseResultViewModel>.Fail(
-                            ErrorCodes.SystemError,
-                            "藍新單筆交易查詢 HTTP 失敗：" + responseJson
-                        );
+                        var failVm = new NewebPayCloseResultViewModel
+                        {
+                            RawJson = responseJson,
+                            Status = "HTTP_ERROR",
+                            Message = "藍新請款 HTTP 失敗"
+                        };
+
+                        return new Result<NewebPayCloseResultViewModel>
+                        {
+                           
+                            IsSuccess = false,
+                             Data = failVm,
+                            ErrorCode = ErrorCodes.SystemError,
+                             Message = "藍新請款 HTTP 失敗：" + responseJson
+                            };
+                        
                     }
                     
                 }
@@ -1193,10 +1206,20 @@ namespace ConvenienceStoreOrderService.Services
             }
             catch (Exception ex) 
             {
-                return Result<NewebPayCloseResultViewModel>.Fail(
-                    ErrorCodes.SystemError,
-                    "呼叫藍新請退款 API 失敗：" + ex.Message
-                );
+                var failVm = new NewebPayCloseResultViewModel
+                {
+                    RawJson = ex.ToString(),
+                    Status = "EXCEPTION",
+                    Message = ex.Message
+                };
+
+                return new Result<NewebPayCloseResultViewModel>
+                {
+                    IsSuccess = false,
+                    Data = failVm,
+                    ErrorCode = ErrorCodes.SystemError,
+                    Message = "呼叫藍新請款 API 失敗：" + ex.Message
+                };
             }
 
         }
@@ -1221,10 +1244,20 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (status != "SUCCESS")
                 {
-                    return Result<NewebPayCloseResultViewModel>.Fail(
-                        ErrorCodes.Validation,
-                        "藍新請退款失敗：" + message
-                    );
+                    var failVm = new NewebPayCloseResultViewModel
+                    {
+                        RawJson = responseJson,
+                        Status = status,
+                        Message = message
+                    };
+
+                    return new Result<NewebPayCloseResultViewModel>
+                    {
+                        IsSuccess = false,
+                        Data = failVm,
+                        ErrorCode = ErrorCodes.Validation,
+                        Message = "藍新請款失敗：" + message
+                    };
                 }
 
                 var result = json["Result"] as JObject;
