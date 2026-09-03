@@ -18,7 +18,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> CheckCanShip(int orderId);
         Result<bool> MarkPaid(int orderId);
         Result<bool> MarkCodPaidWhenPickedUp(int orderId);
-        Result<bool> RequestRefund(int orderId, string reason);
+        //Result<bool> RequestRefund(int orderId, string reason);
         Result<bool> MarkRefunded(int orderId, string refundProviderTradeNo, string rawResponse);
         Result<NewebPayMpgRequestDto> CreateCreditCardOnceMpgRequest(int orderId);
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);

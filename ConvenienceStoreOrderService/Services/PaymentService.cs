@@ -99,7 +99,7 @@ namespace ConvenienceStoreOrderService.Services
 
                 return Result<bool>.Success(true, "信用卡取消授權成功");
             }
-            //Paid已付款，付款狀態維持 Paid，改成退款申請中，信用卡需已請款
+            //Paid已付款，付款狀態維持 Paid，改成退款申請中，信用卡需已請款，cod直接建立退款申請
             if (payment.PaymentStatusId == PaymentStatusIds.Paid)
             {
                 var errorMessage = payment.RequestRefund(
@@ -254,46 +254,7 @@ namespace ConvenienceStoreOrderService.Services
                 return Result<bool>.Fail(ErrorCodes.Validation, ex.Message);
             }
         }
-        //申請退款
-        public Result<bool> RequestRefund(int orderId, string reason)
-        {
-            var payment = _paymentRepository.GetOrderId(orderId);
-
-            if (payment == null)
-            {
-                return Result<bool>.Fail(ErrorCodes.NotFound, "找不到付款資料");
-            }
-
-            var paymentStatus = _paymentStatusService.GetById(payment.PaymentStatusId);
-
-            if (!paymentStatus.IsSuccess)
-            {
-                return Result<bool>.Fail(ErrorCodes.SystemError, "查詢付款狀態失敗");
-            }
-
-            if (paymentStatus.Data.PaymentStatusCode != "Paid")
-            {
-                return Result<bool>.Fail(ErrorCodes.Validation, "只有已付款訂單才能申請退款");
-            }
-
-            var refundStatus = _refundStatusRepository.GetByCode("Requested");
-
-            if (refundStatus == null)
-            {
-                return Result<bool>.Fail(ErrorCodes.SystemError, "找不到退款狀態：Requested");
-            }
-
-            payment.RequestRefund(
-                refundStatus.RefundStatusId,
-                payment.Amount,
-                reason
-            );
-
-            _paymentRepository.SaveChanges();
-
-            return Result<bool>.Success(true);
-        }
-        //根據付款方式決定怎麼退款
+        //信用卡退款
         public Result<bool> ProcessRefund(int orderId)
         {
             var payment =_paymentRepository.GetOrderId(orderId);
