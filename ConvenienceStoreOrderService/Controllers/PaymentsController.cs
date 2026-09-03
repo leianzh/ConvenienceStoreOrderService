@@ -127,5 +127,21 @@ namespace ConvenienceStoreOrderService.Controllers
             
             return View(result.Data);
         }
+        //退款失敗重試
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RetryRefund(int orderId)
+        {
+            var result = _paymentService.ProcessRefund(orderId);
+
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("List", "Orders");
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("List", "Orders");
+        }
     }
 }

@@ -51,6 +51,7 @@ namespace ConvenienceStoreOrderService.Models.ViewModels
 
         public string AuthCancelMessage { get; set; }
         public string CaptureStatusCode { get; set; }
+        public string RefundApiStatusCode { get; set; }
 
     }
 }

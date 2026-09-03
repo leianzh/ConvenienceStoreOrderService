@@ -291,10 +291,30 @@ namespace ConvenienceStoreOrderService.Services
 
                 if (!closeResult.IsSuccess)
                 {
+                    // 退款狀態維持 Requested
+                    payment.RefundStatusId = RefundStatusIds.Requested;
+                    // 記錄藍新退款 API 失敗
+                    payment.RefundApiStatusCode = "Failed";
+                    payment.RefundApiMessage = closeResult.Message;
+                    payment.RefundRawResponse =
+                        closeResult.Data != null
+                            ? closeResult.Data.RawJson
+                            : closeResult.Message;
+
+                    payment.UpdatedAt = DateTime.Now;
+
+                    _paymentRepository.SaveChanges();
+
                     return Result<bool>.Fail(
                         closeResult.ErrorCode,
-                        closeResult.Message);
+                        "信用卡退款失敗，請稍後再試或聯絡管理者"
+                    );
                 }
+                // 藍新退款 API 成功
+                payment.RefundApiStatusCode = "SUCCESS";
+                payment.RefundApiMessage = closeResult.Data.Message;
+
+                _paymentRepository.SaveChanges();
                 //退款申請成功後，立即查一次藍新交易狀態
                 var queryResult =QueryTradeInfo(orderId);
                 if (!queryResult.IsSuccess)
@@ -1035,6 +1055,22 @@ namespace ConvenienceStoreOrderService.Services
         public Result<NewebPayCloseResultViewModel> CloseTrade(
             int orderId,int closeType)
         {
+            var actionName = "";
+            if (closeType == 1)
+            {
+                actionName = "請款";
+            }
+            else if (closeType == 2)
+            {
+                actionName = "退款";
+            }
+            else
+            {
+                return Result<NewebPayCloseResultViewModel>.Fail(
+                    ErrorCodes.Validation,
+                    "CloseType 錯誤，只能是 1 請款或 2 退款"
+                );
+            }
             try
             {
                 var order = _orderRepository.GetEntityById(orderId);
@@ -1145,7 +1181,7 @@ namespace ConvenienceStoreOrderService.Services
                         {
                             RawJson = responseJson,
                             Status = "HTTP_ERROR",
-                            Message = "藍新請款 HTTP 失敗"
+                            Message = $"藍新{actionName} HTTP 失敗"
                         };
 
                         return new Result<NewebPayCloseResultViewModel>
@@ -1154,8 +1190,8 @@ namespace ConvenienceStoreOrderService.Services
                             IsSuccess = false,
                              Data = failVm,
                             ErrorCode = ErrorCodes.SystemError,
-                             Message = "藍新請款 HTTP 失敗：" + responseJson
-                            };
+                             Message = $"藍新{actionName} HTTP 失敗：" + responseJson
+                        };
                         
                     }
                     
@@ -1163,7 +1199,7 @@ namespace ConvenienceStoreOrderService.Services
                 // 丟給接收 Service 處理 JSON
                 return HandleCloseResponse(
                     responseJson, merchantOrderNo,
-                    amount);
+                    amount, actionName);
             }
             catch (Exception ex) 
             {
@@ -1179,14 +1215,14 @@ namespace ConvenienceStoreOrderService.Services
                     IsSuccess = false,
                     Data = failVm,
                     ErrorCode = ErrorCodes.SystemError,
-                    Message = "呼叫藍新請款 API 失敗：" + ex.Message
+                    Message = $"呼叫藍新{actionName} API 失敗：" + ex.Message
                 };
             }
 
         }
         //處理藍新請退款回傳的 JSON
         public Result<NewebPayCloseResultViewModel> HandleCloseResponse( string responseJson,string expectedMerchantOrderNo,
-            int expectedAmount)
+            int expectedAmount, string actionName)
         {
             try 
             {
@@ -1217,7 +1253,7 @@ namespace ConvenienceStoreOrderService.Services
                         IsSuccess = false,
                         Data = failVm,
                         ErrorCode = ErrorCodes.Validation,
-                        Message = "藍新請款失敗：" + message
+                        Message = $"藍新{actionName}失敗：" + message
                     };
                 }
 
@@ -1227,7 +1263,7 @@ namespace ConvenienceStoreOrderService.Services
                 {
                     return Result<NewebPayCloseResultViewModel>.Fail(
                         ErrorCodes.Validation,
-                        "藍新請退款 Result 為空"
+                        $"藍新{actionName} Result 為空"
                     );
                 }
 
@@ -1276,14 +1312,14 @@ namespace ConvenienceStoreOrderService.Services
 
                 return Result<NewebPayCloseResultViewModel>.Success(
                     vm,
-                    "藍新請退款成功"
+                    $"藍新{actionName}成功"
                 );
             }
             catch (Exception ex) 
             {
                 return Result<NewebPayCloseResultViewModel>.Fail(
                     ErrorCodes.SystemError,
-                    "處理藍新請退款回傳失敗：" + ex.Message
+                    $"處理藍新{actionName}回傳失敗：" + ex.Message
                 );
             }
         }

@@ -18,7 +18,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
         Result<bool> CheckCanShip(int orderId);
         Result<bool> MarkPaid(int orderId);
         Result<bool> MarkCodPaidWhenPickedUp(int orderId);
-        //Result<bool> RequestRefund(int orderId, string reason);
+
         Result<bool> MarkRefunded(int orderId, string refundProviderTradeNo, string rawResponse);
         Result<NewebPayMpgRequestDto> CreateCreditCardOnceMpgRequest(int orderId);
         Result<bool> HandleNewebPayNotify(string tradeInfo, string tradeSha);
@@ -33,7 +33,7 @@ namespace ConvenienceStoreOrderService.Services.Interfaces
            int expectedAmount);
         Result<NewebPayCloseResultViewModel> CloseTrade(int orderId, int closeType);
         Result<NewebPayCloseResultViewModel> HandleCloseResponse(string responseJson, string expectedMerchantOrderNo,
-            int expectedAmount);
+            int expectedAmount, string actionName);
         Result<bool> ProcessRefund(int orderId);
         Result<bool> CompleteCODRefund(int orderId);
         Result<NewebPayCancelAuthorizationResultViewModel> CancelCreditCardAuthorization(int orderId);

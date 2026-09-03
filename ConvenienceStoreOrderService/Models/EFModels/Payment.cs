@@ -45,6 +45,9 @@ namespace ConvenienceStoreOrderService.Models.EFModels
         public string AuthCancelProviderTradeNo { get; set; }
         public string AuthCancelMessage { get; set; }
         public string AuthCancelRawResponse { get; set; }
+        public string RefundApiStatusCode { get; set; }
+        public string RefundApiMessage { get; set; }
+
         //建立訂單一開始就是Pending
         public void InitPending(int pendingStatusId)
         {
